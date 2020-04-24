@@ -5,6 +5,9 @@ output:
     toc: yes
     df_print: paged
     keep_md: true
+    toc_float: yes
+    theme: cerulean
+    highlight: tango
   github_document: default
   html_notebook:
     toc: yes
