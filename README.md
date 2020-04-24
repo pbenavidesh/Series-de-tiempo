@@ -15,3 +15,11 @@ Material bibliográfico adicional que puede serles útil es el siguiente:
 * Tsay, R. S. (2014). *An introduction to analysis of financial data with R*. John Wiley & Sons.
 
 * Shumway, R. H., & Stoffer, D. S. (2017). *Time series analysis and its applications: with R examples*. Springer.
+
+Otras fuentes de apoyo que pueden serles útiles para el análisis de econometría y series de tiempo:
+
+*	Gujarati, D., & Porter, D. (2010). Econometría (quinta edición)
+
+*	Lütkepohl, H., & Krätzig, M. (Eds.). (2004). Applied time series econometrics. Cambridge university press.
+
+*	Greene, W. H. (2003). Econometric analysis. Pearson Education India.
