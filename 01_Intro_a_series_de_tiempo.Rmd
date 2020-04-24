@@ -3,6 +3,7 @@ title: "Introduccion a series de tiempo y pronosticos"
 output:
   github_document:
     toc: yes
+    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes

@@ -205,7 +205,7 @@ autoplot(melsyd[,"Economy.Class"])+
   ylab("Thousands")
 ```
 
-![](01_Intro_a_series_de_tiempo_files/figure-gfm/passengers%20plot-1.png)<!-- -->
+![](01_Intro_a_series_de_tiempo_files/figure-gfm/passengers%20plot-1.jpeg)<!-- -->
 
 La funcion `autoplot` es de la paqueteria `forecast` y genera, de manera
 automatica, una grafica con `ggplot2`, de acuerdo a los datos
@@ -259,7 +259,7 @@ autoplot(a10) +
   xlab("Year")
 ```
 
-![](01_Intro_a_series_de_tiempo_files/figure-gfm/plot%20a10-1.png)<!-- -->
+![](01_Intro_a_series_de_tiempo_files/figure-gfm/plot%20a10-1.jpeg)<!-- -->
 
 En esta grafica se muestra claramente una tendencia incremental. Tambien
 podemos ver un patron estacional bien marcado, que aumenta conforme el
@@ -304,4 +304,4 @@ ggseasonplot(a10, year.labels=TRUE, year.labels.left=TRUE) +
   ggtitle("Seasonal plot: antidiabetic drug sales") 
 ```
 
-![](01_Intro_a_series_de_tiempo_files/figure-gfm/season%20plot-1.png)<!-- -->
+![](01_Intro_a_series_de_tiempo_files/figure-gfm/season%20plot-1.jpeg)<!-- -->
