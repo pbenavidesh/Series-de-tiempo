@@ -1,14 +1,14 @@
 ---
 title: "Repaso parcial 2"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: cerulean
     highlight: tango
+  github_document:
+    toc: yes
+    dev: jpeg
 ---
 
 **NOTA:** El pseudo-código que se presenta en este documento no genera tal cual las gráficas o tablas resultantes. Los campos que se muestran rodeados con < > son *"placeholders"* para que sepan cuáles son las variables o argumentos que deben modificar. Por ejemplo, el primer pseudo-código mostrado
