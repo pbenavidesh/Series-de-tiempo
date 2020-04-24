@@ -1,0 +1,430 @@
+---
+title: "Suavización exponencial"
+output:
+  github_document:
+    toc: yes
+    dev: jpeg
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    theme: cerulean
+    highlight: tango
+date: '2020-04-13'
+---
+
+```{r pkgs, message=FALSE}
+library(easypackages)
+libraries("tidyverse","fpp3", "patchwork")
+```
+
+
+Los métodos de suavización exponencial son relativamente sencillos, pero son la base de algunos de los modelos más exitosos de pronóstico.
+
+Los pronósticos obtenidos a través de suavización exponencial son **promedios ponderados** de las observaciones pasadas, donde los pesos caen exponencialmente. Así, la observación más reciente tiene el mayor peso, seguida de la segunda, tercera, etc.
+
+## Suavización exponencial simple
+
+Es el método de suavización exponencial más básico y se le abrevia (SES), por su nombre en inglés, *Simple exponential smoothing*. Este método es útil para hacer pronósticos de series que no tienen patrones claros de **tendencia o estacionalidad**. Un ejemplo así pudiera ser las exportaciones de Algeria, dentro de `global_economy`:
+
+```{r alg exports}
+algeria_economy <- global_economy %>%
+  filter(Country == "Algeria")
+algeria_economy %>%
+  autoplot(Exports) +
+  ylab("Exports (% of GDP)") + xlab("Year")
+```
+
+En el periodo final pudiera apreciarse una tendencia a la baja, pero lo omitiremos por lo pronto.
+
+Si utilizáramos el método Naïve para pronosticar la serie, tomaríamos el último valor de los datos de entrenamiento y ese sería el pronóstico para todo el horizonte. Así, podríamos decir que la última observación en el método Naïve es la más importante. De hecho, podríamos decir que el Naïve es una media ponderada, donde la observación más reciente tiene un peso de 1 (100%).
+
+El método de la media podría expresarse como una media ponderada, donde todas observaciones tienen los mismos pesos.
+
+Entonces, tenemos los dos extremos: uno donde solo la última observación importa (Naïve), y otro donde todas son igual de importantes (Media). Un punto intermedio entre estos extremos sería la suavización exponencial simple:
+
+$$\hat{y}_{T+1 | T}=\alpha y_{T}+\alpha(1-\alpha) y_{T-1}+\alpha(1-\alpha)^{2} y_{T-2}+\cdots$$
+
+donde $0\leq \alpha \leq1$ es el parámetro de suavización. Varios ejemplos de la suavización, con distintos valores de $\alpha$ se muestran a continuación:
+
+$$\begin{array}{lllll}
+\hline & \alpha=0.2 & \alpha=0.4 & \alpha=0.6 & \alpha=0.8 \\
+\hline y_{T} & 0.2000 & 0.4000 & 0.6000 & 0.8000 \\
+\hline y_{T-1} & 0.1600 & 0.2400 & 0.2400 & 0.1600 \\
+\hline y_{T-2} & 0.1280 & 0.1440 & 0.0960 & 0.0320 \\
+\hline y_{T-3} & 0.1024 & 0.0864 & 0.0384 & 0.0064 \\
+\hline y_{T-4} & 0.0819 & 0.0518 & 0.0154 & 0.0013 \\
+\hline y_{T-5} & 0.0655 & 0.0311 & 0.0061 & 0.0003
+\end{array}$$
+
+Entre más bajo sea el valor de $\alpha$, más memoria tendrá la serie y vice versa.
+
+Los pronósticos de suavización exponencial simple son **planos**. Esto quiere decir que el pronóstico toma el mismo valor para todo el horizonte (como el Naïve y Media, p. ej.).
+
+
+En **R**, la función para este modelo es `ETS()`. La optimización para encontrar el valor de $\alpha$, se define en `opt_crit = ` (criterio de optimización) y puede ser a través del *log-likelihood*, `lik`; el *error medio cuadrático*, `mse`; la *desviación estándar de los residuos*, `sigma`; o el *error medio absoluto*, `mae`. Definimos que queremos que el error se calcule de manera aditiva agregando `error("A")` en la ecuación del modelo (para multiplicativa habría que sustituir `"A"` por `"M"`). 
+
+```{r SES}
+# Estimar los parámetros
+fit <- algeria_economy %>%
+  model(ETS(Exports ~ error("A"), opt_crit = "mse"))
+
+fc <- fit %>%
+  forecast(h = 5)
+
+fc %>%
+  autoplot(algeria_economy) +
+  geom_line(aes(y = .fitted, colour = "Fitted"), data = augment(fit)) +
+  ylab("Exports (% of GDP)") + xlab("Year")
+```
+
+## Métodos con tendencia
+
+### El modelo de tendencia lineal de Holt
+
+Con estos modelos ya se permite que el pronóstico tenga una tendencia. Por lo tanto, aparte del $\alpha$ (término de suavización), tenemos ahora una $\beta^*$, que es el parámetro de suavización de la tendencia, $0 \leq \beta^* \leq 1$. En **R**, habría que simplemente agregar el término `trend("A")` al modelo (para tendencia aditiva).
+
+Haremos un ejemplo con la población de Australia:
+
+```{r trend ets}
+aus_economy <- global_economy %>%
+  filter(Code == "AUS") %>%
+  mutate(Pop = Population / 1e6)
+
+fit <- aus_economy %>%
+  model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
+
+fc <- fit %>% forecast(h = 10)
+
+```
+
+### Métodos de tendencia amortiguada (damped trend)
+
+El método de Holt asume que la tendencia será constante (creciente o decreciente) a lo largo del tiempo. En muchas ocasiones, esto puede producir sobre (sub) estimaciones. Así, podemos generar modelos agregando un parámetro de amortiguamiento para esa tendencia, $0<\phi<1$. Si $\phi = 1$ sería igual al método de Holt.
+
+En la práctica, el valor de $\phi$ suele ser mayor a 0.8, ya que el amortiguamiento puede ser muy fuerte para valores más bajos. Así, se suele restringir el valor a $0.8 \leq \phi \leq 0.98$.
+
+Comparemos los dos métodos:
+
+```{r holt y damped holt population}
+aus_economy %>%
+  model(
+    `Holt` = ETS(Pop ~ error("A") + trend("A")),
+    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad", phi = 0.9))
+  ) %>%
+  forecast(h = 15) %>%
+  autoplot(aus_economy, level = NULL) +
+  ggtitle("Forecasts from Holt's method") + xlab("Year") +
+  ylab("Population of Australia (millions)") +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+Un ejemplo con el uso de internet:
+
+```{r seleccion modelos www}
+www_usage <- as_tsibble(WWWusage)
+www_usage %>% autoplot(value) +
+  xlab("Minute") + ylab("Number of users")
+
+www_usage %>%
+  stretch_tsibble(.init = 10) %>%
+  model(
+    SES = ETS(value ~ error("A") + trend("N") + season("N")),
+    Holt = ETS(value ~ error("A") + trend("A") + season("N")),
+    Damped = ETS(value ~ error("A") + trend("Ad") + season("N"))
+  ) %>%
+  forecast(h = 1) %>%
+  accuracy(www_usage)
+```
+
+El método de Holt amortiguado parece ser el mejor con base en el RMSE, MAE, o MAPE, por lo que lo utizaremos para el pronóstico.
+
+```{r damped parameters www}
+fit <- www_usage %>%
+  model(Damped = ETS(value ~ error("A") + trend("Ad") + season("N")))
+# Los parámetros estimados:
+tidy(fit)
+```
+
+```{r damped fcst}
+fit %>%
+  forecast(h = 10) %>%
+  autoplot(www_usage) +
+  xlab("Minute") + ylab("Number of users")
+```
+
+## Métodos con estacionalidad
+
+### Modelo de Holt-Winters
+ 
+Para estos métodos se agrega un nuevo parámetro, $\gamma$ y usamos $m$ para definir el periodo estacional. Hay dos variantes de este método: el aditivo y el multiplicativo. Se prefiere el aditivo cuando el componente estacional se mantiene constante en el tiempo y multiplicativo cuando va variando con el nivel de la serie.
+
+Para agregar el parámetro estacional, basta con incluir `season()` dentro del modelo y especificar `"A"` y `"M"` para aditivo o multiplicativo, respectivamente.
+ 
+```{r vacaciones season}
+aus_holidays <- tourism %>%
+  filter(Purpose == "Holiday") %>%
+  summarise(Trips = sum(Trips))
+
+fit <- aus_holidays %>%
+  model(
+    additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
+    multiplicative = ETS(Trips ~ error("M") + trend("A") + season("M"))
+  )
+
+fc <- fit %>% forecast(h = "3 years")
+
+fc %>%
+  autoplot(aus_holidays, level = NULL) + xlab("Year") +
+  ylab("Overnight trips (millions)") +
+  scale_color_brewer(type = "qual", palette = "Dark2")
+```
+ 
+### Modelo de Holt-Winters amortiguado
+
+Se puede amortiguar cualquiera de las dos variantes del modelo Holt-Winters.
+
+Un método que suele obtener pronósticos robustos para datos estacionales es el método Holt-Winters con tendencia amortiguada y estacionalidad multiplicativa:
+
+```{r Holt-Winters damped multiplicative, eval=FALSE}
+ETS(y ~ error("M") + trend("Ad") + season("M"))
+```
+
+se puede utilizar el método Holt-Winters con datos diarios, donde el periodo estacional es `m = 7`. probemos con los datos del tráfico de peatones en la estación de trenes de Melbourne en julio de 2016:
+
+```{r HW damped multiplicative - pedestrian}
+sth_cross_ped <- pedestrian %>%
+  filter(Sensor == "Southern Cross Station", yearmonth(Date) == yearmonth("2016 July")) %>%
+  index_by(Date) %>%
+  summarise(Count = sum(Count))
+
+sth_cross_ped %>%
+  model(hw = ETS(Count ~ error("M") + trend("Ad") + season("M"))) %>%
+  forecast(h = "2 weeks") %>%
+  autoplot(sth_cross_ped)
+```
+
+## Variedad de métodos de suavización exponencial
+
+Podemos resumir los métodos de suavización exponencial en la siguiente tabla:
+
+$$\begin{array}{|llll|}
+\hline \text { Trend Component } & \text { Seasonal Component } &  & \\
+\hline & \mathrm{N} \text { (None) } & \mathrm{A} \text { (Additive) } & \mathrm{M} \text {(Multiplicative)} \\
+\hline \mathrm{N} \text { (None) } & (\mathrm{N}, \mathrm{N}) & (\mathrm{N}, \mathrm{A}) & (\mathrm{N}, \mathrm{M}) \\
+\mathrm{A} \text { (Additive) } & (\mathrm{A}, \mathrm{N}) & (\mathrm{A}, \mathrm{A}) & (\mathrm{A}, \mathrm{M}) \\
+\mathrm{A}_{d} \text { (Additive damped) } & \left(\mathrm{A}_{d}, \mathrm{N}\right) & \left(\mathrm{A}_{d}, \mathrm{A}\right) & \left(\mathrm{A}_{d}, \mathrm{M}\right) \\
+\hline
+\end{array}$$
+
+
+Algunas combinaciones que tienen un nombre específico son:
+
+$$\begin{array}{ll}
+\hline \text { Abreviación } & \text { Método } \\
+\hline(\mathrm{N}, \mathrm{N}) & \text { Simple exponential smoothing } \\
+\hline(\mathrm{A}, \mathrm{N}) & \text { Holt's linear method } \\
+\hline\left(\mathrm{A}_{d}, \mathrm{N}\right) & \text { Additive damped trend method } \\
+\hline(\mathrm{A}, \mathrm{A}) & \text { Additive Holt-Winters' method } \\
+\hline(\mathrm{A}, \mathrm{M}) & \text { Multiplicative Holt-Winters' method } \\
+\hline\left(\mathrm{A}_{d}, \mathrm{M}\right) & \text { Holt-Winters' damped method }
+\end{array}$$
+
+## Suavización exponencial vs. métodos de referencia
+
+Utilizaremos algunos de los ejemplos vistos anteriormente para comparar el desempeño de los pronósticos vs. el modelo de suavización exponencial.
+
+### Producción de cerveza australiana
+
+Ya habíamos visto que, de los métodos de referencia, el mejor modelo era el Naïve estacional:
+
+
+
+```{r beer fcst - benchmark}
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
+beer_train <- recent_production %>% filter(year(Quarter) <= 2007)
+
+beer_fit <- beer_train %>%
+  model(
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  )
+
+beer_fc <- beer_fit %>%
+  forecast(h = 10)
+
+beer_fc %>%
+  autoplot(filter(aus_production, year(Quarter) >= 1992), level = NULL) +
+  xlab("Year") + ylab("Megalitres") +
+  ggtitle("Forecasts for quarterly beer production") +
+  guides(colour=guide_legend(title="Forecast"))
+
+accuracy(beer_fc, recent_production)
+```
+
+Compararemos entonces el Seasonal Naïve con el modelo Holt-Winters amortiguado:
+
+```{r beer fcst - holt winters v snaive}
+# Entrenamiento de los modelos
+beer_fit <- beer_train %>%
+  model(
+    `Seasonal naïve` = SNAIVE(Beer),
+    `Damped Holt Winters` = ETS(Beer ~ error("M") + trend("Ad") + 
+                           season("M")),
+    `ETS sin tendencia y aditivo` = ETS(Beer ~ error("A") + trend("N") + season("A"))
+  )
+
+# Pronóstico
+beer_fc <- beer_fit %>%
+  forecast(h = 10)
+
+gg_beer <- beer_fc %>%
+  autoplot(filter(aus_production, year(Quarter) >= 1992), level = NULL) +
+  xlab("Year") + ylab("Megalitres") +
+  ggtitle("Forecasts for quarterly beer production") +
+  guides(colour=guide_legend(title="Forecast"))
+
+gg_beer_zoom <-  gg_beer + tidyquant::coord_x_date(xlim = c("2007-10-01","2010-04-01")) + ggtitle("") + 
+  theme(legend.position = "none")
+
+(gg_beer) / (gg_beer_zoom)
+
+# Los errores de pronóstico
+accuracy(beer_fc, recent_production)
+```
+El mejor pronóstico es obtenido con el modelo Holt-Winters amortiguado, ya que tiene el menor error de predicción (en cualquiera de las métricas RMSE, MAE, MAPE).
+
+
+### Empleo en el sector minorista de EEUU
+
+Compararemos nuevamente el modelo Seasonal Naïve contra algunas variantes de la suavización exponencial, utilizando la serie del emplelo en el sector minorista de EEUU, `us_retail_employment`.
+
+```{r SNAIVE v ETS}
+us_retail_employment <- us_employment %>%
+  filter(year(Month) >= 1990, Title == "Retail Trade")
+
+us_retail_train <- us_retail_employment %>% 
+  filter(year(Month) <=2017)
+
+us_retail_fit <- us_retail_train %>%
+  model(
+    `Seasonal naïve` = SNAIVE(Employed),
+    `SE sin tendencia` = ETS(Employed ~ error("A") + trend("N") + season("A")),
+    `HW amortiguado aditivo` = ETS(Employed ~ error("A") + trend("Ad") + season("A"))
+  )
+
+# Pronóstico
+us_retail_fc <- us_retail_fit %>%
+  forecast(h = 21)
+
+gg_usret <- us_retail_fc %>%
+  autoplot(us_retail_employment, level = NULL) +
+  xlab("Year") + ylab("Employed") +
+  ggtitle("Forecasts for US Retail Employment") +
+  guides(colour=guide_legend(title="Forecast"))
+
+gg_usret_zoom <-  gg_usret + tidyquant::coord_x_date(xlim = c("2018-01-01","2019-09-01"), ylim = c(15250, 16500)) + ggtitle("") + 
+  theme(legend.position = "none")
+
+(gg_usret) / (gg_usret_zoom)
+
+# Los errores de pronóstico
+accuracy(us_retail_fc, us_retail_employment)
+
+```
+En este caso, al comparar los modelos de suavización exponencial vs. el modelo de referencia (Naïve estacional), vemos que no logran superar su desempeño. Al menos los modelos propuestos (*Recuerden que hay muchas combinaciones posibles de los modelos de suavización que se pueden probar, dependiendo el caso*).
+
+Probaremos aplicando un modelo de descomposición STL para modelar la serie en dos componentes:
+
+1. Para el componente estacional.
+2. Para la serie desestacionalizada, usamos una suaviación exponencial simple.
+
+```{r SNAIVE v decomp + ETS}
+us_retail_fit <- us_retail_train %>%
+  model(
+    `Seasonal naïve` = SNAIVE(Employed),
+    `Descomposición + SE` = decomposition_model(
+      STL(Employed ~ trend(), robust = TRUE),
+    ETS(season_adjust ~ error("A") + trend("N") + season("N"))
+    )
+  )
+  
+# Pronóstico
+us_retail_fc <- us_retail_fit %>%
+  forecast(h = 21)
+
+gg_usret <- us_retail_fc %>%
+  autoplot(us_retail_employment, level = NULL) +
+  xlab("Year") + ylab("Employed") +
+  ggtitle("Forecasts for US Retail Employment") +
+  guides(colour=guide_legend(title="Forecast"))
+
+gg_usret_zoom <-  gg_usret + tidyquant::coord_x_date(xlim = c("2018-01-01","2019-09-01"), ylim = c(15250, 16500)) + ggtitle("") + 
+  theme(legend.position = "none")
+
+(gg_usret) / (gg_usret_zoom)
+
+# Los errores de pronóstico
+accuracy(us_retail_fc, us_retail_employment)
+
+```
+
+Este modelo resulta tener una mejoría contra los modelos anteriores, sin embargo, su desempeño vs. el benchmark sigue siendo ambiguo: el RMSE dice que el modelo de descomposición con suavización exponencial es mejor, mientras que el MAE y el MAPE dicen lo contrario.
+
+
+### PIB de Suecia
+
+Ahora tomamos una serie que no tenga un patrón estacional marcado. Intentaremos pronosticar el PIB de Suecia mediante suavización exponencial y utilizareos de referencia el modelo de Drift.
+
+```{r sweden - drift v ETS}
+suecia <- global_economy %>%
+  filter(Country == "Sweden")
+
+# suecia %>%   
+#   autoplot(GDP) +
+#     ggtitle("PIB de Suecia") + ylab("$US billions")
+
+suecia_train <- suecia %>% 
+  filter(Year <=2007)
+
+suecia_fit <- suecia_train %>%
+  model(
+    `Drift` = RW(GDP ~ drift()),
+    `Holt` = ETS(GDP ~ error("A") + trend("A") + season("N")),
+    `Holt amortiguado` = ETS(GDP ~ error("A") + trend("Ad") + season("N"))
+  )
+
+# Pronóstico
+suecia_fc <- suecia_fit %>%
+  forecast(h = 10)
+
+gg_suecia <- suecia_fc %>%
+  autoplot(suecia, level = NULL) +
+  xlab("Year") + ylab("GDP") +
+  ggtitle("Forecasts for Sweden's GDP") +
+  guides(colour=guide_legend(title="Forecast"))
+
+gg_suecia_zoom <-  gg_suecia + coord_cartesian(xlim = c(2000,2017), ylim = c(2e+11,7e+11)) + ggtitle("") + 
+  theme(legend.position = "none")
+
+(gg_suecia) / (gg_suecia_zoom)
+# Los errores de pronóstico
+accuracy(suecia_fc, suecia)
+```
+En este caso, el método de referencia (Drift) también dio mejores resultados que la suavización exponencial. 
+
+Debemos recordar que cualquier modelo que estimemos asume que el comportamiento futuro de la serie será similar al histórico. En este caso, el primer año de pronóstico es 2008, año de la crisis inmobiliaria que afectó a prácticamente todo el mundo. Nuestro modelo no tenía manera de predecirlo, y por lo tanto, falló.
+
+
+## Tarea
+* Seleccionar dos series de tiempo vistas en clase o en el examen y realizar lo siguiente:
+* De preferencia, que una serie de tiempo tenga un patrón estacional y la otra sin estacionalidad.
+    i) Seleccionar el método de referencia que mejores resultados haya dado para cada serie.
+    ii) Modelar cada serie de tiempo mediante suavización exponencial. Pueden utilizar dos o tres variantes del modelo, según sea el caso.
+    iii) Llevar a cabo el proceso completo de pronóstico.
+    iv) Analizar si los modelos de suavización exponencial superan a los métodos de referencia.
+        - En caso de que el método de referencia sea mejor, intenten cambiar las características de la suavización exponencial, logrando un mejor pronóstico.
+* Si requieren realizar alguna transformación matemática a los datos para estabilizar la varianza, adelante.
+* Se puede realizar la descomposición de la serie en estacionalidad y serie desestacionalizada para intentar obtener mejores pronósticos.
+
