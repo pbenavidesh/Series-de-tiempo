@@ -11,6 +11,7 @@ Material bibliográfico adicional que puede serles útil es el siguiente:
 * Hyndman, R.J., & Athanasopoulos, G. (2019) *Forecasting: principles and practice, 3rd edition*, OTexts: Melbourne, Australia. OTexts.com/fpp3. Versión en línea: https://otexts.com/fpp3/
 
 * Wickham, H., & Grolemund, G. (2016). *R for data science: import, tidy, transform, visualize, and model data*. " O'Reilly Media, Inc.". Versión en línea: https://r4ds.had.co.nz/
+    - Existe una versión colaborativa en español en https://es.r4ds.hadley.nz/, sin embargo, los ejercicios y temas vistos serán tomados directo de la versión en inglés.
 
 * Tsay, R. S. (2014). *An introduction to analysis of financial data with R*. John Wiley & Sons.
 
