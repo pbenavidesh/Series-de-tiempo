@@ -1,14 +1,14 @@
 ---
 title: "Las bases de los pronósticos"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: cerulean
     highlight: tango
+  github_document:
+    toc: yes
+    dev: jpeg
 ---
 
 Las paqueterías a usar en este documento:
