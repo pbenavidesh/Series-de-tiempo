@@ -1,0 +1,733 @@
+---
+title: "Repaso parcial 2"
+output:
+  github_document:
+    toc: yes
+    dev: jpeg
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    theme: cerulean
+    highlight: tango
+---
+
+**NOTA:** El pseudo-código que se presenta en este documento no genera tal cual las gráficas o tablas resultantes. Los campos que se muestran rodeados con < > son *"placeholders"* para que sepan cuáles son las variables o argumentos que deben modificar. Por ejemplo, el primer pseudo-código mostrado
+
+```{r pseudo - filter example, eval=FALSE}
+train <- <dataframe> %>% 
+  filter(<condición para filtro>)
+```
+
+se sustituiría por algo como:
+
+```{r filter example,eval=FALSE}
+train <- df %>% 
+  filter(Year <= 2019)
+```
+
+Bajo el supuesto de que sus datos estuvieran contenidos en la variable  `df` y ésta tuviera una variable de tiempo llamada `Year`.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Repaso teórico
+
+Existen tres factores a considerar para ver qué tan bien se puede pronosticar una serie de tiempo:
+
+1. Qué tan bien conocemos los factores o elementos que influyen en él.
+2. Qué tantos datos tenemos disponibles.
+3. Si el pronóstico que vamos a realizar puede influir en el resultado de la variable a predecir.
+
+Si se determina que cumple con esas características, los pasos para llevar a cabo un proyecto de pronóstico, pueden enumerarse en los siguientes:
+
+1. Preparación de los datos (limpieza)
+2. Análisis exploratorio y gráfica de los datos (visualización)
+3. Definición del modelo (especificación)
+4. Entrenamiento del modelo (estimación)
+5. Revisar el desempeño del modelo (evaluación)
+6. Producir pronósticos
+
+**NOTA**: Siempre que quieran revisar cómo funciona alguna función en particular, pueden consultar la documentación con el comando `help(<"función">)`.
+
+## 1. Preparación de los datos (limpieza)
+
+```{r carga paqueterías, message=FALSE}
+library(easypackages)
+packages("tidyverse","fpp3")
+```
+
+
+
+El `tidyverse` cuenta con paqueterías necesarias para la ciencia de datos. Por lo que, al cargar esta paquetería, podemos:
+
+* **Importar datos**
+  - Podemos utilizar las funciones dentro de la paquetería `readr`, como `read_csv()`, `read_delim()`, etc.
+  - La paquetería `readxl` sirve para importar datos de Excel (.xls y .xlsx).
+  - La paquetería `haven` cuenta con funiones para importar datos de SPSS, Stata, y SAS.
+
+* **Manipulación de datos**
+  - `tidyr`, `dplyr` tienen funciones para llevar a cabo la limplieza de datos.
+  - `stringr` permite manipular variables de texto.
+  - `forcats` ayuda a solucionar problemas con variables categóricas (factors).
+  - `lubridate` a hacer transformaciones y operaciones con fechas.
+  - `hms` sirve para valores de la hora del día.
+
+* **Programación**
+  - Para llevar a cabo iteraciones en objetos de **R**, es conveniente utilizar funciones de la paquetería `purrr`.
+
+Siempre que queramos hacer pronósticos de una variable, debemos separar nuestros datos en dos conjuntos: datos de **entrenamiento** y datos de **prueba o pronóstico**. Para el ejemplo, nombraremos `train` al dataset filtrado que usaremos para el conjunto de entrenamiento.
+
+Se recomienda que el tamaño del conjunto de prueba sea del 20% de la muestra, o del horizonte máximo de pronóstico que se requiere.
+
+Para segmentar los datos podemos usar varias funciones como, de `dplyr`: `filter()`, `slice()`, y de `tsibble`: `filter_index()`.
+
+Con `filter()`, las observaciones deben cumplir alguna condición:
+
+```{r pseudo - filter, eval=FALSE}
+train <- <dataframe> %>% 
+  filter(<condición para filtro>)
+```
+
+Con `slice()`, se toman ciertas observaciones, de acuerdo a su posición en la tabla (índice):
+
+```{r pseudo - slice, eval=FALSE}
+train <- <dataframe> %>% 
+  slice(<índice>)
+```
+
+`filter_index()` requiere que los datos sean un objeto `tsibble` y se especifica una fecha:
+
+```{r pseudo- filter_index, eval=FALSE}
+train <- <dataframe> %>% 
+  filter_index(<fecha inicial> ~ <fecha final>)
+```
+
+Se puede definir usar todas las fechas desde el inicio hasta cierto punto o vice versa sustituyendo la `<fecha>` con un punto;  `.`. P. ej., tomando como entrenamiento las fechas desde el inicio hasta cierta `<fecha final>`:
+
+```{r pseudo - filter_index 2, eval=FALSE}
+train <- <dataframe> %>% 
+  filter_index(. ~ <fecha final>)
+```
+
+
+
+
+## 2. Análisis exploratorio y gráfica de los datos (visualización)
+
+Se pueden hacer varios tipos de gráficas para el análisis exploratorio, siendo la elemental la gráfica de tiempo. Utilizamos la paquetería `ggplot2` para crear gráficos con diseño y capacidad muy amplia de personalización. La estructura básica para graficar con `ggplot2` se basa en la gramática de los gráficos, la cual consiste en:
+
+* Llamar la función `ggplot()` para especificar el conjunto de datos a utilizar (*dataframe*).
+
+* Definir la estética de la gráfica, en `aes()`. Esto es, las variables para los ejes (`x = <variable>`, `y = <variable>`), el color (`color = <variable>`), tamaño (`size = <variable>`), forma (`shape = <variable>`), relleno (`fill = <variable>`),etc.
+
+* Establecer qué tipo o tipos de `geom` se van a utilizar para el gráfico (líneas, puntos, histogramas, boxplots, violín, etc.) con `geom_*`, donde el `*` puede ser `line`, `point`, `hist`, `boxplot`, `violin`, respectivamente.
+
+* Se puede, opcionalmente, agregar más personalización al gráfico, como definir el título (con `ggtitle(<título>)`), títulos de ejes, escalas, entre otros.
+
+**NOTA**: La estética se puede definir dentro de `ggplot(aes())`, lo que haría que esa estética aplique para todos los `geom` definidos, o dentro de cada  `geom`, para que la estética cambie con cada uno.
+
+Este ejemplo tomaría las mismas variables para las líneas y puntos:
+
+
+```{r pseudo - plot config, eval=FALSE}
+<dataframe> %>% 
+  ggplot(aes(x = <variable>, y = <variable>,
+                          color = <variable>, size = <variable>,
+                          shape = <variable>, fill = <variable>)) +
+         geom_line() +
+         geom_point()
+
+```
+
+```{r country gdp plot all black, echo=FALSE}
+
+ge <- global_economy %>% 
+  filter(Country == "Mexico" | Country == "Brazil" | Country == "Australia")
+
+p3 <- ggplot(ge) + aes(x = Year, y = GDP, color = Country) + 
+  geom_line() +
+  scale_color_manual(values = c("black", "black","black"))
+p3
+
+```
+
+
+Este ejemplo tomaría distintas variables las líneas y puntos:
+
+```{r pseudo - different aes() in plot, eval=FALSE}
+<dataframe> %>% 
+  ggplot() +
+         geom_line(aes(x = <variable>, y = <variable>,
+                          color = <variable>, size = <variable>,
+                          shape = <variable>, fill = <variable>)) +
+         geom_point(aes(x = <variable>, y = <variable>,
+                          color = <variable>, size = <variable>,
+                          shape = <variable>, fill = <variable>))
+  
+```
+
+```{r country gdp plot colors, echo=FALSE}
+p4 <- ggplot(ge) + aes(x = Year, y = GDP, color = Country) + 
+  geom_line()
+p4
+
+```
+
+
+### Gráfica de tiempo
+
+Así una gráfica de tiempo tendría la estructura básica:
+
+```{r pseudo - time plot, eval=FALSE}
+<dataframe> %>% 
+  ggplot(aes(x = <variable de tiempo>, y = <variable>) +
+         geom_line()
+
+```
+
+```{r time plot, echo=FALSE}
+ge %>% 
+  filter(Country == "Mexico") %>% 
+  ggplot() + aes(x = Year, y = GDP, color = Country) +
+  geom_line()
+
+```
+
+Si se quieren analizar los patrones de dos variables simultáneamente, se podría hacer algo como:
+
+```{r pseudo - time plot 2 vars, eval=FALSE}
+<dataframe> %>% 
+  ggplot(<dataframe>, aes(x = <variable de tiempo>) +
+           geom_line(aes(y = <variable1>), color = <color1>) +
+           geom_line(aes(y = <variable2>), color = <color2>)
+  
+```
+
+### Gráficos estacionales
+
+```{r pseudo - season plots, eval=FALSE}
+<dataframe> %>% 
+  gg_season()
+```
+
+```{r season plot, echo=FALSE, warning=FALSE}
+us_retail_employment <- us_employment %>%
+  filter(year(Month) >= 1990, Title == "Retail Trade")
+x11_dcmp <- us_retail_employment %>%
+  model(x11 = feasts:::X11(Employed, type = "additive")) %>%
+  components()
+x11_dcmp %>% 
+  gg_season() + ylab("")
+
+```
+
+
+## 3 y 4. Definición y entrenamiento del modelo (especificación y estimación)
+
+Hasta ahora, hemos visto solo los modelos de pronóstico que usaremos de referencia para evaluar los modelos más complejos. Estos son los métodos de:
+
+* La Media; `MEAN()`.
+* Ingenuo o Naïve; `NAIVE()`.
+* Ingenuo estacional; `SNAIVE()`.
+* Drift; `NAIVE(<var. dependiente> ~ drift())`.
+
+Con la paquetería `fable` y `fabletools`, podemos estimar uno o más modelos de manera simultánea muy fácilmente. Para este ejemplo, guardaremos los modelos estimados en la variable `modelos` y utilizaremos los datos de entrenamiento para el ajuste:
+
+
+```{r pseudo - model estimation, eval=FALSE}
+modelos <- <train> %>% 
+  model("nombre a darle al modelo1" = <modelo1>(<características del modelo1>,
+        "nombre a darle al modelo2" = <modelo2>(<características del modelo2>)
+```
+
+Vimos también que se pueden ajustar modelos a variables transformadas matemáticamente, como con una transformación de Box-Cox. Si se realiza alguna transformación, debemos especificarla dentro del modelo:
+
+```{r pseudo - model with transformations, eval=FALSE}
+modelos <- <train> %>% 
+  model("nombre a darle al modelo1" = <modelo1>(<transformación>(<variable>))
+```
+
+## 5. Revisar el desempeño del modelo (evaluación)
+
+Una vez ajustado el modelo, debemos asegurarnos de que hayamos logrado un buen ajuste. Esto lo podemos ver gráficamente y a través de pruebas estadísticas, al realizar diagnósticos de los residuos.
+
+Primero, podemos graficar el ajuste del modelo a los datos (de entrenamiento). El ajuste de los datos lo podemos obtener con `augment()`, que nos arroja los datos ajustados `.fitted` y los residuos del modelo `.resid`. Guardaremos esto en la variable `aug`:
+
+```{r pseudo - augment, eval=FALSE}
+<aug> <- modelos %>% augment()
+```
+
+Para graficar los datos de entrenamiento vs. el ajuste del modelo:
+
+```{r pseudo - train vs. fitted plot, eval=FALSE}
+<train> %>% 
+  ggplot(aes(x = <var. de tiempo>, y = <var. dependiente>))+
+  geom_line(color = <color_datos_entrenamiento>)+
+  geom_line(aes(y = <aug$.fitted>), color = <color_ajuste_modelo>)+
+  ggtitle(<"título">)
+```
+
+
+```{r mex GDP train vs. fitted plot, echo=FALSE}
+mex <- ge %>% 
+  filter(Country == "Mexico",
+         Year <=2016)
+
+mex_model <- mex %>% 
+  model(TSLM(GDP ~ trend()))
+
+mex_aug <- mex_model %>% augment()
+
+mex %>% 
+  ggplot(aes(x = Year, y = GDP))+
+  geom_line(color = "blue")+
+  geom_line(aes(y = mex_aug$.fitted), color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos de entrenamiento")
+```
+
+Para realizar el diagnóstico de residuales:
+
+```{r pseudo - residual diagnostics, eval=FALSE}
+<modelos> %>% gg_tsresiduals() + 
+  ggtitle(<"título">)
+```
+
+```{r mex gdp residual diagnostics, echo=FALSE}
+mex_model %>% gg_tsresiduals()+
+  ggtitle("Diagnóstico de residuales para el modelo ajustado")
+```
+
+Lo que buscamos en estas gráficas es:
+
+* Que en la primera no se perciba ningún patrón marcado, tendencia, etc., sino que los residuos se vean **aleatorios** y con **media cero**.
+
+* Que la ACF muestre rezagos **no significativos**.
+
+* Que el histograma muestre una distribución aproximadamente **normal**.
+
+Para realizar las pruebas estadísticas de Box-Pierce y/o Ljung-Box:
+```{r pseudo box pierce, ljung box test, eval=FALSE}
+<aug> %>% features(.resid, box_pierce, lag=<10>, dof=<0>)
+<aug> %>% features(.resid, ljung_box, lag=<10>, dof=<0>)
+```
+
+Lo sugerido para el valor del rezago en estas pruebas es:
+
+- `lag = 10` cuando los datos son **no estacionales**.
+- `lag = 2m` cuando son **estacionales**, donde $m$ es el periodo estacional.
+- El valor de `dof` depende de los parámetros que se estén evaluando en el modelo. Para los modelos de referencia, al no tener parámetros a estimar, se utiliza `dof = 0`.
+
+```{r mex_model ljung box test, echo=FALSE}
+mex_aug %>% features(.resid, ljung_box, lag=10, dof=0)
+```
+
+Si el p-value $< \alpha$, se rechaza la $H_0$ de la prueba ($H_0:$ *"Los residuos no están autocorrelacionados; los residuos son ruido blanco "*), por lo que, un modelo bien ajustado tendrá residuos que son ruido blanco y su prueba de Ljung-Box tendrá un p-value alto (mayor a $\alpha$).
+ 
+## 6. Producir pronósticos
+
+Generamos los pronósticos con la función `forecast()`. En ella debemos especificar algunos argumentos:
+
+* `h`, o el horizonte de pronóstico.
+* Si queremos que **R** realice el ajuste por sesgo (cuando se realiza una transformación matemática). Por defaúlt está marcado que **sí realice el ajuste por sesgo**, `bias_adjust = TRUE`.
+* Si queremos que el pronóstico genere intervalos de predicción normales o mediante **bootstrap**. Por defáult no genera intervalos con bootstrap, hay que especificarlo: `bootstrap = TRUE`.
+
+Guardamos el pronostico en la variable `fc` para los siguientes `h` periodos:
+
+```{r pseudo - forecast, eval=FALSE}
+<fc> <- modelos %>% 
+  forecast( h = <h>)
+
+<fc> %>% 
+  autoplot(<dataframe>, level = NULL)
+```
+
+
+
+```{r beer production forecast, echo=FALSE}
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
+beer_train <- recent_production %>% filter(year(Quarter) <= 2007)
+
+beer_fit <- beer_train %>%
+  model(
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  )
+
+beer_fc <- beer_fit %>%
+  forecast(h = 10)
+
+beer_fc %>%
+  autoplot(recent_production,
+           level = NULL) +
+  xlab("Year") + ylab("Megalitres") +
+  ggtitle("Forecasts for quarterly beer production") +
+  guides(colour=guide_legend(title="Forecast"))
+```
+Y para medir la precisión del pronóstico, calculamos los errores con `accuracy()`. El modelo que obtenga el menor error será el mejor:
+
+```{r pseudo - model accuracy, eval=FALSE}
+accuracy(<fc>, <dataframe>)
+```
+
+```{r model accuracy, echo=FALSE}
+accuracy(beer_fc, recent_production)
+```
+
+# Tarea
+## Ejercicios
+
+### Problema 1
+*Produzcan pronósticos de las siguientes series de tiempo, utilizando el modelo que consideren más apropiado para cada caso entre `NAIVE()`, `SNAIVE()` o `RW( ~ drift())`:*
+
+#### * Población australiana (`global_economy`)
+
+```{r aus_pop plot}
+aus_pop <- global_economy %>% 
+  filter(Country == "Australia") 
+
+aus_pop %>% 
+  ggplot(aes(x = Year, y = Population))+
+  geom_line() + ggtitle("Población australiana")
+```
+Como la población parece aumentar de manera bastante lineal, probamos con el método del **drift**.
+
+```{r aus_pop drift fcst}
+# Separar los datos en entrenamiento y prueba
+aus_pop_train <- aus_pop %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+aus_pop_model <- aus_pop_train %>% 
+  model(RW(Population ~ drift()))
+
+# Obtener residuales y valores ajustados
+aus_pop_aug <- aus_pop_model %>% augment()
+
+aus_pop_aug
+
+# Gráfica 
+aus_pop_train %>% 
+  ggplot(aes(x = Year, y = Population))+
+  geom_line()+
+  geom_line(aes(y = aus_pop_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+
+```
+El pronóstico:
+
+```{r aus_pop fcst}
+aus_pop_fc <- aus_pop_model %>% 
+  forecast(h = length(aus_pop$Year)-length(aus_pop_train$Year))
+aus_pop_fc
+
+aus_pop_fc %>% 
+  autoplot(aus_pop) + ggtitle("Pronóstico de la pob. australiana con el método del drift")
+```
+
+
+
+#### * Producción de ladrillos (Bricks de `aus_production`)
+
+```{r bricks model}
+bricks <- aus_production %>% 
+  select(Quarter, Bricks) %>% 
+  na.omit() %>%  # para quitar los NAs que tiene la serie al final
+  as_tsibble()
+  
+
+# Gráfica de los datos
+
+ggplot(bricks, aes(x = Quarter, y = Bricks)) +
+  geom_line()
+
+# Separar los datos en entrenamiento y prueba
+bricks_train <- bricks %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+bricks_model <- bricks_train %>% 
+  model(seasonal_naive = SNAIVE(Bricks))
+
+# Obtener residuales y valores ajustados
+bricks_aug <- bricks_model %>% augment()
+
+bricks_aug
+
+# Gráfica 
+bricks_train %>% 
+  ggplot(aes(x = Quarter, y = Bricks))+
+  geom_line()+
+  geom_line(aes(y = bricks_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+```
+
+El pronóstico:
+
+```{r bricks fcst}
+bricks_fc <- bricks_model %>% 
+  forecast(h = length(bricks$Quarter)-length(bricks_train$Quarter))
+bricks_fc
+
+bricks_fc %>% 
+  autoplot(bricks) + ggtitle("Pronóstico de producción de ladrillos con Seasonal Naïve")
+```
+
+
+#### * Corderos de New South Wales (NSW en `aus_livestock`)
+
+```{r lamb model}
+lamb <- aus_livestock %>% 
+  filter(Animal == "Lambs",
+         State == "New South Wales") %>% 
+  select(Month, Count) 
+  
+  
+
+# Gráfica de los datos
+
+ggplot(lamb, aes(x = Month, y = Count)) +
+  geom_line()
+
+# Separar los datos en entrenamiento y prueba
+lamb_train <- lamb %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+lamb_model <- lamb_train %>% 
+  model(seasonal_naive = SNAIVE(Count))
+
+# Obtener residuales y valores ajustados
+lamb_aug <- lamb_model %>% augment()
+
+lamb_aug
+
+# Gráfica 
+lamb_train %>% 
+  ggplot(aes(x = Month, y = Count))+
+  geom_line()+
+  geom_line(aes(y = lamb_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+```
+
+El pronóstico:
+
+```{r lamb fcst}
+lamb_fc <- lamb_model %>% 
+  forecast(h = length(lamb$Month)-length(lamb_train$Month))
+lamb_fc
+
+lamb_fc %>% 
+  autoplot(lamb) + ggtitle("Pronóstico de producción de ladrillos con Seasonal Naïve")
+```
+
+
+
+#### * Riqueza de los hogares (`hh_budget`)
+
+```{r wealth model}
+usa_riq <- hh_budget %>% 
+  filter(Country == "USA") %>% 
+  select(Year, Wealth)
+
+# Gráfica de los datos
+
+ggplot(usa_riq, aes(x = Year, y = Wealth)) +
+  geom_line()
+
+# Separar los datos en entrenamiento y prueba
+usa_riq_train <- usa_riq %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+usa_riq_model <- usa_riq_train %>% 
+  model(naive = RW(Wealth))
+
+# Obtener residuales y valores ajustados
+usa_riq_aug <- usa_riq_model %>% augment()
+
+usa_riq_aug
+
+# Gráfica 
+usa_riq_train %>% 
+  ggplot(aes(x = Year, y = Wealth))+
+  geom_line()+
+  geom_line(aes(y = usa_riq_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+```
+El pronóstico:
+
+```{r wealth fcst}
+usa_riq_fc <- usa_riq_model %>% 
+  forecast(h = length(usa_riq$Year)-length(usa_riq_train$Year))
+usa_riq_fc
+
+usa_riq_fc %>% 
+  autoplot(usa_riq) + ggtitle("Pronóstico de la riqueza en EEUU con Naïve")
+```
+
+
+### Problema 2 
+*De los precios de la acción de Facebook (en el data set `gafa_stock`), hacer lo siguiente:*
+
+  a. Gráfica de tiempo de la serie
+
+```{r fb time plot}
+fb_stock <- gafa_stock %>%
+  filter(Symbol == "FB") %>%
+  mutate(day = row_number()) %>%
+  update_tsibble(index = day, regular = TRUE)
+
+fb_stock %>% 
+  ggplot(aes(x = Date, y = Close))+ 
+  geom_line()
+```
+
+
+
+  b. Producir pronósticos con el método del drift y grafíquelos.
+```{r fb model}
+# Separar los datos en entrenamiento y prueba
+fb_train <- fb_stock %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajustar el modelo
+fb_model <- fb_train %>% 
+  model(RW(Close ~ drift()))
+
+# Obtener residuales y valores ajustados
+fb_aug <- fb_model %>% augment()
+
+# Gráfica del ajuste
+fb_train %>% 
+  ggplot(aes(x = Date, y = Close))+
+  geom_line()+
+  geom_line(aes(y = fb_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+
+# El pronóstico
+fb_fc <- fb_model %>% 
+  forecast(h = length(fb_stock$Date)-length(fb_train$Date))
+
+
+fb_fc %>% 
+  autoplot(fb_stock) + ggtitle("Pronóstico del precio de Facebook con drift")
+```
+
+  c. Pruebe que el pronóstico es idéntico a extender una línea recta entre la primera y última observación de los datos de entrenamiento.
+
+La ecuación de una recta cualquiera está dada por $ y = m x + b$, siendo $m$ la pendiente y $b$ el intercepto u ordenada al origen. Si tomamos el punto inicial $(x_1,y_1)$ de la serie y el final de los datos de entrenamiento $(x_2,y_2)$, podemos calcular la pendiente utilizando $m = \frac{y_2-y_1}{x_2-x_1}$. Posteriormente, sustituimos en la ecuación de la recta, sustituyendo el valor de cualquiera de los puntos para obtener el valor del intercepto, $b = y - m x$.
+
+```{r line from first and last observation}
+x1 <- 1
+y1 <- head(fb_train$Close,1)
+
+x2 <- length(fb_train$Date)
+y2 <- tail(fb_train$Close,1)
+
+m <- (y2-y1)/(x2-x1)
+
+b <- y1 - m * x1
+
+fb_fc %>% 
+  autoplot(fb_stock) + ggtitle("Comprobación") + 
+  geom_abline(slope = m, intercept = b, linetype = "dashed",
+              color = "red")
+
+```
+
+  d. Utilice otro método de benchmark (referencia) para realizar el pronóstico. ¿Cuál cree que sea mejor? ¿Por qué?
+
+```{r fb other benchmark model}
+
+# Ajustar el modelo
+fb_model2 <- fb_train %>% 
+  model(RW(Close))
+
+# Obtener residuales y valores ajustados
+fb_aug2 <- fb_model2 %>% augment()
+
+# El pronóstico
+fb_fc2 <- fb_model2 %>% 
+  forecast(h = length(fb_stock$Date)-length(fb_train$Date))
+
+
+fb_fc2 %>% 
+  autoplot(fb_stock) + ggtitle("Pronóstico del precio de Facebook con drift")
+```
+
+Se utilizó el método Naïve para comparar, ya que se dice que éste es el modelo óptimo para series que siguen una caminata aleatoria.
+
+Ante la caída del precio de Facebook, parece que se ajusta de mejor manera este segundo modelo, los datos reales se mantienen más cerca de la estimación puntual, así como dentro de los intervalos de predicción. Sin embargo, en el tiempo atrás, el modelo de drift parece que se hubiera ajustado mejor.
+
+
+### Problema 3 
+*Genere pronósticos para todas los animales del estado de Victoria en `aus_livestock` utilizando `SNAIVE()`. Grafique los pronósticos resultantes junto con los datos históricos. ¿Este método es una referencia adecuada para los datos?*
+
+```{r victorian animals, fig.height=6, fig.width=10}
+victoria <- aus_livestock %>% 
+  filter(State == "Victoria") %>% 
+  select(-c(State))
+
+victoria %>% 
+  ggplot(aes(x = Month, y = Count, color = Animal)) + 
+  geom_line()
+```
+
+Los pronósticos:
+
+```{r victorian animals fcst, fig.height= 18}
+victoria_train <- victoria %>% 
+  filter(Month <"2016-01-01")
+
+# Ajuste del modelo SNAIVE
+victoria_model <- victoria_train %>% 
+  model(snaive = SNAIVE(Count))
+
+# Obtener residuales y valores ajustados
+victoria_aug <- victoria_model %>% augment()
+
+# El pronóstico
+
+victoria_fc <- victoria_model %>% 
+  forecast(h = 36) # pronóstico de 3 años
+
+# Gráfica de los pronósticos
+victoria_fc %>% 
+  autoplot(victoria) + ggtitle("Pronóstico de la producción de animales en Victoria")
+```
+Para revisar la precisión del modelo en cada animal:
+
+```{r victorian animals accuracy}
+accuracy(victoria_fc, victoria)
+```
+
+### Problema 4 
+*Calcule los residuos del pronóstico naïve estacional aplicados a la producción trimestral de cerveza australiana a partir de 1992. El siguiente código puede serles útil. ¿Qué puede concluir al respecto?*
+
+```{r p4 example code, eval=FALSE}
+# Extraer los datos de interés
+recent_production <- aus_production %>%
+  filter(year(Quarter) >= 1992)
+
+# Definir y estimar el modelo
+fit <- recent_production %>% model(SNAIVE(Beer))
+
+# Ver los residuales
+fit %>% gg_tsresiduals()
+
+# Ver el pronóstico resultante
+fit %>% forecast() %>% autoplot(recent_production)
+```
+
+### Problema 5 
+*Repita el ejercicio anterior utilizando las exportaciones mexicanas de `global_economy` y la serie de tiempo de ladrillos (Bricks) de `aus_production`. Utilice cualquiera entre `NAIVE()` o `SNAIVE()` dependiendo cuál sea más conveniente en cada caso.*
+
+### Problema 6 
+*Explique si los siguientes enunciados son verdaderos o falsos y por qué:*
+
+  a. Buenos métodos de pronóstico deben tener residuos normalmente distribuidos.
+  b. Un modelo con residuos pequeños va a producir buenos pronósticos.
+  c. La mejor medida de precisión del pronóstico es el MAPE.
+  d. Si el modelo no pronostica bien, debería hacerlo más complicado.
+  e. Siempre hay que escoger el modelo con la mejor precisión en el pronóstico, medido a través del conjunto de prueba (pronóstico).
+    
