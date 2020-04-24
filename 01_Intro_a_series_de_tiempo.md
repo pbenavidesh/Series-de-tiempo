@@ -123,52 +123,14 @@ Observando el resultado, vemos que **R** en automatico detecto el inicio, 2012, 
 
 Para datos anuales, la frecuencia es 1, normalmente. Para trimestrales, 4; mensuales, 12; semanales, 52.
 
-## Graficas de tiempo
+### Graficas de tiempo
 
 En estos graficos, el eje x siempre sera el tiempo, y la variable de interes se grafica en el eje y.
 
 
 ```r
 library("tidyverse")
-```
-
-```
-## -- Attaching packages -------------------------------- tidyverse 1.3.0 --
-```
-
-```
-## v ggplot2 3.3.0     v purrr   0.3.4
-## v tibble  3.0.1     v dplyr   0.8.5
-## v tidyr   1.0.2     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.5.0
-```
-
-```
-## -- Conflicts ----------------------------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()
-```
-
-```r
 library("fpp2")
-```
-
-```
-## Loading required package: forecast
-```
-
-```
-## Registered S3 method overwritten by 'quantmod':
-##   method            from
-##   as.zoo.data.frame zoo
-```
-
-```
-## Loading required package: fma
-```
-
-```
-## Loading required package: expsmooth
 ```
 
 ```r
@@ -229,7 +191,7 @@ En esta grafica se muestra claramente una tendencia incremental. Tambien podemos
 
 La caida brusca a inicios de cada anio se debe a un subsidio que otorga el gobierno a finales de cada anio; por lo tanto, se sobre abastecen al final y dejan de comprar a inicios. Cualquier modelo que se ajuste a esta serie debe capturar el efecto estacional y el hecho de que la tendencia esta cambiando lentamente.
 
-## Patrones en las series de tiempo
+### Patrones en las series de tiempo
 
 Una serie de tiempo puede estar conformada por ciertos componentes, como una *tendencia*, un componente *estacional*, y un componente *ciclico*.
 
@@ -243,7 +205,7 @@ Por lo general, el largo del componente ciclico y su magnitud son mayores que la
 
 Para hacer pronosticos, primero se debe identificar si la serie en cuestion presenta uno o mas de estos componentes.
 
-## Graficas estacionales
+### Graficas estacionales
 
 Son similares a los graficos de tiempo, solo que en estas los datos se grafican contra las estaciones individuales.
 
