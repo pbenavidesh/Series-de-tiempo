@@ -13,7 +13,7 @@ output:
 
 Las paqueterías a usar en este documento:
 
-```{r, results='hide'}
+```{r, message=FALSE}
 library("easypackages")
 packages("tidyverse","fpp3")
 ```

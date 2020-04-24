@@ -58,36 +58,6 @@ library("easypackages")
 packages("tidyverse","fpp3")
 ```
 
-    ## Loading required package: tidyverse
-
-    ## -- Attaching packages -------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.0     v purrr   0.3.4
-    ## v tibble  3.0.1     v dplyr   0.8.5
-    ## v tidyr   1.0.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
-
-    ## -- Conflicts ----------------------------------- tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-    ## Loading required package: fpp3
-
-    ## -- Attaching packages --------------------------------------- fpp3 0.2 --
-
-    ## v lubridate   1.7.8     v feasts      0.1.3
-    ## v tsibble     0.8.6     v fable       0.2.0
-    ## v tsibbledata 0.1.0
-
-    ## -- Conflicts ------------------------------------------ fpp3_conflicts --
-    ## x lubridate::date()   masks base::date()
-    ## x dplyr::filter()     masks stats::filter()
-    ## x tsibble::id()       masks dplyr::id()
-    ## x tsibble::interval() masks lubridate::interval()
-    ## x dplyr::lag()        masks stats::lag()
-
-    ## All packages loaded successfully
-
 # Un flujo de trabajo limpio de pronóstico
 
 El flujo de trabajo, cuando se va a realizar un proceso, se puede
@@ -700,16 +670,16 @@ sim
     ## # Key:       Symbol, .model, .rep [5]
     ##    Symbol .model        .rep   day  .sim
     ##    <chr>  <chr>        <int> <dbl> <dbl>
-    ##  1 GOOG   NAIVE(Close)     1   505  758.
-    ##  2 GOOG   NAIVE(Close)     1   506  758.
-    ##  3 GOOG   NAIVE(Close)     1   507  763.
-    ##  4 GOOG   NAIVE(Close)     1   508  755.
-    ##  5 GOOG   NAIVE(Close)     1   509  758.
-    ##  6 GOOG   NAIVE(Close)     1   510  768.
-    ##  7 GOOG   NAIVE(Close)     1   511  759.
-    ##  8 GOOG   NAIVE(Close)     1   512  749.
-    ##  9 GOOG   NAIVE(Close)     1   513  735.
-    ## 10 GOOG   NAIVE(Close)     1   514  746.
+    ##  1 GOOG   NAIVE(Close)     1   505  760.
+    ##  2 GOOG   NAIVE(Close)     1   506  763.
+    ##  3 GOOG   NAIVE(Close)     1   507  765.
+    ##  4 GOOG   NAIVE(Close)     1   508  756.
+    ##  5 GOOG   NAIVE(Close)     1   509  753.
+    ##  6 GOOG   NAIVE(Close)     1   510  756.
+    ##  7 GOOG   NAIVE(Close)     1   511  756.
+    ##  8 GOOG   NAIVE(Close)     1   512  748.
+    ##  9 GOOG   NAIVE(Close)     1   513  746.
+    ## 10 GOOG   NAIVE(Close)     1   514  733.
     ## # ... with 140 more rows
 
 Lo que hicimos fue generar 5 escenarios futuros posibles (`times = 5`)
