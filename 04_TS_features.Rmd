@@ -1,0 +1,80 @@
+---
+title: "Características de las series de tiempo"
+output:
+  github_document:
+    toc: yes
+    dev: jpeg
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    theme: cerulean
+    highlight: tango
+---
+
+En el pasado, ya hemos revisado varias características de las series de tiempo. La paquetería `feasts` *(**FE**atures **A**nd **S**tatistics from **T**ime **S**eries)* incluye varias funciones para calcular varias características. Cualquier tipo de resumen que le podamos realizar a una serie de tiempo se consideraría una característica.
+
+### Características estadísticas básicas
+
+Algunas de las más sencillas son la media, mínimo, máximo, ... y las podemos calcular utilizando la función `features()`. Tomemos de ejemplo los datos del turismo en Australia, `tourism`.
+
+```{r stat features1, message=FALSE}
+if (!require("easypackages")) install.packages("easypackages")
+library("easypackages")
+packages("tidyverse","lubridate", "patchwork", "fpp2","fpp3","scales")
+glimpse(tourism)
+
+tourism %>% features(Trips, mean)
+```
+
+Calculamos la característica de la media y se muestra en la columna `V1`. Si queremos calcular varias características y nombrarlas, lo podemos hacer así:
+
+```{r stat features2}
+tourism %>% features(Trips, list(media = mean, 
+                                 min = min,
+                                 max = max)) %>% arrange(media)
+```
+
+Como hemos visto anteriormente, existen 5 estadísticas básicas que se deben analizar: el mínimo, primer cuartil, mediana, tercer cuartil y máximo. La función `quantile()` nos ayuda a calcularlas de manera sencilla:
+
+```{r Quartile features}
+tourism %>% features(Trips, quantile, prob=seq(0,1,by=0.25))
+```
+
+### Características de la función de autocorrelación, ACF
+
+La función `feat_acf()` provee características interesantes acerca de una serie de tiempo:
+
+* El primer coeficiente de autocorrelación de los datos originales, `acf1`.
+* La suma del cuadrado de los primeros 10 coeficientes de autocorrelación, de los datos originales, `acf10`. Este coeficiente nos dice qué tanta autocorrelación tiene la serie, sin importar el rezago.
+* El primer coeficiente de autocorrelación de las primeras diferencias, `diff1_acf1`.
+* La suma del cuadrado de los primeros 10 coeficientes de autocorrelación, de las primeras diferencias, `diff1_acf10`.
+* El primer coeficiente de autocorrelación de las segundas diferencias, `diff2_acf1`.
+* La suma del cuadrado de los primeros 10 coeficientes de autocorrelación, de las segundas diferencias, `diff2_acf10`.
+* Para datos estacionales, también se obtiene el coeficiente de autocorrelación en el primer rezago estacional.
+
+```{r ACF features}
+tourism %>% features(Trips, feat_acf)
+```
+### Características STL
+
+Se puede definir la **fuerza del componente de tendencia o estacional** de la siguiente manera:
+
+$$
+F_{T} = \max \left(0,1-\frac{\operatorname{Var}\left(R_{t}\right)}{\operatorname{Var}\left(T_{t}+R_{t}\right)}\right)
+$$
+Esto para el caso de la tendencia. Similarmente, para medir la fuerza del componente estacional:
+
+$$
+F_{S} = \max \left(0,1-\frac{\operatorname{Var}\left(R_{t}\right)}{\operatorname{Var}\left(S_{t}+R_{t}\right)}\right)
+$$
+En ambos casos, lo que indican las ecuaciones es que la fuerza está medida entre cero y uno, siendo cero el indicador de nula o muy pequeña tendencia y/o estacionalidad, y valores cercanos a uno indicando una fuerte tendencia y/o estacionalidad.
+
+Esto es útil cuando se quiere discernir cuáles series de tiempo tienen la mayor estacionalidad o tendencia. Otras características interesantes son las del tiempo de los picos y valles; qué mes o trimestre es el de mayor estacionalidad y cuál el de menor, p. ej.
+
+Podemos obtener todas estas características con la función `feat_stl()`.
+
+```{r STL features}
+tourism %>%
+  features(Trips, feat_stl)
+```
+
