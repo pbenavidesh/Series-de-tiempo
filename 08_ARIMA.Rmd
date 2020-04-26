@@ -1,14 +1,14 @@
 ---
 title: "Modelos ARIMA"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: cerulean
     highlight: tango
+  github_document:
+    toc: yes
+    dev: jpeg
 date: '2020-04-20'
 ---
 ```{r pkgs, message=FALSE}
@@ -219,4 +219,53 @@ aus_total_retail %>%
 
 Así, estas funciones nos indican que se requieren ambas: una diferenciación estacional y las primeras diferencias para hacer la serie estacionaria.
 
+### Notación de rezagos y diferencias
+
+Se puede utilizar el operador *B* para representar rezagos en las series de tiempo:
+
+$$B y_{t}=y_{t-1}$$
+Para marcar dos periodos atrás (el segundo rezago), podríamos utilizar $B^2$:
+
+$$B^2 y_{t}=y_{t-2}$$
+Para datos trimestrales, si quisiéramos expresar "el mismo trimestre del año pasado", utilizaríamos la notación $B^4y_t = y_{t-4}$. Para datos mensuales, obtener "el mismo mes del año anterior, utilizaríamos $B^{12}y_t = y_{t-12}$.
+
+El operador *B* también se puede usar para expresar la diferenciación de una serie:
+
+$$y_{t}^{\prime}=y_{t}-y_{t-1}=y_{t}-B y_{t}=(1-B) y_{t}$$
+
+Así, las primeras diferencias están dadas por $(1-B)$. Las segundas diferencias:
+
+$$y_{t}^{\prime \prime}=y_{t}-2 y_{t-1}+y_{t-2}=\left(1-2 B+B^{2}\right) y_{t}=(1-B)^{2} y_{t}$$
+
+
+Entonces, la diferencia de orden *d* estaría dada por
+
+$$(1-B)^d y_t$$
+
+
+La notación del operador *B* es más útil cuando se combinan diferencias. P. ej. una serie de tiempo que requiera tomar las primeras diferencias y diferencias estacionales se podría escribir así
+
+$$\begin{aligned}
+(1-B)\left(1-B^{m}\right) y_{t} &=\left(1-B-B^{m}+B^{m+1}\right) y_{t} \\
+&=y_{t}-y_{t-1}-y_{t-m}+y_{t-m-1}
+\end{aligned}$$
+
+Como se puede observar, *B* sigue las reglas algebraicas.
+
+# Modelos autorregresivos
+
+Un modelo autorregresivo de orden *p* se define como
+
+$$y_{t}=\phi_0+\phi_{1} y_{t-1}+\phi_{2} y_{t-2}+\cdots+\phi_{p} y_{t-p}+\varepsilon_{t}$$
+donde $\varepsilon_{t}$ es ruido blanco. Si observamos bien la ecuación, se asemeja mucho a una ecuación de regresión lineal múltiple, con la diferencia de que, ahora, los parámetros no son $\beta$, sino $\phi$ y que las regresoras (variables $x$), ahora son valores rezagados de la variable dependiente, $y_t$. Este sería un **modelo AR(*p*)**: modelo autorregresivo de orden *p*.
+
+Para un modelo **AR(1):**$ y_{t}=\phi_0+\phi_{1} y_{t-1}+ \varepsilon_{t}$, tenemos algunas situaciones, dependiendo los valores de $\phi_0$ y $\phi_1$:
+
+* Si $\phi_1 = 0$, la serie es equivalente a un **ruido blanco** ($ y_{t}=\phi_0+ \varepsilon_{t}$).
+
+* Si $\phi_1 = 1$ y $\phi_0 = 0$, la serie es equivalente a una **caminata aleatoria**.
+
+* Si $\phi_1 = 1$ y $\phi_0 \neq 0$, la serie es equivalente a una **caminata aleatoria con deriva**.
+
+* Si $\phi_1 \lt 0$, $y_t$ tiende a oscilar alrededor de su media.
 
