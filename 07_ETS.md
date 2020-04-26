@@ -25,7 +25,7 @@ Suavización exponencial
 
 ``` r
 library(easypackages)
-libraries("tidyverse","fpp3", "patchwork")
+libraries("tidyverse","fpp3", "patchwork","plotly")
 ```
 
 Los métodos de suavización exponencial son relativamente sencillos, pero
@@ -567,8 +567,8 @@ gg_suecia <- suecia_fc %>%
   ggtitle("Forecasts for Sweden's GDP") +
   guides(colour=guide_legend(title="Forecast"))
 
-gg_suecia_zoom <-  gg_suecia + coord_cartesian(xlim = c(2000,2017), ylim = c(2e+11,7e+11)) + ggtitle("") + 
-  theme(legend.position = "none")
+gg_suecia_zoom <-  gg_suecia + coord_cartesian(xlim = c(2000,2017), ylim = c(2e+11,7e+11)) + 
+  ggtitle("") + theme(legend.position = "none")
 
 (gg_suecia) / (gg_suecia_zoom)
 ```
