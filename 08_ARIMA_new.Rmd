@@ -1,0 +1,565 @@
+---
+title: "Modelos ARIMA"
+author: "Pablo Benavides-Herrera"
+date: "20/4/2020"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: cerulean
+    highlight: tango
+runtime: shiny
+---
+
+```{r pkgs, message=FALSE}
+library(easypackages)
+libraries("tidyverse","fpp3", "patchwork")
+```
+
+Los modelos ARIMA son otra metodología para realizar pronósticos de series de tiempo. Estos y los modelos de suavización exponencial son los métodos más comúnmente utilizados para pronóstico hoy en día.
+
+Una diferencia fundamental entre la suavización exponencial y los modelos ARIMA es que, en los primeros nos enfocamos en **la forma de la tendencia y estacionalidad**, mientras que en los modelos ARIMA pretendemos describir las **autocorrelaciones en los datos**. 
+
+# Estacionariedad y diferenciación
+
+Una serie de tiempo **estacionaria** es aquella en la cual sus propiedades no dependen del tiempo en que son medidas. Por lo tanto, una serie con tendencia y/o estacionalidad no es estacionaria. 
+
+Sin embargo, una serie con un comportamiento cíclico sí es estacionaria, ya que la ciclicidad no es de un periodo de tiempo fijo.
+
+En general, una serie de tiempo estacionaria no tendrá patrones predecibles en el largo plazo. Gráficas de tiempo de series estacionarias mostrarán series horizontales (con o sin ciclos), y con una **varianza constante**.
+
+¿Cuáles de las siguientes series son estacionarias?
+
+```{r ts plots stationarity, echo=FALSE, fig.width=10}
+google_stock <- gafa_stock %>%
+  filter(Symbol == "GOOG") %>%
+  mutate(day = row_number()) %>%
+  update_tsibble(index = day, regular = TRUE) %>% 
+  mutate(diff_close = difference(Close))
+
+google_2015 <- google_stock %>% filter(year(Date) == 2015)
+p1 <- google_2015 %>% ggplot(aes(x = Date, y = Close)) + geom_line()+
+  ggtitle("(a) - Google stock")
+p2 <- google_2015 %>% ggplot(aes(x = Date, y = diff_close)) + geom_line() + ylab("difference(Close)") + ggtitle("(b) - Cambios diarios en Google")
+
+pigs <- aus_livestock %>% 
+  filter(Animal == "Pigs",
+         State == "Victoria")
+p3 <- pigs %>% ggplot(aes(x = Month, y = Count)) + geom_line() +
+  ggtitle("(c) - Producción de cerdos")
+
+eggs <- as_tsibble(fma::eggs)
+p4 <- eggs %>% ggplot(aes(x = index, y = value)) + geom_line() +
+  ggtitle("(d) - Precio de los huevos")
+
+lince <- pelt %>% 
+  select(Year, Lynx)
+p5 <- lince %>% ggplot(aes(x = Year, y = Lynx)) + geom_line() +
+  ggtitle("(e) - Pieles de lince")
+
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992 & year(Quarter) <= 1995 )
+p6 <- recent_production %>% ggplot(aes(x = Quarter, y = Beer)) + geom_line() +
+  ggtitle("(f) - Producción de cerveza")
+  
+(p1 | p2 | p3) / (p4 | p5 | p6)
+```
+
+* Las series(a) y (d) presentan una tendencia (creciente y decreciente, respectivamente), por lo que **no** pueden ser **estacionarias**.
+
+* Las series (c) y (f) muestran un componente estacional marcado, por lo que **no** pueden ser **estacionarias**.
+
+* La serie (b) sí parece ser **estacionaria**. También muestra que hay un outlier en los datos.
+
+* La serie (e) pareciera tener un patrón estacional. Sin embargo, al observarla detalladamente, vemos que el comportamiento cíclico no tiene una periodicidad fija, por lo que no es estacionalidad. Esta serie también es **estacionaria**.
+
+
+### Diferenciación
+
+Si observamos las gráficas anteriores, vemos que el precio de la acción de Google es no estacionario, mientras que los cambios diarios en el precio de la acción sí lo son. Así, encontramos que *una manera de convertir una serie en estacionaria es calculando las diferencias entre observaciones consecutivas*. A esto se le llama **diferenciar** la serie.
+
+$$y_{t}^{\prime}=y_{t}-y_{t-1}$$
+
+Los datos en primeras diferencias tendrán $T - 1$ observaciones, porque no es posible calcular la diferencia para la primera observación.
+
+* Las transformaciones logarítmicas pueden ayudar a **estabilizar la varianza** de una serie.
+
+* La diferenciación puede ayudar a **estabilizar la media** de una serie de tiempo, al quitar los cambios de nivel en ella y reducir o eliminar tendencia o estacionalidad.
+
+Otra forma de determinar gráficamente si una serie de tiempo es estacionaria o no, es viendo su función de autocorrelación, ACF. Para una serie de tiempo estacionaria, la ACF se vuelve cero rápidamente, mientras que una serie no estacionaria decae lentamente y el valor del primer rezago es muy alto y positivo.
+
+```{r ACF Google v diff Google, fig.width= 10, fig.height=3}
+google_2015 %>% ACF(Close) %>% autoplot() | 
+  google_2015 %>% ACF(diff_close) %>% autoplot()
+```
+
+Como habíamos visto, la significancia de las autocorrelaciones puede probarse mediante los estadísticos de Ljung-Box o Box-Pierce:
+
+```{r diff_close ljung-box}
+google_2015 %>%
+  features(diff_close, ljung_box, lag = 10)
+```
+
+La prueba indica que no son significativas las autocorrelaciones en la serie diferenciada.
+
+### Diferenciación de segundo orden
+
+A veces, la serie diferenciada parecerá seguir siendo no estacionaria, por lo que se puede recurrir a las **segundas diferencias**. Esto es, diferenciar las primeras diferencias:
+
+$$\begin{aligned}
+y_{t}^{\prime \prime} &=y_{t}^{\prime}-y_{t-1}^{\prime} \\
+&=\left(y_{t}-y_{t-1}\right)-\left(y_{t-1}-y_{t-2}\right) \\
+&=y_{t}-2 y_{t-1}+y_{t-2}
+\end{aligned}$$
+
+La serie en segundas diferencias tendrá $T-2$ observaciones. La interpretacion de $y_{t}^{\prime \prime}$ es que representa *los cambios en los cambios* de la serie.
+
+**NOTA:** *En la práctica, casi nunca se requerirá ir más allá de las segundas diferencias, para lograr estacionariedad en la serie.*
+
+### Diferenciación estacional
+
+Este tipo de diferenciación es la diferencia que existe entre una observación y la observación previa, de la misma estación:
+
+$$y_{t}^{\prime}=y_{t}-y_{t-m}$$
+
+donde $m$ es el número de estaciones. También se le conoce como "lag-$m$ differences".
+
+A veces, es necesario tomar diferencias estacionales y primeras diferencias, para lograr que la serie se convierta en estacionaria. P. ej., tomemos las ventas de medicamentos corticosteroides.
+
+1. Se transforma logarítmicamente la serie.
+2. Se sacan las diferencias estacionales.
+3. Como todavía parecen un poco no estacionarias, se obtienen los cambios en las ventas (primeras diferencias).
+
+```{r differences}
+PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost)/1e6) %>%
+  transmute(
+    `Sales ($million)` = Cost,
+    `Log sales` = log(Cost),
+    `Annual change in log sales` = difference(log(Cost), 12),
+    `Doubly differenced log sales` = difference(difference(log(Cost), 12), 1)
+  ) %>%
+  gather("Type", "Sales", !!!syms(measured_vars(.)), factor_key = TRUE) %>%
+  ggplot(aes(x = Month, y = Sales)) +
+  geom_line() +
+  facet_grid(vars(Type), scales = "free_y") +
+  labs(title = "Corticosteroid drug sales", x = "Year", y = NULL)
+```
+
+**NOTA:** *El orden en que se realiza la diferenciación no afecta el resultado (P. ej. primero realizar la diferenciación estacional y luego las primeras diferencias o al revés).* Sin embargo, si los datos tienen un componente estacional bien marcado, se recomienda realizar primero la diferenciación estacional, ya que la serie puede volverse estacionaria solo con esa diferenciación.
+
+En la práctica, algún analista pudo haber concluido que la serie con diferencias estacionales ya era estacionaria, mientras que otro pudo haber obtenido también las primeras diferencias.
+
+Cuando se realiza la diferenciación, es importante que esta sea interpretable:
+
+* Las primeras diferencias son los cambios de una observación a la siguiente.
+* Las diferencias estacionales son los cambios de un año a otro.
+
+No se recomienda utilizar otro rezago (p. ej. los cambios entre la primera y décimo octava observación, ya que es difícil encontrarle una interpretación lógica).
+
+
+
+```{r shiny-differences, echo=FALSE}
+selectInput("diff_order", label = "Diferenciación:",
+              choices = c("Serie en niveles", "Dif. estacionales", "Dif. estacionales + primeras dif.", "Primeras dif.","Segundas dif."), selected = "Serie en niveles")
+
+renderPlot({
+gg_shiny <-   PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost)/1e6) %>%
+  mutate(dif_order = case_when(
+      input$diff_order == "Serie en niveles" ~ Cost,
+      input$diff_order == "Dif. estacionales" ~ difference(Cost, 12),
+      input$diff_order == "Dif. estacionales + primeras dif." ~ difference(difference(Cost, 12),1),
+      input$diff_order == "Primeras dif." ~ difference(Cost, 1),
+      input$diff_order == "Segundas dif." ~ difference(Cost, 2)
+    ))
+    
+  gg_shiny %>% autoplot(dif_order) + ggtitle(input$diff_order) + ylab("")
+})
+```
+
+
+### Pruebas de raíz unitaria
+
+Para poder determinar más formalmente si una serie es estacionaria o no, se pueden llevar a cabo pruebas de **raíz unitaria**.
+
+Existen muchas pruebas distintas de raíz unitaria. Utilizaremos, por lo pronto la prueba propuesta por *Kwiatkowski-Phillips-Schmidt-Shin*, o prueba KPSS en corto. Aquí, la $H_0$ es que la serie es estacionaria. Por lo tanto, un *p-value* alto indicará que sí es estacionaria, mientras que un *p-value* $<\alpha$ indicará que la serie no es estacionaria.
+
+Entonces, el precio de la acción de Google es no estacionario de acuerdo a la prueba KPSS:
+
+```{r kpss google}
+google_2015 %>%
+  features(Close, unitroot_kpss)
+```
+
+mientras que las primeras diferencias sí lo son:
+
+```{r kpss diff google}
+google_2015 %>%
+  features(diff_close, unitroot_kpss)
+```
+
+Podemos utilizar la función `unitroot_ndiffs()` para encontrar el orden de diferenciación necesario para convertir la serie en estacionaria:
+
+```{r unitroot_ndiffs}
+google_2015 %>%
+  features(Close, unitroot_ndiffs)
+```
+
+Tal como lo habíamos visto, esto nos indica que se requieren las primeras diferencias para convertir la serie en estacionaria.
+
+Una característica similar para determinar si se requiere diferenciación estacional se puede obtener con `unitroot_nsdiffs()`.
+
+Tomemos el ejemplo de las ventas minoristas:
+
+```{r aus_retail plot}
+aus_total_retail <- aus_retail %>%
+  summarise(Turnover = sum(Turnover))
+autoplot(aus_total_retail)
+```
+Se puede ver que la serie en niveles no es estacionaria: tiene una tendencia creciente y una estacionalidad fuerte. La varianza de la serie ha ido creciendo, por lo que sacamos los logaritmos primero para estabilizarla.
+
+```{r aus_retail log plot}
+aus_total_retail <- aus_total_retail %>%
+  mutate(log_turnover = log(Turnover)) 
+
+aus_total_retail %>% autoplot(log_turnover)
+```
+
+La transformación logarítmica fue adecuada para estabilizar la varianza de esta serie.
+
+Vemos el orden de diferenciación estacional:
+```{r nsdiffs}
+aus_total_retail %>%
+  features(log_turnover, unitroot_nsdiffs)
+```
+La prueba nos indica que se requiere una diferenciación estacional. Revisamos si, adicionalmente, se necesitan sacar las primeras diferencias:
+
+```{r ndiffs}
+aus_total_retail %>%
+  mutate(log_turnover = difference(log(Turnover), 12)) %>%
+  features(log_turnover, unitroot_ndiffs)
+```
+
+Así, estas funciones nos indican que se requieren ambas: una diferenciación estacional y las primeras diferencias para hacer la serie estacionaria.
+
+### Notación de rezagos y diferencias
+
+Se puede utilizar el operador *B* para representar rezagos en las series de tiempo:
+
+$$B y_{t}=y_{t-1}$$
+Para marcar dos periodos atrás (el segundo rezago), podríamos utilizar $B^2$:
+
+$$B^2 y_{t}=y_{t-2}$$
+Para datos trimestrales, si quisiéramos expresar "el mismo trimestre del año pasado", utilizaríamos la notación $B^4y_t = y_{t-4}$. Para datos mensuales, obtener "el mismo mes del año anterior, utilizaríamos $B^{12}y_t = y_{t-12}$.
+
+El operador *B* también se puede usar para expresar la diferenciación de una serie:
+
+$$y_{t}^{\prime}=y_{t}-y_{t-1}=y_{t}-B y_{t}=(1-B) y_{t}$$
+
+Así, las primeras diferencias están dadas por $(1-B)$. Las segundas diferencias:
+
+$$y_{t}^{\prime \prime}=y_{t}-2 y_{t-1}+y_{t-2}=\left(1-2 B+B^{2}\right) y_{t}=(1-B)^{2} y_{t}$$
+
+
+Entonces, la diferencia de orden *d* estaría dada por
+
+$$(1-B)^d y_t$$
+
+
+La notación del operador *B* es más útil cuando se combinan diferencias. P. ej. una serie de tiempo que requiera tomar las primeras diferencias y diferencias estacionales se podría escribir así
+
+$$\begin{aligned}
+(1-B)\left(1-B^{m}\right) y_{t} &=\left(1-B-B^{m}+B^{m+1}\right) y_{t} \\
+&=y_{t}-y_{t-1}-y_{t-m}+y_{t-m-1}
+\end{aligned}$$
+
+Como se puede observar, *B* sigue las reglas algebraicas.
+
+# Modelos AR y MA
+## Modelos autorregresivos (AR)
+
+Un modelo autorregresivo de orden *p* se define como
+
+$$y_{t}=\phi_0+\phi_{1} y_{t-1}+\phi_{2} y_{t-2}+\cdots+\phi_{p} y_{t-p}+\varepsilon_{t}$$
+donde $\varepsilon_{t}$ es ruido blanco. Si observamos bien la ecuación, se asemeja mucho a una ecuación de regresión lineal múltiple, con la diferencia de que, ahora, los parámetros no son $\beta$, sino $\phi$ y que las regresoras (variables $x$), ahora son valores rezagados de la variable dependiente, $y_t$. Este sería un **modelo AR(*p*)**: modelo autorregresivo de orden *p*.
+
+Para un modelo **AR(1):** $y_{t}=\phi_0+\phi_{1} y_{t-1}+ \varepsilon_{t}$, tenemos algunas situaciones, dependiendo los valores de $\phi_0$ y $\phi_1$:
+
+* Si $\phi_1 = 0$, la serie es equivalente a un **ruido blanco** ($y_{t}=\phi_0+ \varepsilon_{t}$).
+
+* Si $\phi_1 = 1$ y $\phi_0 = 0$, la serie es equivalente a una **caminata aleatoria**.
+
+* Si $\phi_1 = 1$ y $\phi_0 \neq 0$, la serie es equivalente a una **caminata aleatoria con deriva**.
+
+* Si $\phi_1 \lt 0$, $y_t$ tiende a oscilar alrededor de su media.
+
+Dos ejemplos de modelos autorregresivos:
+
+```{r AR 1 2, echo=FALSE}
+ar1 <- arima.sim(list(order=c(1,0,0), ar= 0.8),n=100)
+ar2 <- arima.sim(list(order=c(2,0,0), ar= c(1.3, -0.7)),n=100)
+autoplot(ar1) + ggtitle("AR(1)")  | autoplot(ar2) + ggtitle("AR(2)")
+
+```
+
+## Modelos de media móvil (MA)
+
+Los modelos autorregresivos utilizan las observaciones pasadas para modelar. Los modelos de media móvil utilizan los **errores o residuos pasados** para modelar el pronóstico. 
+
+$$y_{t}=\theta_0 +\varepsilon_{t}+\theta_{1} \varepsilon_{t-1}+\theta_{2} \varepsilon_{t-2}+\cdots+\theta_{q} \varepsilon_{t-q}$$
+$\varepsilon_{t}$ es ruido blanco y a esto se le conoce como un modelo **MA(*q*)** de orden *q*.
+
+Es importante que no se confundan los modelos de media móvil con la suavización mediante medias móviles vista anteriormente. Los modelos de media móvil buscan pronosticar valores futuros, mientras que la suavización de media móvil pretende estimar el patrón de tendencia ciclo de valores pasados.
+
+```{r MA 1 2, echo=FALSE}
+ma1 <- arima.sim(list(order=c(0,0,1), ma= 0.8),n=100)
+ma2 <- arima.sim(list(order=c(0,0,2), ma= c(1.3, -0.7)),n=100)
+autoplot(ma1) + ggtitle("MA(1)")  | autoplot(ma2) + ggtitle("MA(2)")
+```
+
+# Modelos ARIMA no estacionales
+
+Si juntamos lo visto hasta ahora (diferenciación, modelos autorregresivos y de media móvil), obtenemos un modelo ARIMA no estacional.
+
+ARIMA es el acrónimo de "AutoRegressive Integrated Moving Average", o modelo AutoRegresivo integrado de Media Móvil. El modelo puede ser escrito así:
+
+$$y_{t}^{\prime}=c+\phi_{1} y_{t-1}^{\prime}+\cdots+\phi_{p} y_{t-p}^{\prime}+\theta_{1} \varepsilon_{t-1}+\cdots+\theta_{q} \varepsilon_{t-q}+\varepsilon_{t}$$
+
+donde $y_{t}^{\prime}$ es la serie diferenciada, y del lado derecho de la ecuación tenemos los términos autorregresivos (observaciones pasadas) y de media móvil (errores pasados). Estos se llaman, valores y errores rezagados, respectivamente. El modelo ARIMA entonces tiene tres órdenes distintos **ARIMA(*p*,*d*,*q*)**, donde:
+
+* *p* = orden del componente autorregresivo
+* *d* = orden de diferenciación de la serie para hacerla estacionaria
+* *q* = orden del componente de media móvil
+
+Varios modelos de los que hemos visto hasta ahora se pueden expresar como casos particulares de un modelo ARIMA:
+
+| Modelo                        | Especificación ARIMA       |
+|:-----------------------------:|:---------------------------|
+| Ruido blanco (WN)             | ARIMA(0,0,0)               |
+| Caminata aleatoria (RW)       | ARIMA(0,1,0) sin constante |
+| RW con deriva (RW with drift) | ARIMA(0,1,0) con constante |
+| Modelo autorregresivo (AR)    | ARIMA(*p*,0,0)             |
+| Modelo de media móvil (MA)    | ARIMA(0,0,*q*)             |
+
+En un modelo ARIMA, los valores de la constante, *c* y el orden de integración, *d*, pueden tener efectos importantes en el pronóstico de largo plazo:
+
+* Si $c = 0$ y $d = 0$, los pronósticos de l.p. se irán a cero.
+* Si $c = 0$ y $d = 1$, los pronósticos de l.p. se irán a una constante distinta de cero.
+* Si $c = 0$ y $d = 2$, los pronósticos de l.p. seguirán una línea recta.
+* Si $c \neq 0$ y $d = 0$, los pronósticos de l.p. se irán a la media de los datos.
+* Si $c \neq 0$ y $d = 1$, los pronósticos de l.p. seguirán una línea recta.
+* Si $c \neq 0$ y $d = 2$, los pronósticos de l.p. seguirán una tendencia cuadrática.
+
+El valor de *d* también afecta los intervalos de predicción: entre más grande el valor de *d*, más rápido se incrementarán los intervalos de predicción.
+
+## Función de autocorrelación y autocorrelación parcial
+
+Generalmente, es muy difícil identificar el orden *p* y *q* de una serie de tiempo a simple vista. Por lo tanto, utilizamos las funciones ACF y PACF para intentar escoger esos valores *p* y *q*.
+
+Los datos pueden seguir un modelo ARIMA(*p,d*,0) si:
+
+* La ACF decae exponencialmente o tiene un comportamiento senoidal.
+* La PACF tiene un pico significativo en el rezago *p*, y posteriormente ya tienden a cero.
+
+
+Por el contrario, los datos pueden seguir un ARIMA(0,*d,q*) si:
+
+* La PACF decae exponencialmente o tiene un comportamiento senoidal.
+* La ACF tiene un pico significativo en el rezago *q*, y posteriormente ya tienden a cero.
+
+En resumen, **la PACF nos sirve para encontrar el orden *p* y la ACF para el orden *q*.**
+
+Para ejemplificarlo, tomaremos los cambios porcentuales trimestrales en el gasto de consumo en EEUU:
+
+```{r us_change, message=FALSE}
+us_change <- read_csv("https://otexts.com/fpp3/extrafiles/us_change.csv") %>%
+  mutate(Time = yearquarter(Time)) %>%
+  as_tsibble(index = Time)
+
+us_change %>% autoplot(Consumption) +
+  labs(x = "Year", y = "Quarterly percentage change", title = "US consumption")
+```
+
+Si tomamos la PACF:
+```{r us_change pacf}
+us_change %>% PACF(Consumption) %>% autoplot()
+```
+
+notamos que los primeros 3 rezagos son significativos y posteriormente decaen y se vuelven no significativos. Esto nos podría indicar la presencia de un modelo de orden $p = 3$: ARIMA(3,0,0).
+
+En **R**, la función `ARIMA()` nos permite ajustar este tipo de modelos y con `report()` podemos ver el resultado del ajuste. El orden del modelo se especifica dentro de `pdq()`. Como son series no estacionales, se especifica también `PDQ(0,0,0)`:
+
+```{r us_change ARIMA}
+fit <- us_change %>%
+  model(ARIMA(Consumption ~ pdq(3,0,0) + PDQ(0,0,0)))
+report(fit)
+```
+
+Una ventaja de realizar esto en **R**, es que podemos hacer que **R** nos encuentre, de manera automática, el mejor modelo, al no especificar el orden. Sin embargo, esto no evalúa todos los modelos posibles y, a veces no logra encontrar el óptimo.
+
+```{r us_change auto ARIMA}
+fit2 <- us_change %>%
+  model(ARIMA(Consumption ~ PDQ(0,0,0)))
+report(fit2)
+```
+
+Aquí **R** encontró un modelo ARIMA(1,0,3). ¿Cuál de los dos modelos es mejor?
+
+## Selección de modelos ARIMA
+
+Una manera de escoger entre dos modelos distintos de los mismos datos es a través de los criterios de información:
+
+* Criterio de información de Akaike (AIC).
+* Criterio de información de Akaike corregido por sesgo de muestras pequeñas ($AIC_c$).
+* Criterio de información Bayesiano (BIC).
+
+Se sugiere utilizar el $AIC_c$. Recordando, entre menor sea el valor de los criterios de información, mejor ajuste tendrá el modelo.
+
+En el ejemplo, vemos que el ARIMA(1,0,3) tiene un $AIC_c=342.08$, mientras que el ARIMA(3,0,0) tiene un $AIC_c=340.67$. Así, diríamos que el ARIMA(3,0,0) es el mejor modelo de los dos.
+
+**NOTA:** *Si quieren hacer que sea más robusta (pero más lenta) la evaluación automática del modelo ARIMA, pueden definir los argumentos `stepwise=FALSE` and `approximation=FALSE`:
+
+```{r us_change auto ARIMA long}
+fit3 <- us_change %>%
+  model(ARIMA(Consumption ~ PDQ(0,0,0),
+              stepwise = FALSE, approximation = FALSE))
+report(fit3)
+```
+
+Vemos que así llegó al mismo modelo que habíamos encontrado nosotros gráficamente.
+
+Una opción adicional es definirle un conjunto de valores a probar para cada orden. P. ej., si queremos que **R** pruebe con órdenes $p \in\{1,2,3\}, q \in\{0,1,2\}$, podríamos hacerlo así:
+
+```{r us_change auto ARIMA orders}
+fit4 <- us_change %>%
+  model(ARIMA(Consumption ~ pdq(1:3, 0, 0:2) + PDQ(0,0,0)))
+report(fit4)
+```
+
+### Ejemplo de modelos ARIMA
+
+Podemos ver varias combinaciones distintas para estos datos a continuación:
+
+```{r shiny-us_change, echo=FALSE}
+inputPanel(
+  numericInput("ar_p",label = "p",value = 0, min = 0, max = 5, step = 1),
+numericInput("i_d",label = "d",value = 0, min = 0, max = 2, step = 1),
+numericInput("ma_q",label = "q",value = 0, min = 0, max = 4, step = 1),
+actionButton("go","Estimar modelo ARIMA")
+)
+
+modelo <- eventReactive(input$go, {
+  us_change %>% 
+    model(ARIMA(Consumption ~ pdq(input$ar_p, input$i_d, input$ma_q) + PDQ(0,0,0)))
+})
+
+renderText({
+  paste("Estimación del modelo ARIMA(",input$ar_p, ",", input$i_d, ",", input$ma_q, ")", sep = "")
+})
+
+renderPrint({
+  report(modelo())
+})
+
+renderPlot({
+  modelo() %>% gg_tsresiduals() + ggtitle("Diagnóstico de residuos"
+  )
+})
+renderText({
+  "Prueba de Ljung-Box"
+})
+renderPrint({
+  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 10)
+})
+
+```
+
+
+
+# Metodología Box-Jenkins
+
+¿Cómo se escoge el orden del modelo (*p,d,q*)? Se pueden seguir los siguientes pasos para intentar encontrar el modelo ARIMA óptimo para una serie de tiempo no estacional. Es un proceso iterativo y, en cierto grado, de prueba y error:
+
+1. Graficar los datos e identificar observaciones inusuales.
+
+2. Si es necesario, transformar los datos para estabilizar la varianza.
+    - Comúnmente se utilizará una transformación Box-Cox.
+
+3. Si la serie es no estacionaria, diferenciarla hasta convertirla en estacionaria.
+    - Aquí entran las pruebas de raíz unitaria como la KPSS.
+
+4. Revisar las gráficas de las funciones ACF y PACF y decidir los órdenes *p,q*.
+
+5. Ajuste el modelo escogido y revise la $AIC_c$ correspondiente para comparar vs. otros modelos.
+
+6. Lleve a cabo el diagnóstico de residuos.
+    - Grafique la ACF y los tests de portmanteau. Si los residuos no parecen ruido blanco, intente refinando el modelo.
+
+7. Una vez que se cuenta con residuos similares a ruido blanco, realizar los pronósticos.
+
+### Ejemplo: Órdenes desestacionalizadas de equipo eléctrico
+
+```{r box-jenkins ex plot}
+elec_equip <- as_tsibble(fpp2::elecequip)
+
+elec_dcmp <- elec_equip %>%
+  model(STL(value ~ season(window="periodic"))) %>%
+  components() %>%
+  select(-.model) %>%
+  as_tsibble()
+elec_dcmp %>%
+  autoplot(season_adjust)
+```
+
+**1.** Se muestra un cambio drástico de 2008 a 2009. Esto se debe a la crisis de esos año. No se detecta ningún otro patrón inusual.
+
+**2.** No parece existir un cambio en la varianza de la serie, por lo que no realizaremos ninguna transformación de Box-Cox.
+
+**3.** La gráfica muestra claramente que la serie es no estacionaria, así que tendremos que diferenciarla para lograr estacionariedad. Con las primeras diferencias parece que ya se vuelve estacionaria:
+
+```{r box-jenkins ex diff}
+elec_dcmp %>%
+  gg_tsdisplay(difference(season_adjust), plot_type='partial')
+```
+
+**4.** La PACF indica un modelo AR(3), por lo que nuestro primer candidato será un ARIMA(3,1,0).
+
+**5.** Ajustaremos el ARIMA(3,1,0) junto con ARIMA(4,1,0), ARIMA(2,1,0), ARIMA(3,1,1). Parece que el ARIMA(3,1,1) es el mejor con base en el $AIC_c$.
+
+```{r box-jenkins ex fit, message=FALSE}
+fit <- elec_dcmp %>%
+  model(
+    arima310 = ARIMA(season_adjust ~ pdq(3,1,0) + PDQ(0,0,0)),
+    arima410 = ARIMA(season_adjust ~ pdq(4,1,0) + PDQ(0,0,0)),
+    arima210 = ARIMA(season_adjust ~ pdq(2,1,0) + PDQ(0,0,0)),
+    arima311 = ARIMA(season_adjust ~ pdq(3,1,1) + PDQ(0,0,0))
+    
+  )
+for (i in 1:4){
+  report(fit %>% dplyr::select(all_of(i)))
+}
+
+```
+
+**6.** La función ACF de los residuos del ARIMA(3,1,1) indica que las autocorrelaciones no exceden las bandas de significancia, por lo que se pueden considerar ruido blanco.
+
+```{r box-jenkins ex tsresiduals}
+fit %>% select(arima311) %>% gg_tsresiduals()
+```
+El test de Ljung-Box comprueba lo que vimos gráficamente, ya que el p-value es bastante alto:
+
+```{r box-jenkins ex ljung-box}
+fit %>% 
+  select(arima311) %>% 
+  augment() %>%
+  features(.resid, ljung_box, lag = 24, dof = 4)
+```
+
+**7.** El pronóstico del modelo ARIMA(3,1,1):
+
+```{r box-jenkins ex fcst}
+fit %>% select(arima311) %>% forecast() %>% autoplot(elec_dcmp)
+```
+
