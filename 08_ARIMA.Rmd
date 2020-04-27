@@ -18,7 +18,7 @@ libraries("tidyverse","fpp3", "patchwork")
 
 Los modelos ARIMA son otra metodología para realizar pronósticos de series de tiempo. Estos y los modelos de suavización exponencial son los métodos más comúnmente utilizados para pronóstico hoy en día.
 
-Una diferencia fundamental entre la suavización exponencial y los modelos ARIMA es que, en los primeros nos enfocamos en **la forma de la tendencia y estacionalidad**, mientras que en los modelos ARIMA pretendemos describir las **autocorrelaciones en los datos**.
+Una diferencia fundamental entre la suavización exponencial y los modelos ARIMA es que, en los primeros nos enfocamos en **la forma de la tendencia y estacionalidad**, mientras que en los modelos ARIMA pretendemos describir las **autocorrelaciones en los datos**. 
 
 # Estacionariedad y diferenciación
 
