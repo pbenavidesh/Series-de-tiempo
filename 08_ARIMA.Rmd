@@ -2,7 +2,7 @@
 title: "Modelos ARIMA"
 author: "Pablo Benavides-Herrera"
 date: "20/4/2020"
-output: 
+output:
   html_document:
     toc: TRUE
     toc_float: TRUE
