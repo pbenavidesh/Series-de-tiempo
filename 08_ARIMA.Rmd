@@ -12,8 +12,12 @@ runtime: shiny
 ---
 
 ```{r pkgs, message=FALSE}
-library(easypackages)
-libraries("tidyverse","fpp3", "patchwork")
+if(!require(tidyverse)) install.packages("tidyverse")
+library(tidyverse)
+if(!require(fpp3)) install.packages("fpp3")
+library(fpp3)
+if(!require(patchwork)) install.packages("patchwork")
+library(patchwork)
 ```
 
 Los modelos ARIMA son otra metodología para realizar pronósticos de series de tiempo. Estos y los modelos de suavización exponencial son los métodos más comúnmente utilizados para pronóstico hoy en día.
@@ -374,7 +378,7 @@ En resumen, **la PACF nos sirve para encontrar el orden *p* y la ACF para el ord
 Para ejemplificarlo, tomaremos los cambios porcentuales trimestrales en el gasto de consumo en EEUU:
 
 ```{r us_change, message=FALSE}
-us_change <- read_csv("https://otexts.com/fpp3/extrafiles/us_change.csv") %>%
+us_change <- read_csv("us_change.csv") %>%
   mutate(Time = yearquarter(Time)) %>%
   as_tsibble(index = Time)
 
