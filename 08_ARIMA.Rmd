@@ -567,3 +567,52 @@ fit %>%
 fit %>% select(arima311) %>% forecast() %>% autoplot(elec_dcmp)
 ```
 
+# Modelos ARIMA estacionales (SARIMA)
+
+Los modelos autorregresivos integrados de media móvil (ARIMA) también son capaces de lidiar con series de tiempo estacionales, y para ello tenemos que incluir términos adicionales al modelo:
+
+$$
+\operatorname{ARIMA} \quad \underbrace{(p, d, q)}_{\text{Parte no estacional del modelo}} \overbrace{(P, D, Q)_{m}}^{\text{Parte estacional del modelo}}
+$$
+
+Así en **R**, con la función `PDQ(P,D,Q)`, se definen los órdenes para la parte estacional de la serie con *m* = al periodo estacional.
+
+## Función de autocorrelación y autocorrelación parcial
+
+La parte estacional de un modelo AR o MA se puede ver en los rezagos estacionales de la PACF y ACF, respectivamente. P. ej., un $\operatorname{ARIMA}(0,0,0)(0,0,1)_{12}$ mostraría:
+
+* Un pico en el rezago 12 en su ACF, sin otro pico significativo.
+* Un decrecimiento exponencial en los rezagos estacional en la PACF (rezagos 12, 24, 36, etc.).
+
+De manera análoga, un modelo $\operatorname{ARIMA}(0,0,0)(1,0,0)_{12}$ mostraría:
+
+* Un pico en el rezago 12 en su PACF, sin otro pico significativo.
+* Un decrecimiento exponencial en los rezagos estacional en la ACF (rezagos 12, 24, 36, etc.).
+
+Es importante que, para determinar el orden de la parte estacional, se fije únicamente en los rezagos estacionales. El procedimiento para modelar es esencialmente el mismo que para los ARIMA no estacionales, solo se añade la parte de seleccionar el orden estacional.
+
+## Ejemplo: Comercio trimestral europeo
+
+Tomamos el comercio europeo entre 1996 y 2011 para ejemplificar los modelos SARIMA (o ARIMA estacionales):
+
+```{r SARIMA eu retail plot}
+eu_retail <- as_tsibble(fpp2::euretail)
+eu_retail %>% autoplot(value) + ylab("Retail index") + xlab("Year")
+```
+
+Los datos son evidentemente **no estacionarios** y muestran algo de **estacionalidad**. Por ello, tomaremos diferencias estacionales:
+
+```{r SARIMA eu retail sdiff, warning=FALSE}
+eu_retail %>% gg_tsdisplay(difference(value, 4), plot_type='partial')
+```
+
+Sigue siendo no estacionaria, por lo que tomamos, adicionalmente, las primeras diferencias:
+
+```{r SARIMA eu retail diff, warning=FALSE}
+eu_retail %>% gg_tsdisplay(value %>% difference(4) %>% difference(),
+  plot_type='partial')
+```
+
+
+
+
