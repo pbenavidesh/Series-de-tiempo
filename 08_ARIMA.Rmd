@@ -643,24 +643,70 @@ El pronóstico con este modelo quedaría así:
 fit %>% forecast(h=12) %>% autoplot(eu_retail)
 ```
 
+Los modelos ARIMA estacionales también pueden ser estimados automáticamente por **R**, de la misma manera que antes, solo que ahora no especificamos ningún parámetro dentro del modelo:
 
-## Ejemplo: 
+```{r SARIMA eu retail automatic}
+eu_retail %>%
+  model(ARIMA(value))
+```
+
+
+## Ejemplo: Ventas de medicamentos corticosteroides en Australia
+
+Este siguiente ejemplo es más complejo. Este tipo de medicamentos se conoce como medicinas "HO2". Graficamos la serie y la serie en logaritmos para ver su comportamiento:
+
+```{r SARIMA HO2 plot}
+h02 <- PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost)/1e6)
+h02 %>%
+  mutate(log(Cost)) %>%
+  gather() %>%
+  ggplot(aes(x = Month, y = value)) +
+  geom_line() +
+  facet_grid(key ~ ., scales = "free_y") +
+  xlab("Year") + ylab("") +
+  ggtitle("Cortecosteroid drug scripts (H02)")
+```
+
+Se ve mejor la serie en logaritmos, para estabilizar el ligero incremento en la varianza. La serie presenta una fuerte estacionalidad mensual y obviamente es no estacionaria. Tomaremos diferencias estacionales:
+
+```{r SARIMA HO2 sdiff, warning=FALSE}
+h02 %>% gg_tsdisplay(difference(log(Cost), 12), plot_type='partial', lag_max = 24)
+```
+
+De estas gráficas no queda claro si se requiere una diferenciación adicional o no. Seguimos, por lo pronto, solo con las diferencias estacionales.
+
+En la gráfica de la PACF vemos que se presentan picos en los rezagos 12 y 24, pero ninguno en la ACF. Esto sugiere un componente **AR(2) estacional**. Tomando los rezagos no estacionales, vemos picos en los primeros tres, lo que indicaría un componente **AR(3) no estacional**. El patrón que se observa en la ACF no indica ningún modelo sencillo. Este modelo propuesto sería un $\operatorname{ARIMA}(3,0,0)(2,1,0)_{12}$.
+
+Este caso requiere de realizar varias pruebas para intentar identificar el mejor modelo.
+
+
+
+
 
 ```{r shiny-eu_retail, echo=FALSE}
 inputPanel(
+  fluidRow(
   numericInput("ar_p",label = "p",value = 0, min = 0, max = 5, step = 1),
-numericInput("i_d",label = "d",value = 0, min = 0, max = 2, step = 1),
-numericInput("ma_q",label = "q",value = 0, min = 0, max = 4, step = 1),
-actionButton("go","Estimar modelo ARIMA")
+  numericInput("i_d",label = "d",value = 0, min = 0, max = 1, step = 1),
+  numericInput("ma_q",label = "q",value = 0, min = 0, max = 5, step = 1)
+), fluidRow(
+  numericInput("ar_P",label = "P",value = 0, min = 0, max = 2, step = 1),
+  numericInput("i_D",label = "D",value = 0, min = 0, max = 1, step = 1),
+  numericInput("ma_Q",label = "Q",value = 0, min = 0, max = 2, step = 1)
+),
+
+  actionButton("go","Estimar modelo ARIMA")
 )
 
 modelo <- eventReactive(input$go, {
-  us_change %>% 
-    model(ARIMA(Consumption ~ pdq(input$ar_p, input$i_d, input$ma_q) + PDQ(0,0,0)))
+  ho2 %>% 
+    model(ARIMA(log(Cost) ~ 0 + pdq(input$ar_p, input$i_d, input$ma_q) + PDQ(input$ar_P, input$i_D, input$ma_Q)))
 })
 
 renderText({
-  paste("Estimación del modelo ARIMA(",input$ar_p, ",", input$i_d, ",", input$ma_q, ")", sep = "")
+  paste("Estimación del modelo ARIMA(",input$ar_p, ",", input$i_d, ",", input$ma_q, ")","(",input$ar_P, ",", input$i_D, ",", input$ma_Q, ")~12~" sep = "")
 })
 
 renderPrint({
@@ -668,15 +714,22 @@ renderPrint({
 })
 
 renderPlot({
-  modelo() %>% gg_tsresiduals() + ggtitle("Diagnóstico de residuos"
+  modelo() %>% gg_tsresiduals(lag_max = 36) + ggtitle("Diagnóstico de residuos"
   )
 })
 renderText({
   "Prueba de Ljung-Box"
 })
 renderPrint({
-  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 10)
+  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 36, dof = nrow(tidy(modelo())))
 })
 
+renderPlot({
+  h02 %>%
+  modelo() %>%
+  forecast() %>%
+  autoplot(h02) +
+    ylab("H02 sales (million scripts)") + xlab("Year")
+})
 ```
 
