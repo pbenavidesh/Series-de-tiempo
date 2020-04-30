@@ -681,32 +681,41 @@ En la gráfica de la PACF vemos que se presentan picos en los rezagos 12 y 24, p
 
 Este caso requiere de realizar varias pruebas para intentar identificar el mejor modelo.
 
+En ocasiones, ningún modelo logra cumplir todas las pruebas.
 
+**NOTA:** Para comparar el desempeño entre modelos a través de los criterios de información ($AIC_c$), es necesario que **el orden de diferenciación sea el mismo en todos los modelos**. Sin embargo, cuando se compara a los modelos utilizando un conjunto de datos de prueba (a través de las métricas de error), es indiferente cómo se produjeron los pronósticos; las comparaciones siempre son válidas.
 
+## Ejercicio:
 
+**Escoja distintos modelos ARIMA estacionales y, con base en la información arrojada, seleccione los 3 mejores modelos.**
 
 ```{r shiny-eu_retail, echo=FALSE}
+h02_train <- h02 %>% 
+  filter(year(Month) <= 2005)
+
 inputPanel(
   fluidRow(
-  numericInput("ar_p",label = "p",value = 0, min = 0, max = 5, step = 1),
-  numericInput("i_d",label = "d",value = 0, min = 0, max = 1, step = 1),
-  numericInput("ma_q",label = "q",value = 0, min = 0, max = 5, step = 1)
+  numericInput("ar_p2",label = "p",value = 0, min = 0, max = 5, step = 1),
+  numericInput("i_d2",label = "d",value = 0, min = 0, max = 1, step = 1),
+  numericInput("ma_q2",label = "q",value = 0, min = 0, max = 5, step = 1)
 ), fluidRow(
   numericInput("ar_P",label = "P",value = 0, min = 0, max = 2, step = 1),
   numericInput("i_D",label = "D",value = 0, min = 0, max = 1, step = 1),
   numericInput("ma_Q",label = "Q",value = 0, min = 0, max = 2, step = 1)
 ),
 
-  actionButton("go","Estimar modelo ARIMA")
+  actionButton("go2","Estimar modelo ARIMA")
 )
 
-modelo <- eventReactive(input$go, {
-  ho2 %>% 
-    model(ARIMA(log(Cost) ~ 0 + pdq(input$ar_p, input$i_d, input$ma_q) + PDQ(input$ar_P, input$i_D, input$ma_Q)))
+modelo <- eventReactive(input$go2, {
+  h02_train %>% 
+    model(ARIMA(log(Cost) ~ 0 + pdq(input$ar_p2, input$i_d2, input$ma_q2) + PDQ(input$ar_P, input$i_D, input$ma_Q)
+                )
+          )
 })
 
 renderText({
-  paste("Estimación del modelo ARIMA(",input$ar_p, ",", input$i_d, ",", input$ma_q, ")","(",input$ar_P, ",", input$i_D, ",", input$ma_Q, ")~12~" sep = "")
+  paste("Estimación del modelo ARIMA(",input$ar_p2, ",", input$i_d2, ",", input$ma_q2, ")","(",input$ar_P, ",", input$i_D, ",", input$ma_Q,")_12", sep = "")
 })
 
 renderPrint({
@@ -721,11 +730,23 @@ renderText({
   "Prueba de Ljung-Box"
 })
 renderPrint({
-  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 36, dof = nrow(tidy(modelo())))
+  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 36, dof = nrow(tidy(modelo()
+               )
+          )
+                                      )
 })
-
+renderText({
+  "Evaluación del desempeño del modelo"
+})
+renderPrint({
+  modelo() %>% 
+    forecast(h = 30) %>% 
+    accuracy(h02)
+})
+renderText({
+  "Pronóstico"
+})
 renderPlot({
-  h02 %>%
   modelo() %>%
   forecast() %>%
   autoplot(h02) +
