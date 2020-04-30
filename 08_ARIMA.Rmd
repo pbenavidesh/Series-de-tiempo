@@ -685,9 +685,9 @@ En ocasiones, ningún modelo logra cumplir todas las pruebas.
 
 **NOTA:** Para comparar el desempeño entre modelos a través de los criterios de información ($AIC_c$), es necesario que **el orden de diferenciación sea el mismo en todos los modelos**. Sin embargo, cuando se compara a los modelos utilizando un conjunto de datos de prueba (a través de las métricas de error), es indiferente cómo se produjeron los pronósticos; las comparaciones siempre son válidas.
 
-## Ejercicio:
+## Ejercicio: Selección de modelo para las ventas de H02
 
-**Escoja distintos modelos ARIMA estacionales y, con base en la información arrojada, seleccione los 3 mejores modelos.**
+**Escoja distintos modelos ARIMA estacionales y, con base en la información arrojada, seleccione los 3 mejores modelos que encuentre.**
 
 ```{r shiny-eu_retail, echo=FALSE}
 h02_train <- h02 %>% 
@@ -748,7 +748,7 @@ renderText({
 })
 renderPlot({
   modelo() %>%
-  forecast() %>%
+  forecast(h = 30) %>%
   autoplot(h02) +
     ylab("H02 sales (million scripts)") + xlab("Year")
 })
