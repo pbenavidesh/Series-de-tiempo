@@ -606,13 +606,77 @@ Los datos son evidentemente **no estacionarios** y muestran algo de **estacional
 eu_retail %>% gg_tsdisplay(difference(value, 4), plot_type='partial')
 ```
 
-Sigue siendo no estacionaria, por lo que tomamos, adicionalmente, las primeras diferencias:
+Sigue siendo no estacionaria, por lo que tomamos, adicionalmente, las primeras diferencias y comprobamos que así la serie es estacionaria con la prueba de KPSS:
 
 ```{r SARIMA eu retail diff, warning=FALSE}
 eu_retail %>% gg_tsdisplay(value %>% difference(4) %>% difference(),
   plot_type='partial')
+eu_retail %>%  
+  features(value %>%  difference(4) %>% difference(), unitroot_kpss)
+```
+
+Nuestro objetivo ahora es encontrar el orden del modelo con base en las funciones ACF y PACF que se grafican arriba. El pico significante en el primer rezago de la ACF sugiere un componente no estacional MA(1), y el pico significativo en el cuarto rezago de la ACF sugiere un componente MA(1) estacional. Por lo tanto, comenzamos escogiendo un modelo $\operatorname{ARIMA}(0,1,1)(0,1,1)_4$ que indica primeras diferencias y diferencias estacionales y componentes MA(1), tanto no estacionales, como estacionales.
+
+**NOTA:** De la manera analógica, al observar la PACF, pudimos haber comenzado con un modelo $\operatorname{ARIMA}(1,1,0)(1,1,0)_4$.
+
+```{r SARIMA eu retail fit1}
+fit <- eu_retail %>%
+  model(arima = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)))
+fit %>% gg_tsresiduals()
+```
+
+Ambas funciones (ACF y PACF) muestran picos significativos en el segundo rezago y uno casi significativo en el tercero, por lo que parece que podemos mejorar el ajuste del modelo incluyendo términos adicionales no estacionales. El modelo  $\operatorname{ARIMA}(0,1,2)(0,1,1)_4$ se ajusta bien y obtiene un $AIC_c=74.27$, mientras que el $\operatorname{ARIMA}(0,1,2)(0,1,1)_4$ tiene un $AIC_c=68.39$:
+
+```{r SARIMA eu retail fit2}
+fit <- eu_retail %>%
+  model(arima = ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1)))
+fit %>% gg_tsresiduals()
+report(fit)
+fit %>% augment() %>%  features(.resid, ljung_box, lag = 8, dof = 4)
+```
+
+El ajuste se ve bien gráficamente y lo comprobamos con la prueba de Ljung-Box. ¿Puede encontrar algún mejor modelo (que tenga un $AIC_c\lt68.39$?
+
+El pronóstico con este modelo quedaría así:
+
+```{r SARIMA eu retail forecast}
+fit %>% forecast(h=12) %>% autoplot(eu_retail)
 ```
 
 
+## Ejemplo: 
 
+```{r shiny-eu_retail, echo=FALSE}
+inputPanel(
+  numericInput("ar_p",label = "p",value = 0, min = 0, max = 5, step = 1),
+numericInput("i_d",label = "d",value = 0, min = 0, max = 2, step = 1),
+numericInput("ma_q",label = "q",value = 0, min = 0, max = 4, step = 1),
+actionButton("go","Estimar modelo ARIMA")
+)
+
+modelo <- eventReactive(input$go, {
+  us_change %>% 
+    model(ARIMA(Consumption ~ pdq(input$ar_p, input$i_d, input$ma_q) + PDQ(0,0,0)))
+})
+
+renderText({
+  paste("Estimación del modelo ARIMA(",input$ar_p, ",", input$i_d, ",", input$ma_q, ")", sep = "")
+})
+
+renderPrint({
+  report(modelo())
+})
+
+renderPlot({
+  modelo() %>% gg_tsresiduals() + ggtitle("Diagnóstico de residuos"
+  )
+})
+renderText({
+  "Prueba de Ljung-Box"
+})
+renderPrint({
+  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 10)
+})
+
+```
 
