@@ -9,6 +9,7 @@ Modelos de regresión dinámica
   - [Pronóstico](#pronóstico)
       - [Continuación ejemplo: Consumo personal e ingreso en
         EEUU](#continuación-ejemplo-consumo-personal-e-ingreso-en-eeuu)
+      - [Ejemplo: Demanda de energía](#ejemplo-demanda-de-energía)
 
 ``` r
 library(easypackages)
@@ -237,3 +238,134 @@ cuenta la incertidumbre de las predictoras. Así, el modelo *asume* que
 esas predicciones son correctas. En otras palabras, los intervalos de
 predicción son condicionales al cumplimiento de los valores de las
 predictoras.
+
+## Ejemplo: Demanda de energía
+
+La demanda de energía diaria se puede modelar como una función de la
+temperatura del ambiente. Cuando la temperatura es muy extrema (muy alta
+o muy baja), tiende a aumentar la demanda de energía (por el uso de
+aires acondicionados y calefacción, respectivamente).
+
+Grafiquemos la energía demandada vs. la temperatura global de cada día
+para ver este efecto:
+
+``` r
+vic_elec_daily <- vic_elec %>%
+  filter(year(Time) == 2014) %>%
+  index_by(Date = date(Time)) %>%
+  summarise(
+    Demand = sum(Demand)/1e3,
+    Temperature = max(Temperature),
+    Holiday = any(Holiday)
+  ) %>%
+  mutate(Day_Type = case_when(
+    Holiday ~ "Holiday",
+    wday(Date) %in% 2:6 ~ "Weekday",
+    TRUE ~ "Weekend"
+  ))
+
+vic_elec_daily %>%
+  ggplot(aes(x=Temperature, y=Demand, colour=Day_Type)) +
+    geom_point() +
+    ylab("Electricity demand (GW)") +
+    xlab("Maximum daily temperature")
+```
+
+![](09_Dynamic_regression_files/figure-gfm/elec%20v.%20temp%20plot-1.jpeg)<!-- -->
+
+Como era de esperarse, la gráfica parece tener una forma de *U*.
+Adicionalmente, vemos que la energía demandada es mayor entre semana,
+luego en fin de semana, y por último en días festivos. Esto nos lleva a
+determinar que la demanda de energía es una función de la temperatura y
+del tipo de día en que nos encontremos.
+
+Ahora revisamos las gráficas de tiempo de ambas variables:
+
+``` r
+vic_elec_daily %>% 
+  pivot_longer(cols = c(Demand, Temperature), names_to = "vars",
+               values_to = "value") %>% 
+  ggplot(aes(x = Date, y = value)) + 
+  geom_line() + 
+  facet_wrap(~ vars, ncol = 1, strip.position = "right", scales = "free")
+```
+
+![](09_Dynamic_regression_files/figure-gfm/elec%20time%20plots-1.jpeg)<!-- -->
+
+Dado que la relación entre las variables es cuadrática, ajustaremos un
+modelo cuadrático con errores ARIMA. Adicionalmente, agregaremos una
+variable para indicar si el día fue hábil o no.
+
+``` r
+fit <- vic_elec_daily %>%
+  model(ARIMA(Demand ~ Temperature + I(Temperature^2) + (Day_Type=="Weekday")))
+
+report(fit)
+```
+
+    ## Series: Demand 
+    ## Model: LM w/ ARIMA(2,1,2)(0,0,2)[7] errors 
+    ## 
+    ## Coefficients:
+    ##          ar1      ar2      ma1     ma2    sma1    sma2  Temperature
+    ##       1.1521  -0.2750  -1.3851  0.4071  0.1589  0.3103      -7.9467
+    ## s.e.  0.6265   0.4812   0.6082  0.5805  0.0591  0.0538       0.4920
+    ##       I(Temperature^2)  Day_Type == "Weekday"TRUE
+    ##                 0.1865                    31.8245
+    ## s.e.            0.0097                     1.0189
+    ## 
+    ## sigma^2 estimated as 48.82:  log likelihood=-1220.48
+    ## AIC=2460.96   AICc=2461.58   BIC=2499.93
+
+Revisamos el ajuste del modelo a través de sus residuos:
+
+``` r
+fit %>% gg_tsresiduals()
+```
+
+![](09_Dynamic_regression_files/figure-gfm/elec%20resid%20diagnostics-1.jpeg)<!-- -->
+
+``` r
+augment(fit) %>%
+  features(.resid, ljung_box, dof = 8, lag = 14)
+```
+
+    ## # A tibble: 1 x 3
+    ##   .model                                                       lb_stat lb_pvalue
+    ##   <chr>                                                          <dbl>     <dbl>
+    ## 1 "ARIMA(Demand ~ Temperature + I(Temperature^2) + (Day_Type ~    38.1   1.05e-6
+
+Se ven heteroscedásticos, ya que la variación es mayor en enero y un
+poco en febrero que en otros meses. Adicionalmente, vemos que hay
+rezagos significativos y que la distribución es de colas largas. Esto
+puede tener un impacto negativo en los intervalos de predicción, pero la
+estimación puntual es válida.
+
+Así, entonces pronosticaremos los siguientes 14 días. Para esto,
+necesitamos datos respecto a la temperatura futura y podemos hacer dos
+cosas:
+
+  - Conseguir los datos de algún pronóstico meteorológico y meterlos al
+    modelo.
+
+  - Podemos pronosticar bajo un escenario. Asumiremos que la temperatura
+    máxima se mantendrá constante a 26 grados.
+
+<!-- end list -->
+
+``` r
+vic_elec_future <- new_data(vic_elec_daily, 14) %>%
+  mutate(
+    Temperature = 26,
+    Holiday = c(TRUE, rep(FALSE, 13)),
+    Day_Type = case_when(
+      Holiday ~ "Holiday",
+      wday(Date) %in% 2:6 ~ "Weekday",
+      TRUE ~ "Weekend"
+    )
+  )
+forecast(fit, vic_elec_future) %>%
+  autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
+```
+
+![](09_Dynamic_regression_files/figure-gfm/elec%20fcst-1.jpeg)<!-- -->

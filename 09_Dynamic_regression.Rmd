@@ -196,7 +196,6 @@ vic_elec_daily %>%
 
 Dado que la relación entre las variables es cuadrática, ajustaremos un modelo cuadrático con errores ARIMA. Adicionalmente, agregaremos una variable para indicar si el día fue hábil o no.
 
-
 ```{r elec model}
 fit <- vic_elec_daily %>%
   model(ARIMA(Demand ~ Temperature + I(Temperature^2) + (Day_Type=="Weekday")))
@@ -204,18 +203,20 @@ fit <- vic_elec_daily %>%
 report(fit)
 ```
 
-
-
-
-
+Revisamos el ajuste del modelo a través de sus residuos:
 
 ```{r elec resid diagnostics}
 fit %>% gg_tsresiduals()
 augment(fit) %>%
   features(.resid, ljung_box, dof = 8, lag = 14)
 ```
+Se ven heteroscedásticos, ya que la variación es mayor en enero y un poco en febrero que en otros meses. Adicionalmente, vemos que hay rezagos significativos y que la distribución es de colas largas. Esto puede tener un impacto negativo en los intervalos de predicción, pero la estimación puntual es válida.
 
+Así, entonces pronosticaremos los siguientes 14 días. Para esto, necesitamos datos respecto a la temperatura futura y podemos hacer dos cosas:
 
+* Conseguir los datos de algún pronóstico meteorológico y meterlos al modelo.
+
+* Podemos pronosticar bajo un escenario. Asumiremos que la temperatura máxima se mantendrá constante a 26 grados.
 
 ```{r elec fcst}
 vic_elec_future <- new_data(vic_elec_daily, 14) %>%
