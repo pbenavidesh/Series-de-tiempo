@@ -76,6 +76,10 @@ us_change %>%
   facet_grid(vars(var), scales = "free_y") +
   xlab("Year") + ylab(NULL) +
   ggtitle("Quarterly changes in US consumption and personal income")
+
+us_change %>% 
+  ggplot(aes(x = Income, y = Consumption))+
+  geom_point()
 ```
 
 Las series se ven estacionarias a simple vista. Ajustamos un modelo permitiendo errores ARIMA (calculados automáticamente):
@@ -235,5 +239,21 @@ forecast(fit, vic_elec_future) %>%
   autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
 ```
 
+Utilizando un pronóstico de la temperatura máxima para los siguientes 14 días tendríamos:
+
+```{r}
+vic_elec_future <- new_data(vic_elec_daily, 14) %>%
+  mutate(
+    Temperature = c(seq(31,34),33,rep(34,3),rep(33,6)),
+    Holiday = c(TRUE, rep(FALSE, 13)),
+    Day_Type = case_when(
+      Holiday ~ "Holiday",
+      wday(Date) %in% 2:6 ~ "Weekday",
+      TRUE ~ "Weekend"
+    )
+  )
+forecast(fit, vic_elec_future) %>%
+  autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
+```
 
 
