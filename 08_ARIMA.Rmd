@@ -541,10 +541,8 @@ fit <- elec_dcmp %>%
     arima311 = ARIMA(season_adjust ~ pdq(3,1,1) + PDQ(0,0,0))
     
   )
-for (i in 1:4){
-  report(fit %>% dplyr::select(all_of(i)))
-}
 
+glance(fit)
 ```
 
 **6.** La función ACF de los residuos del ARIMA(3,1,1) indica que las autocorrelaciones no exceden las bandas de significancia, por lo que se pueden considerar ruido blanco.
@@ -707,7 +705,7 @@ inputPanel(
   actionButton("go2","Estimar modelo ARIMA")
 )
 
-modelo <- eventReactive(input$go2, {
+modelo2 <- eventReactive(input$go2, {
   h02_train %>% 
     model(ARIMA(log(Cost) ~ 0 + pdq(input$ar_p2, input$i_d2, input$ma_q2) + PDQ(input$ar_P, input$i_D, input$ma_Q)
                 )
@@ -719,18 +717,18 @@ renderText({
 })
 
 renderPrint({
-  report(modelo())
+  report(modelo2())
 })
 
 renderPlot({
-  modelo() %>% gg_tsresiduals(lag_max = 36) + ggtitle("Diagnóstico de residuos"
+  modelo2() %>% gg_tsresiduals(lag_max = 36) + ggtitle("Diagnóstico de residuos"
   )
 })
 renderText({
   "Prueba de Ljung-Box"
 })
 renderPrint({
-  modelo() %>% augment() %>% features(.resid, ljung_box, lag = 36, dof = nrow(tidy(modelo()
+  modelo2() %>% augment() %>% features(.resid, ljung_box, lag = 36, dof = nrow(tidy(modelo2()
                )
           )
                                       )
@@ -739,7 +737,7 @@ renderText({
   "Evaluación del desempeño del modelo"
 })
 renderPrint({
-  modelo() %>% 
+  modelo2() %>% 
     forecast(h = 30) %>% 
     accuracy(h02)
 })
@@ -747,7 +745,7 @@ renderText({
   "Pronóstico"
 })
 renderPlot({
-  modelo() %>%
+  modelo2() %>%
   forecast(h = 30) %>%
   autoplot(h02) +
     ylab("H02 sales (million scripts)") + xlab("Year")
