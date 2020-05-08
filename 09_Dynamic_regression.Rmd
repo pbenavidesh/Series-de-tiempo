@@ -1,5 +1,7 @@
 ---
 title: "Modelos de regresión dinámica"
+author: "Pablo Benavides-Herrera"
+date: "2020-05-04"
 output:
   html_notebook:
     toc: yes
@@ -196,7 +198,7 @@ vic_elec_daily %>%
 
 Dado que la relación entre las variables es cuadrática, ajustaremos un modelo cuadrático con errores ARIMA. Adicionalmente, agregaremos una variable para indicar si el día fue hábil o no.
 
-```{r elec model}
+```{r elec model, echo=TRUE}
 fit <- vic_elec_daily %>%
   model(ARIMA(Demand ~ Temperature + I(Temperature^2) + (Day_Type=="Weekday")))
 
