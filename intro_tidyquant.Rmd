@@ -1,0 +1,119 @@
+---
+title: "Introducción a **`tidyquant`**"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: cerulean
+    highlight: tango
+---
+
+`tidyquant` es una paquetería de **R** que tiene dos principales funciones:
+
+* Ser un puente para usuarios acostumbrados a trabajar en Excel.
+
+* Unir las paqueterías `quantmod` (para análisis financiero) y `xts` (para manejo de series de tiempo), con la estructura y funcionamiento de las paqueterías que conforman el `tidyverse`.
+
+Para comenzar, veamos unos breves ejemplos. Lo primero que debemos hacer (después de instalar `tidyquant`) es cargar las paqueterías en el entorno.
+
+```{r pkg}
+# install.packages("tidyquant") # correr solo una vez por equipo
+library(tidyverse)
+library(tidyquant)
+library(tsibble)
+```
+
+Al cargarla, se muestra información respecto a las paqueterías que está cargando y si hubiera funciones que están sustituyendo a otras previamente cargadas.
+
+
+# Descarga de datos económicos / financieros
+
+Una de las grandes ventajas de utilizar `tidyquant`, es que se puede descargar una gran cantidad de información con solo llamar unas sencillas funciones.
+
+## Índices bursátiles
+
+* Para descargar información respecto a **índices bursátiles**, podemo usar `tq_index()`, lo que nos mostrará la composición del índice en cuestión.
+
+
+```{r tq_index}
+tq_index("SP500")
+```
+
+**NOTA:** Para saber qué opciones tenemos, podemos utilizar `tq_index_options()`:
+
+```{r tq_index_options}
+tq_index_options()
+```
+
+## Bolsas de valores
+
+* Para obtener información respecto a **bolsas de valores**, podemos utilizar la función `tq_exchange()`. Similarmente, para ver las opciones que existen, podemos utilizar `tq_exchange_options()`.
+
+```{r tq_exchange}
+tq_exchange_options()
+
+tq_exchange("NASDAQ")
+```
+
+## Datos cuantitativos
+
+La función `tq_get()` puede descargarnos una gran cantidad de información. Dentro de está función se especifica cuáles datos queremos en el argumento `get = `. Las fuentes de donde se pueden obtener datos son:
+
+1. [**Yahoo Finance**](https://finance.yahoo.com/) - para datos diarios de acciones.
+2. [**FRED**](https://fred.stlouisfed.org/) - (Reserva federal de datos económicos de St. Louis) para datos económicos.
+3. [**Quandl**](https://www.quandl.com/) - API para obtener datos económicos, financieros y de energía.
+4. [**Tiingo**](https://www.tiingo.com/) - API para datos financieros intradía y de criptomonedas.
+5. [**Alpha Vantage**](https://www.alphavantage.co/) - API para datos financieros intradía, ForEx y criptomonedas.
+6. [**Bloomberg**](https://www.bloomberg.com/) - Una de las APIs financieras más utilizadas en el mundo. Se requiere una cuenta de paga.
+
+Vemos las diferentes opciones que tenemos con esta función con `tq_get_options()`.
+
+```{r tq_get_options}
+tq_get_options()
+```
+
+Especificando el argumento `get = "stock.prices"`, podemos descargar el **precio de una o más acciones** simultáneamente. Si se quiere definir un periodo de tiempo, se agregan los argumentos `from = ` y `to =`.
+
+Para obtener el precio de la acción de TESLA durante 2019:
+
+```{r TSLA}
+(tesla <- tq_get("TSLA", get = "stock.prices", from = "2019-01-01", to = "2019-12-31"))
+```
+
+Para descargar simultáneamente los precios de todas las acciones que componen el S&P500 desde 2020 a la fecha, lo podríamos hacer como se muestra debajo.
+
+```{r sp500 stock prices}
+sp500 <- tq_index("SP500") %>% 
+  tq_get(get = "stock.prices", from = "2020-01-01")
+sp500
+```
+
+Esto nos regresó más de 47 mil filas de datos, con varias columnas de información relevante.
+
+Para ver cómo sería la consulta de las otras fuentes de información, se puede consultar fácilmente la documentación de la paquetería o dar clic [aquí](https://business-science.github.io/tidyquant/articles/TQ01-core-functions-in-tidyquant.html#fred-economic-data),
+
+## Transformaciones de datos cuantitativos
+
+Muchas de las transformaciones que normalmente se utilizan en el análisis financiero se pueden realizar directamente con `tidyquant`. Por simplicidad, utilizaremos la tabla `FANG` que contiene precios de las acciones de Facebook, Amazon, Netflix y Google de 2013 a 206.
+
+```{r FANG}
+FANG
+```
+
+Podemos agregar los datos ajustados de diarios a mensuales, especificando el argumento `mutate_fun = to.monthly`:
+
+```{r to.monthly}
+FANG %>%
+  group_by(symbol) %>% 
+  tq_transmute(select = adjusted, mutate_fun = to.monthly, indexAt = "lastof")
+```
+
+Si se quisiera calcular los **rendimientos mensuales** de las acciones, utilizaríamos `mutate_fun = monthlyReturn`:
+
+```{r}
+FANG %>%
+  group_by(symbol) %>% 
+  tq_transmute(select = adjusted, mutate_fun = monthlyReturn)
+```
+
+
