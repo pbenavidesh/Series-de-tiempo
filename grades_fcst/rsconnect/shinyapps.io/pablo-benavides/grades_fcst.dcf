@@ -1,0 +1,10 @@
+name: grades_fcst
+title: grades_fcst
+username:
+account: pablo-benavides
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2277118
+bundleId: 3129494
+url: https://pablo-benavides.shinyapps.io/grades_fcst/
+when: 1589161668.91864
