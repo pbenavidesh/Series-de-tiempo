@@ -1,0 +1,85 @@
+---
+title: "R & **`tidyverse`** - 101"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: darkly
+    highlight: tango
+---
+
+```{r colorize, echo=FALSE}
+colorize <- function(x, color) {
+  if (knitr::is_latex_output()) {
+    sprintf("\\textcolor{%s}{%s}", color, x)
+  } else if (knitr::is_html_output()) {
+    sprintf("<span style='color: %s;'>%s</span>", color, 
+      x)
+  } else x
+}
+```
+
+
+
+![](r_tidyverse.jpg)
+
+# `r colorize("Prerequisites", "aquamarine")`
+
+For this course, you will need to download R and RStudio. One way to get R is to go to [CRAN](https://cloud.r-project.org/) (**C**omprehensive **R** archive **N**etwork).
+
+RStudio is the IDE (integrated development environment) we'll be using. You can download it from http://www.rstudio.com/download. 
+
+
+# `r colorize("What is the tidyverse?", "aquamarine")`
+
+"The [`tidyverse`](https://www.tidyverse.org/) is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."
+
+These packages help you import, tidy and understand data, to finally be able to communicate your findings in an easy way.
+
+You can install the core packages from the `tidyverse` by simply typing `install.packages("tidyverse")` in the console.
+
+```{r install tidyverse, eval=FALSE}
+# You only need to install a package once per device
+install.packages("tidyverse")
+```
+
+The core `tidyverse` packages (`ggplot2`, `tibble`, `tidyr`, `readr`, `dplyr`, `stringr`, `forcats`, `purrr`) can be loaded then with the `library()` function.
+
+```{r pkgs}
+library(tidyverse)
+```
+
+There are many other packages that comply with the `tidyverse` data structure and practices that have to be installed and loaded independently. Some of those that we'll be using throughout the course are `tsibble`, `fable`, `tidymodels`.
+
+![](tidyverse.png)
+So, how does each of these packages help us tackle our data science problems?
+
+We can say that a data science workflow comprises the following general steps:
+
+1. `r colorize("**Import data**","deepskyblue")`
+    * The [`readr`](https://readr.tidyverse.org/) package has many functions, like `read_csv()` or `read_delim()`, which allow us to import .csv, .txt, tab separated values, etc.
+    * If your data is stored in Excel files (.xls or .xlsx), you can use the functions from [`readxl`](https://readxl.tidyverse.org/).
+    * The [`haven`](https://haven.tidyverse.org/) package lets you load data from other statistical packages, such as SPSS, Stata and SAS.
+
+2. `r colorize("**Tidy data**","deepskyblue")`  
+
+
+
+-----------------
+
+* **Importar datos**
+  - Podemos utilizar las funciones dentro de la paquetería `readr`, como `read_csv()`, `read_delim()`, etc.
+  - La paquetería `readxl` sirve para importar datos de Excel (.xls y .xlsx).
+  - La paquetería `haven` cuenta con funiones para importar datos de SPSS, Stata, y SAS.
+
+* **Manipulación de datos**
+  - `tidyr`, `dplyr` tienen funciones para llevar a cabo la limplieza de datos.
+  - `stringr` permite manipular variables de texto.
+  - `forcats` ayuda a solucionar problemas con variables categóricas (factors).
+  - `lubridate` a hacer transformaciones y operaciones con fechas.
+  - `hms` sirve para valores de la hora del día.
+
+* **Programación**
+  - Para llevar a cabo iteraciones en objetos de **R**, es conveniente utilizar funciones de la paquetería `purrr`.
+
+
