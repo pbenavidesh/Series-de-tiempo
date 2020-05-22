@@ -354,8 +354,14 @@ It is recommended that you split your data into three sets:
 
 We will go through many different models aimed to provide forecasts for different situations.
 
+The family of models we will be studying throughout the course are the following:
 
-
+1. Time series linear models (TSLM).
+2. Decomposition models.
+3. Exponential smoothing (ETS).
+4. ARIMA.
+5. Dynamic regression models.
+6. Introduction to `tidymodels`.
 
 
 <br>
