@@ -1,5 +1,7 @@
 ---
 title: "R & **`tidyverse`** - 101"
+author: "Pablo Benavides-Herrera"
+date: "2020-05-20"
 output: 
   html_notebook:
     toc: TRUE
@@ -8,29 +10,38 @@ output:
     highlight: tango
 ---
 
-```{r colorize, echo=FALSE}
-colorize <- function(x, color) {
-  if (knitr::is_latex_output()) {
-    sprintf("\\textcolor{%s}{%s}", color, x)
-  } else if (knitr::is_html_output()) {
-    sprintf("<span style='color: %s;'>%s</span>", color, 
-      x)
-  } else x
+```{css CSS styles, echo=FALSE}
+code {
+  background-color: rgba(105, 105, 105,0.5);
+}
+h1 {
+  color: aquamarine !important
+}
+h2 {
+  color: deepskyblue !important
+}
+h3 {
+  color: tomato !important
 }
 ```
 
 
 
-![](r_tidyverse.jpg)
 
-# `r colorize("Prerequisites", "aquamarine")`
+
+![](images/r_tidyverse.jpg)
+
+# Prerequisites
 
 For this course, you will need to download R and RStudio. One way to get R is to go to [CRAN](https://cloud.r-project.org/) (**C**omprehensive **R** archive **N**etwork).
 
+![](images/RStudio.png){width=15%}
+
 RStudio is the IDE (integrated development environment) we'll be using. You can download it from http://www.rstudio.com/download. 
 
+We will also use the `patchwork` package to easily arrange many plots into one single figure.
 
-# `r colorize("What is the tidyverse?", "aquamarine")`
+# What is the tidyverse? {#tidyverse}
 
 "The [`tidyverse`](https://www.tidyverse.org/) is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."
 
@@ -47,37 +58,351 @@ The core `tidyverse` packages (`ggplot2`, `tibble`, `tidyr`, `readr`, `dplyr`, `
 
 ```{r pkgs}
 library(tidyverse)
+library(patchwork)
 ```
 
 There are many other packages that comply with the `tidyverse` data structure and practices that have to be installed and loaded independently. Some of those that we'll be using throughout the course are `tsibble`, `fable`, `tidymodels`.
 
-![](tidyverse.png)
+![](images/tidyverse.png)
 So, how does each of these packages help us tackle our data science problems?
 
-We can say that a data science workflow comprises the following general steps:
+# Data science workflow {#workflow .tabset .tabset-fade}
 
-1. `r colorize("**Import data**","deepskyblue")`
-    * The [`readr`](https://readr.tidyverse.org/) package has many functions, like `read_csv()` or `read_delim()`, which allow us to import .csv, .txt, tab separated values, etc.
-    * If your data is stored in Excel files (.xls or .xlsx), you can use the functions from [`readxl`](https://readxl.tidyverse.org/).
-    * The [`haven`](https://haven.tidyverse.org/) package lets you load data from other statistical packages, such as SPSS, Stata and SAS.
+We can say that a data science workflow (aimed at forecasting) comprises the following general steps:
 
-2. `r colorize("**Tidy data**","deepskyblue")`  
+## 1. Import data {.tabset .tabset-pills}
+
+Data can be imported into R in many ways. The easiest way is importing files, such as .csv, .txt or MS Excel files. However, you can also import files from other statistical softwares or even connect RStudio to a database, such as SQL.
+
+### File importing
+
+We have available different tidyverse-friendly packages to import specific files in your device:
+
+![](images/readr.png){width=15%}
+
+  * The [`readr`](https://readr.tidyverse.org/) package has many functions, like `read_csv()` or `read_delim()`, which allow us to import .csv, .txt, tab separated values, etc.
+
+![](images/readxl.png){width=15%}
+    
+  * If your data is stored in Excel files (.xls or .xlsx), you can use the functions from [`readxl`](https://readxl.tidyverse.org/).
+
+![](images/haven.png){width=15%}    
+  * The [`haven`](https://haven.tidyverse.org/) package lets you load data from other statistical packages, such as SPSS, Stata and SAS.
+  
+### Database connection
+
+As said before, you can also connect your RStudio directly to a database. It's straightforward to do so directly in RStudio's IDE, just follow these simple steps:
+
+1. Go to the "**Connections**" tab and click on **"New Connection"**.
+
+![*Connections tab*](images/connections.PNG){width=90%}
+
+2. A pop-up window will appear, prompting you to select your desired source.
+
+![*Select the Data Source*](images/connections popup.PNG){width=60%}
+
+3. Follow the directions on screen and you're good to go. You can always click the "Help" button for assistance. If everything went ok, you should be able to see all the tables contained in that DB.
+
+![*Connecting to an SQL DB*](images/connection sql.PNG){width=70%}
+
+<br>
+
+## 2. Tidy data {#tidy}
+
+All the `tidyverse` packages rely on having tidy data to work with. But, how can we know if our data is truly tidy? As pointed [here](https://tidyr.tidyverse.org/articles/tidy-data.html), we need to know what **values, variables and observations** are and have them arranged the right way.
+  
+  * **Values** can be quantitative or qualitative.
+    
+  * A **variable** is a collection of *values* that measure the same attribute (sales, price, temperature, time).
+    
+  * An **observation** contains all the values measured from all variables in a single unit (a country, a day, a person, a company).
+    
+So, now, to consider our data as **tidy**, we must ensure that:
+    
+  i) Every column is one variable (and only one).
+    
+  ii) Every row is just one observation.
+    
+  iii) Every cell is a single value.
+
+![](images/tidyr.png){width=15%}
+
+The [`tidyr`](https://tidyr.tidyverse.org/) package can help us achieve this by:
+
+*   **reshaping** data by pivotting (`pivot_longer()` or `pivot_wider()`),
+
+*   **rectangling**, which can handle nested data (such as JSON files) into tidy tibbles (`unnest_longer()` or `unnest_wider()`), 
+
+*   **filling missing values**, by replacing them (`replace_na()`), dropping such observations (`drop_na()`), or filling with the previous or next values (`fill()`),
+
+* **splitting and combining character columns** (`separate()` and `unite()`), among many other things.
+
+
+## 3. Understand your data {#understand .tabset .tabset-pills}
+
+In order to properly understand our data, we might need to **transform** it, **visualize** it, and then **model** it.
+
+
+### Data transformation {#data_transformation}
+
+![](images/dplyr.png){width=15%}
+
+The [`dplyr`](https://dplyr.tidyverse.org/) package contains functions specifically designed to help you transform tidy data. You can add new variables (`mutate()`), choose specific variables (`select()`), pick observations by their values (`filter()`) or by their position or index in the table (`slice()`), sort observations (`arrange`).
+
+You can also group your data (group sales by store: `group_by(data, store)`).
+
+![](images/stringr.png){width=15%}
+
+Whenever you want to manipulate character variables, the [`stringr`](https://stringr.tidyverse.org/) package is a great way to deal with the matter. Conveniently, all the `stringr` functions start with `str_`. Some of the things you can do with it are:
+
+* **Detect matches**, get the index where the pattern is found, count occurences or locate the position of the pattern within the string (`str_detect()`, ``str_which()`, `str_count()`, `str_locate()`).
+
+* **Subset strings**, by extracting substrings from vectors (`str_sub()`), subsetting a tibble to return only the observations that have the pattern (`str_subset()`), extract the string pattern (`str_extract()`)...
+
+* **Manage lengths** (`str_length()`, `str_pad()`, `str_trunc()`, `str_trim()`),
+
+* **Mutate, join and split** strings, (`str_replace()`, `str_to_lower()`, `str_c()`).
+
+![](images/forcats.png){width=15%}
+
+Categorical variables, or **Factors**, as they're called in **R** can be manipulated with the [`forcats`](https://forcats.tidyverse.org/) package.
+
+You can have either ordered factors, or unordered factors, and some functions that would help you handle them would be:
+
+* `fct_reorder()`, using another variable to specify the new order.
+
+* `fct_infreq()`, to order ir according to the frequency of values.
+
+* `fct_relevel()`, to manually choose the order.
+
+* `fct_lump()`, to collapse the least values of a factor into "other" category.
+
+
+![](images/lubridate.png){width=15%}
+
+
+Handling date-time variables in R can be challenging with base R. Fortunately, the [`lubridate`](https://lubridate.tidyverse.org/) package is here for you.
+
+For example, if you import an Excel sheet with a date variable on it, it will be parsed as character. You need to convert it to a date (or date-time) variable, in order to make calculations, plots, or anything relevant with it.
+
+There are some very intuitive parsing functions to help you out, such as `ymd()` for dates stored with the order year month date (it can handle many formats such as "YYYY-MM-DD", "YYYY/MM/DD", "YYYY MM DD", etc.), `dmy()` for cases when the day comes first, followed by month and year ("DD-MM-YYYY"). Date-time objects can also be parsed with `ymd_hms()`, `ymd_h()`, `dmy_hm()`, `hms()` just to mention a few. 
+
+<br>
+
+<font size="5"> Proceed to [Visualization](#understand) </font> 
+
+
+### Visualization {#visualization}
+
+<br>
+
+Base **R** plots and graphs are very basic (sometimes even ugly):
+
+```{r base r plot, echo=TRUE}
+plot(data = mpg, hwy ~ displ)
+```
+
+![](images/ggplot2.png){width=15%}
+
+Luckily, the [`ggplot2`](https://ggplot2.tidyverse.org/) package can produce astonishing plots and figures conveniently. It relies on the "Grammar of Graphics", where you:
+
+* provide the data,
+
+* specify how you want to map the variables to aesthetics,
+
+* what type of plot or graph you want to produce
+
+* any other customization you'd like,
+
+and `ggplot2` takes care of it.
+
+```{r basic ggplot, fig.align='center'}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point()
+```
+
+So, to generally describe how a `ggplot2` plot works is as follows:
+
+1. Start with a `ggplot()` object, where you specify the data to be used,
+
+2. supply the aesthetic mapping (with `aes()`),
+
+3. add on layers:
+    * If you want a scatterplot, use `geom_point()`, histogram `geom_hist()`. Other common plots are `geom_line()`, `geom_bar()`, `geom_boxplot()`.
+    * define color scales, such as `scale_color_brewer()` or `scale_color_distiller()`,
+    * faceting specifications `facet_wrap()` or `facet_grid()`
+    * coordinate systems, such as `coord_cartesian()`, `coord_flip()`
+
+Every element is separated with a plus sign (**+**):
+
+```{r custom ggplot, fig.align='center', fig.width=8}
+ggplot(mpg, aes(displ, hwy, colour = class)) +
+  geom_point() +
+  facet_wrap(~manufacturer)
+```
+
+It's important to mention that the aesthetics can be passed inside the `ggplot()` function, or within a graphic primitive. In the former, the aesthetics are the same for all the layers, whereas in the latter, the aesthetics passed to a specific layer only affect that layer.
+
+```{r ggplot aes, warning=FALSE, message=FALSE, fig.align='center'}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth()
+
+ggplot(mpg, aes(displ, hwy,color = class)) +
+  geom_point() +
+  geom_smooth()
+```
+
+
+We could not cover all the different variants that can be achieved with `ggplot2` here, even if we tried.
+
+<br>
+
+<font size="5"> Continue to [Exploratory Data Analysis](#understand) </font> 
+
+### Exploratory Data Analysis {#EDA}
+
+Visually inspecting your data can give you insight to their dynamics, patterns, and historic behavior. However, before going into the modelling phase of the analysis, we must perform the **exploratory data analysis (EDA)**.
+
+EDA involves making hypothesis regarding your data, transform and visually inspect statistical properties of it.
+
+Some of the most important things to note on the EDA process are:
+
+* What type of variation do each variable have?
+
+* What is the covariation between variables?
+
+* Are there outliers present in the data?
+
+* What type of distribution do the variables follow?
+
+Some examples
+
+For categorical variables (factors), we can use a bar chart:
+```{r barplot}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut)) +
+  ggtitle("Count of Diamonds by cut quality")
+```
+
+For continuous variables, a histogram can be used:
+
+```{r}
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.5) +
+  ggtitle("Histogram of carats")
+```
+
+If you want to analyze the histogram of multiple variables in one single plot, you can use `geom_freqpoly()` or use facetting:
+
+```{r}
+ggplot(data = diamonds %>% filter(carat < 3), mapping = aes(x = carat, colour = cut)) +
+  geom_freqpoly(binwidth = 0.1)
+```
+
+```{r}
+ggplot(data = diamonds %>% filter(carat < 3), mapping = aes(x = carat, fill = cut)) +
+  geom_histogram(binwidth = 0.1) +
+  facet_wrap(~ cut) +
+  theme(legend.position = "none")
+```
+
+Choosing the binwidth of the histogram can tell different stories or can reveal different patterns:
+
+```{r hist binwidth, fig.width=8,fig.height=8}
+g <- ggplot(data = diamonds %>% filter(carat < 3), mapping = aes(x = carat))
+g0 <- g + geom_histogram(binwidth = 0.5) +
+  ggtitle("Binwidth = 0.5")
+g1 <- g + geom_histogram(binwidth = 0.1) +
+  ggtitle("Binwidth = 0.1")
+g2 <- g + geom_histogram(binwidth = 0.01) +
+  ggtitle("Binwidth = 0.01")
+g3 <- g0/g1/g2
+g3 + plot_annotation(title = "Histograms varying the binwidth",
+                     subtitle = "Different patterns can arise when selecting different binwidths")
+```
+
+Another option is to go with boxplots:
+
+```{r boxplot}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))+ labs(x = "class", y = "hwy mpg")
+```
+
+
+Again, these are just some examples, but the list of  goes on and on.
+
+
+<br>
+
+<font size="5"> Go to [Model](#workflow) </font> 
+
+### Model
+
+Whenever we try to model a variable or phenomenom, it is said that we are trying to get a simplified version of reality. In fact, it's simpler than that. What we are really trying to do is understand the way a variable or set of variables change, while ignoring or eliminating external "noise".
+
+It is well known to most data scientists that **you cannot use the same data for modelling and testing (or forecasting)**. That's way many people split their data into a training and testing set. However, a true data scientist has to be even stricter on its use of data:
+
+It is recommended that you split your data into three sets:
+
+1. ~ 60% of your data goes to the **training** set. Here, you can visualize it, perform all the model fitting and tweaking you want, over and over again.
+
+2. ~ 20% of your data should go to a **query** set. With this query set, you can compare models by hand and visualize the outcomes.
+
+3. The ~ 20%  remaining data would conform the **test** set. Once you've compared all your models with the training and/or query sets, you can test your final model. This test can only be performed **ONCE**. This ensures no bias is introduced in the model and it remains a true forecast.
+
+
+We will go through many different models aimed to provide forecasts for different situations.
+
+
+
+
+
+<br>
+
+<font size="5"> Go to [Forecasting](#workflow) </font> 
+
+## 4. Forecasting {#focst}
+
+forecast
+
+
+
+#
+
+
+<br><br><br><br>
+
+***
+
+# Examples 
+
+```{r data world_bank_pop}
+data("world_bank_pop")
+# A tibble: 1,056 x 20
+#    country indicator `2000` `2001` `2002` `2003`  `2004`  `2005`   `2006`   `2007`
+#    <chr>   <chr>      <dbl>  <dbl>  <dbl>  <dbl>   <dbl>   <dbl>    <dbl>    <dbl>
+#  1 ABW     SP.URB.T~ 4.24e4 4.30e4 4.37e4 4.42e4 4.47e+4 4.49e+4  4.49e+4  4.47e+4
+#  2 ABW     SP.URB.G~ 1.18e0 1.41e0 1.43e0 1.31e0 9.51e-1 4.91e-1 -1.78e-2 -4.35e-1
+#  3 ABW     SP.POP.T~ 9.09e4 9.29e4 9.50e4 9.70e4 9.87e+4 1.00e+5  1.01e+5  1.01e+5
+#  4 ABW     SP.POP.G~ 2.06e0 2.23e0 2.23e0 2.11e0 1.76e+0 1.30e+0  7.98e-1  3.84e-1
+#  5 AFG     SP.URB.T~ 4.44e6 4.65e6 4.89e6 5.16e6 5.43e+6 5.69e+6  5.93e+6  6.15e+6
+#  6 AFG     SP.URB.G~ 3.91e0 4.66e0 5.13e0 5.23e0 5.12e+0 4.77e+0  4.12e+0  3.65e+0
+#  7 AFG     SP.POP.T~ 2.01e7 2.10e7 2.20e7 2.31e7 2.41e+7 2.51e+7  2.59e+7  2.66e+7
+#  8 AFG     SP.POP.G~ 3.49e0 4.25e0 4.72e0 4.82e0 4.47e+0 3.87e+0  3.23e+0  2.76e+0
+#  9 AGO     SP.URB.T~ 8.23e6 8.71e6 9.22e6 9.77e6 1.03e+7 1.09e+7  1.15e+7  1.21e+7
+# 10 AGO     SP.URB.G~ 5.44e0 5.59e0 5.70e0 5.76e0 5.75e+0 5.69e+0  4.92e+0  4.89e+0
+# ... with 1,046 more rows, and 10 more variables: `2008` <dbl>, `2009` <dbl>,
+#   `2010` <dbl>, `2011` <dbl>, `2012` <dbl>, `2013` <dbl>, `2014` <dbl>,
+#   `2015` <dbl>, `2016` <dbl>, `2017` <dbl>
+```
+
+
 
 
 
 -----------------
 
-* **Importar datos**
-  - Podemos utilizar las funciones dentro de la paquetería `readr`, como `read_csv()`, `read_delim()`, etc.
-  - La paquetería `readxl` sirve para importar datos de Excel (.xls y .xlsx).
-  - La paquetería `haven` cuenta con funiones para importar datos de SPSS, Stata, y SAS.
-
-* **Manipulación de datos**
-  - `tidyr`, `dplyr` tienen funciones para llevar a cabo la limplieza de datos.
-  - `stringr` permite manipular variables de texto.
-  - `forcats` ayuda a solucionar problemas con variables categóricas (factors).
-  - `lubridate` a hacer transformaciones y operaciones con fechas.
-  - `hms` sirve para valores de la hora del día.
 
 * **Programación**
   - Para llevar a cabo iteraciones en objetos de **R**, es conveniente utilizar funciones de la paquetería `purrr`.
