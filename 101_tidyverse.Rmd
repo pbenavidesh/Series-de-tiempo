@@ -33,7 +33,7 @@ h3 {
 
 # Prerequisites
 
-For this course, you will need to download R and RStudio. One way to get R is to go to [CRAN](https://cloud.r-project.org/) (**C**omprehensive **R** archive **N**etwork).
+For this course, you will need to download R and RStudio. One way to get R is to go to [CRAN](https://cloud.r-project.org/) (the **C**omprehensive **R** archive **N**etwork).
 
 ![](images/RStudio.png){width=15%}
 
@@ -56,12 +56,21 @@ install.packages("tidyverse")
 
 The core `tidyverse` packages (`ggplot2`, `tibble`, `tidyr`, `readr`, `dplyr`, `stringr`, `forcats`, `purrr`) can be loaded then with the `library()` function.
 
+There are many other packages that comply with the `tidyverse` data structure and practices that have to be installed and loaded independently. Some of those that we'll be using throughout the course are `tidymodels` and a tidy ecosystem called [`tidyverts`](https://tidyverts.org/), specifically designed to provide tidy tools for time series analysis, which comprises of three main packages: `tsibble`, `feasts` and `fable`.
+
 ```{r pkgs}
 library(tidyverse)
+library(lubridate)
+library(tsibble)
+library(feasts)
+library(fable)
 library(patchwork)
+library(tsibbledata)
 ```
 
-There are many other packages that comply with the `tidyverse` data structure and practices that have to be installed and loaded independently. Some of those that we'll be using throughout the course are `tsibble`, `fable`, `tidymodels`.
+
+![](images/fable.PNG){width=15%}
+
 
 ![](images/tidyverse.png)
 So, how does each of these packages help us tackle our data science problems?
@@ -76,7 +85,11 @@ Data can be imported into R in many ways. The easiest way is importing files, su
 
 ### File importing
 
-We have available different tidyverse-friendly packages to import specific files in your device:
+We have available different tidyverse-friendly packages to import specific files in your device. Usually, the object which the data gets imported to is a [`tibble`](https://tibble.tidyverse.org/).
+
+![](images/tibble.png){width=15%}
+
+`Tibbles` are the new `data.frame`, that have many advantages over their predecessor, such as a convenient `print()` method that doesn't fill up your console, they don't change variable types or names, among other things. You can learn more about tibbles [here](https://r4ds.had.co.nz/tibbles.html).
 
 ![](images/readr.png){width=15%}
 
@@ -136,6 +149,19 @@ The [`tidyr`](https://tidyr.tidyverse.org/) package can help us achieve this by:
 *   **filling missing values**, by replacing them (`replace_na()`), dropping such observations (`drop_na()`), or filling with the previous or next values (`fill()`),
 
 * **splitting and combining character columns** (`separate()` and `unite()`), among many other things.
+
+![](images/tsibble.PNG){width=15%}
+
+The [`tsibble`](https://tsibble.tidyverts.org/) package is the foundation for the `tidyverts`. It provides a data infrastructure (a `tsibble`), which is data- and model-oriented object, where you have:
+
+* An **index**, which is the temporal variable that sets the ordering mechanism.
+
+* A **key**, that is a set of variables that define observational units over time.
+
+This way, every observation is uniquely identified by index and key. Also, if the time series is regularly spaced, every observational unit should be measured with a common **interval**.
+
+
+
 
 
 ## 3. Understand your data {#understand .tabset .tabset-pills}
@@ -287,7 +313,7 @@ ggplot(data = diamonds) +
 
 For continuous variables, a histogram can be used:
 
-```{r}
+```{r hist}
 ggplot(data = diamonds) +
   geom_histogram(mapping = aes(x = carat), binwidth = 0.5) +
   ggtitle("Histogram of carats")
@@ -295,12 +321,12 @@ ggplot(data = diamonds) +
 
 If you want to analyze the histogram of multiple variables in one single plot, you can use `geom_freqpoly()` or use facetting:
 
-```{r}
+```{r freqpoly}
 ggplot(data = diamonds %>% filter(carat < 3), mapping = aes(x = carat, colour = cut)) +
   geom_freqpoly(binwidth = 0.1)
 ```
 
-```{r}
+```{r hist + facet}
 ggplot(data = diamonds %>% filter(carat < 3), mapping = aes(x = carat, fill = cut)) +
   geom_histogram(binwidth = 0.1) +
   facet_wrap(~ cut) +
@@ -332,6 +358,34 @@ ggplot(data = mpg) +
 
 Again, these are just some examples, but the list of  goes on and on.
 
+![](images/feasts.PNG){width=15%}
+
+Regarding time series analysis, the [`feasts`](https://feasts.tidyverts.org/) package (**F**eature **E**xtraction and **S**tatistics for **T**ime **S**eries) has many functions that makes it easy for us to get further insight into our time series, We can get many graphs from it, such as:
+
+```{r season plot}
+aus_production %>% gg_season(Beer)
+```
+
+```{r lag plot}
+aus_production %>% filter(year(Quarter) > 1991) %>% gg_lag(Beer)
+```
+
+```{r stl decomp}
+aus_production %>%
+  model(STL(Beer ~ season(window = "periodic"))) %>% 
+components() %>% 
+  autoplot()
+```
+
+We can also get statistics from this package:
+
+```{r stl features}
+aus_retail %>%
+  features(Turnover, feat_stl)
+```
+
+
+
 
 <br>
 
@@ -345,14 +399,25 @@ It is well known to most data scientists that **you cannot use the same data for
 
 It is recommended that you split your data into three sets:
 
-1. ~ 60% of your data goes to the **training** set. Here, you can visualize it, perform all the model fitting and tweaking you want, over and over again.
+<style>
+div.aquamarine { background-color: aquamarine; border-radius: 5px; padding: 20px; color: black}
+</style>
+<div class = "aquamarine">
 
-2. ~ 20% of your data should go to a **query** set. With this query set, you can compare models by hand and visualize the outcomes.
+**1.** ~ 60% of your data goes to the **training** set. Here, you can visualize it, perform all the model fitting and tweaking you want, over and over again.
 
-3. The ~ 20%  remaining data would conform the **test** set. Once you've compared all your models with the training and/or query sets, you can test your final model. This test can only be performed **ONCE**. This ensures no bias is introduced in the model and it remains a true forecast.
+**2.** ~ 20% of your data should go to a **query** set. With this query set, you can compare models by hand and visualize the outcomes.
 
+**3.** The ~ 20%  remaining data would conform the **test** set. Once you've compared all your models with the training and/or query sets, you can test your final model. This test can only be performed **ONCE**. This ensures no bias is introduced in the model and it remains a true forecast.
+
+</div>
+
+<br>
 
 We will go through many different models aimed to provide forecasts for different situations.
+
+
+
 
 The family of models we will be studying throughout the course are the following:
 
@@ -363,18 +428,95 @@ The family of models we will be studying throughout the course are the following
 5. Dynamic regression models.
 6. Introduction to `tidymodels`.
 
+There are many ways to train models in **R**. As we said before, we will be using primarily two packages for this:
 
+![](images/fable.png){width:15%}
+
+* Whitin the `tidyverts`, we will use the [`fable`](https://fable.tidyverts.org/) package, which has many univariate and multivariate time series forecasting models. The way to fit one or more models in the `fable` package is by specifying them in the `model()` function.
+
+```{r model}
+fit <- aus_retail %>%
+  filter(
+    State %in% c("New South Wales", "Victoria"),
+    Industry == "Department stores"
+  ) %>% 
+  model(
+    ets = ETS(box_cox(Turnover, 0.3)),
+    arima = ARIMA(log(Turnover)),
+    snaive = SNAIVE(Turnover)
+  )
+fit
+# A mable: 2 x 5
+# Key:     State, Industry [2]
+#   State           Industry          ets          arima                   snaive 
+#   <chr>           <chr>             <model>      <model>                 <model>
+# 1 New South Wales Department stores <ETS(A,Ad,A~ <ARIMA(2,1,1)(2,1,1)[1~ <SNAIV~
+# 2 Victoria        Department stores <ETS(A,A,A)> <ARIMA(2,1,1)(1,1,2)[1~ <SNAIV~
+```
+
+This produces a `mable` (a model table), where every cell is a fitted model.
+
+Using the `report()` function, you can get a detailed view of a particular model.
+
+```{r report}
+fit %>% 
+  filter(State == "Victoria") %>% 
+  select(State,Industry,arima) %>% 
+  report()
+```
+
+
+You could use the `tidy()` function to retrieve each model's terms, estimates and statistics in a tidy way.
+
+```{r tidy report}
+tidy(fit)
+```
+
+
+```{r residuals}
+fit %>%
+  filter(State == "Victoria") %>% 
+  select(State,Industry,arima) %>%
+  gg_tsresiduals() + ggtitle("Residual Diagnostics for the ARIMA model fitted to Victoria")
+```
+
+With the `glance()` function we can get further information for every model fitted.
+
+```{r model fit}
+glance(fit)
+```
+
+
+  
 <br>
 
 <font size="5"> Go to [Forecasting](#workflow) </font> 
 
 ## 4. Forecasting {#focst}
 
-forecast
+Once we have trained one or more models that have a proper fit to our training data, we can now go ahead and produce forecasts. Using `fable` is as simple as running the `forecast()` function to our `mable`. It's also quite easy to get plots from it:
+
+```{r forecast}
+fcst <- fit %>% 
+  forecast(h = "2 years") 
+fcst
+fcst %>% 
+  autoplot(filter(aus_retail, year(Month) > 2010), level = NULL) + 
+  ggtitle("Forecast comparison across models and time series")
+fcst %>% 
+  filter(.model =="ets") %>% 
+  autoplot(filter(aus_retail, year(Month) > 2010)) + 
+  ggtitle("Forecast (with prediction intervals) for the ETS model")
+```
 
 
 
-#
+## Programming
+
+In practice, you could automate the forecasting workflow by defining functions and iterations. The complete
+
+
+# {-}
 
 
 <br><br><br><br>
