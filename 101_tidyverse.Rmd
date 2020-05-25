@@ -1,13 +1,15 @@
 ---
 title: "R & **`tidyverse`** - 101"
+subtitle: "Time Series Analysis"
 author: "Pablo Benavides-Herrera"
-date: "2020-05-20"
+date: 2020-05-20
 output: 
   html_notebook:
     toc: TRUE
     toc_float: TRUE
     theme: darkly
     highlight: tango
+bibliography: st_references.bib
 ---
 
 ```{css CSS styles, echo=FALSE}
@@ -69,8 +71,6 @@ library(tsibbledata)
 ```
 
 
-![](images/fable.PNG){width=15%}
-
 
 ![](images/tidyverse.png)
 So, how does each of these packages help us tackle our data science problems?
@@ -93,7 +93,7 @@ We have available different tidyverse-friendly packages to import specific files
 
 ![](images/readr.png){width=15%}
 
-  * The [`readr`](https://readr.tidyverse.org/) package has many functions, like `read_csv()` or `read_delim()`, which allow us to import .csv, .txt, tab separated values, etc.
+  * The [`readr`](https://readr.tidyverse.org/) package has many functions, like `read_csv()` or `read_delim()`, which allow us to import .csv, .txt, tab separated values, etc. It has functions to export data as well (`write_csv()`, for example).
 
 ![](images/readxl.png){width=15%}
     
@@ -130,7 +130,7 @@ All the `tidyverse` packages rely on having tidy data to work with. But, how can
     
   * An **observation** contains all the values measured from all variables in a single unit (a country, a day, a person, a company).
     
-So, now, to consider our data as **tidy**, we must ensure that:
+So, now, to consider our data as **tidy** [@Wickham2014], we must ensure that:
     
   i) Every column is one variable (and only one).
     
@@ -288,7 +288,7 @@ We could not cover all the different variants that can be achieved with `ggplot2
 
 ### Exploratory Data Analysis {#EDA}
 
-Visually inspecting your data can give you insight to their dynamics, patterns, and historic behavior. However, before going into the modelling phase of the analysis, we must perform the **exploratory data analysis (EDA)**.
+Visually inspecting your data can give you insight to their dynamics, patterns, and historic behavior. However, before going into the modelling phase of the analysis, we must perform the **exploratory data analysis (EDA)**.[@Wickham2016]
 
 EDA involves making hypothesis regarding your data, transform and visually inspect statistical properties of it.
 
@@ -430,9 +430,9 @@ The family of models we will be studying throughout the course are the following
 
 There are many ways to train models in **R**. As we said before, we will be using primarily two packages for this:
 
-![](images/fable.png){width:15%}
+![](images/fable.png){width=15%}
 
-* Whitin the `tidyverts`, we will use the [`fable`](https://fable.tidyverts.org/) package, which has many univariate and multivariate time series forecasting models. The way to fit one or more models in the `fable` package is by specifying them in the `model()` function.
+* Whitin the `tidyverts`, we will use the [`fable`](https://fable.tidyverts.org/) package, which has many univariate and multivariate time series forecasting models. The way to fit one or more models in the `fable` package is by specifying them in the `model()` function.[@Hyndman2019]
 
 ```{r model}
 fit <- aus_retail %>%
@@ -494,9 +494,11 @@ glance(fit)
 
 ## 4. Forecasting {#focst}
 
+![](images/fable.PNG){width=15%}
+
 Once we have trained one or more models that have a proper fit to our training data, we can now go ahead and produce forecasts. Using `fable` is as simple as running the `forecast()` function to our `mable`. It's also quite easy to get plots from it:
 
-```{r forecast}
+```{r forecast, fig.height=8, fig.width=8}
 fcst <- fit %>% 
   forecast(h = "2 years") 
 fcst
@@ -510,11 +512,78 @@ fcst %>%
 ```
 
 
+## 5. Communicate
+
+The last step of the workflow is to communicate your findings. This can be done in many different ways, depending on your target audience:
+
+![](images/shiny.png){width=15%}
+
+* If you want to present results to your company and produce a reproducible tool that can be use in production, you could make a [`Shiny`](https://shiny.rstudio.com/) app.
+
+![](images/rmarkdown.png){width=15%}
+
+[`R Markdown`](https://rmarkdown.rstudio.com/) documents (just as the one you're reading right now) are a way to make data science reports that join code, outputs and narrative. Given that it's based on markdown, you can write $\LaTeX$ equations, and so on.
+
+$$
+\int_{0}^{\infty} e^{-s \cdot t} f(t) d t=\lim _{h \rightarrow \infty} \int_{0}^{h} e^{-s, t} f(t) d t
+$$
+
+* If you want to publish your findings for the scientific community, you could write a paper.
+
+* You could also publish it online for anyone to access it.
+
 
 ## Programming
 
-In practice, you could automate the forecasting workflow by defining functions and iterations. The complete
+In practice, you could automate the forecasting workflow by defining functions and iterations. The complete code that generates our analysis, from importing data, all the way to communicating your findings is a **program**.
 
+![](images/purrr.png){width=15%}
+
+The [`purrr`](https://purrr.tidyverse.org/) package is an upgrade to R's functional programming toolkit.
+
+![](images/pipe.png){width=15%}
+
+If you're familiar with base **R** programming, you might have wondered about the ` %>% ` operator used in some of the examples above. ` %>% ` is called the **pipe operator**. It's purpose is a tool to help you express a sequence of functions or operations in a more elegant and understandable way, and when reading code, you could translate ` %>% ` to "then".
+
+For example, if you have and Excel background, you might have had cases where your nested formulas where quite a challenge to understand in the long run, for example:
+
+```
+=SI.ERROR(INDICE(Costos[Costo],COINCIDIR("Supplies - Imaging "&[@Modelo],Costos[Group]&Costos[Model],0))*[@[Unidades de imagen totales]],"")
+```
+
+The same thing could happen in **R**. For example:
+
+```{r messy code, eval=FALSE}
+fit <- model(filter(aus_retail,State %in% c("New South Wales", "Victoria"), Industry == "Department stores"),ets = ETS(box_cox(Turnover, 0.3)), arima = ARIMA(log(Turnover)), snaive = SNAIVE(Turnover))
+fit
+```
+
+It becomes very complicated to understand what the code is doing and in which order. As a matter of fact, this gives exactly the same result as the code we used in the **Model** section.
+
+```{r, eval=FALSE}
+fit <- aus_retail %>%
+  filter(
+    State %in% c("New South Wales", "Victoria"),
+    Industry == "Department stores"
+  ) %>% 
+  model(
+    ets = ETS(box_cox(Turnover, 0.3)),
+    arima = ARIMA(log(Turnover)),
+    snaive = SNAIVE(Turnover)
+  )
+```
+
+Reading it with the pipe operator, would be like:
+
+1. Define a variable called "fit".
+
+2. Take the "aus_retail" data; `then`
+
+3. filter it, so that we keep only the states "New South Wales" and "Victoria" and the industry is "Department stores"; `then`
+
+4. Fit the three models: ETS, ARIMA and Seasonal Naïve.
+
+It is not the purpose of this course to go in-depth in functional programming or learning to do tidy iterations, but we may do some examples along the way.
 
 # {-}
 
@@ -525,8 +594,17 @@ In practice, you could automate the forecasting workflow by defining functions a
 
 # Examples 
 
-```{r data world_bank_pop}
-data("world_bank_pop")
+Let's put in practice what we've seen so far with some examples.
+
+## A) Forecasting Population
+
+We are tasked with producing forecasts of the rural population as a percentage in Mexico, Brazil and Argentina. We were provided with a dataset downloaded from the World Bank. Let's import the world_bank_pop.csv file using `readr`:
+
+### 1. Import data 
+
+```{r pop data}
+pop <- read_csv("./data/world_bank_pop.csv")
+pop
 # A tibble: 1,056 x 20
 #    country indicator `2000` `2001` `2002` `2003`  `2004`  `2005`   `2006`   `2007`
 #    <chr>   <chr>      <dbl>  <dbl>  <dbl>  <dbl>   <dbl>   <dbl>    <dbl>    <dbl>
@@ -545,14 +623,159 @@ data("world_bank_pop")
 #   `2015` <dbl>, `2016` <dbl>, `2017` <dbl>
 ```
 
+### 2. Tidy data
+
+We can immediately see that our data isn't tidy:
+
+i) Columns do not represent variables (we need to put the years in rows, not columns with `pivot_longer`).
+
+ii) We must put variables in columns (column indicator) with `pivot_wider()`.
+
+iii) We can discard the variables that won't be needed with `select()` in conjunction with `contains()`.
+
+iv) We will rename the variables with `rename()`.
+
+v) We only have total population and urban population and the variables "country" and "year" are character. We must calculate the rural population as a percentage of the total, with `mutate()`. Here, we will also convert the "country" variable to factor using `as_factor()` and the "year" variable to double using `as.integer()`.
+
+vi) There are many countries that aren't needed, so we need to keep only the ones of interest with `filter()`.
+
+vii) The data is a `tibble` object, we need to convert it to a `tsibble` using `as_tsibble()`.
+
+We can do this all in one step using the ` %>% ` (pipe) operator.
+
+```{r pop tidy}
+pop_tidy <- pop %>% 
+  # i)
+  pivot_longer(cols = -c(country, indicator),
+               names_to = "year", values_to = "value") %>%
+  # ii)
+  pivot_wider(names_from = indicator,
+              values_from = value) %>% 
+  # iii)
+  select(country,year,contains("TOTL")) %>% 
+  # iv)
+  rename(urban_pop = SP.URB.TOTL,total_pop = SP.POP.TOTL) %>% 
+  #v)
+  mutate(rural_pop_pct = (1 - urban_pop / total_pop)*100,
+         country = as_factor(country),
+         year = as.integer(year)
+         ) %>% 
+  # vi)
+  filter(country %in% c("MEX","BRA","ARG")) %>% 
+  #vii)
+  as_tsibble(key = country, index = year)
+
+pop_tidy
+# A tsibble: 54 x 5 [1Y]
+# Key:       country [3]
+#    country  year urban_pop total_pop rural_pop_pct
+#    <fct>   <int>     <dbl>     <dbl>         <dbl>
+#  1 BRA      2000 142319498 175287587          18.8
+#  2 BRA      2001 144961004 177750670          18.4
+#  3 BRA      2002 147507656 180151021          18.1
+#  4 BRA      2003 150005801 182482149          17.8
+#  5 BRA      2004 152448023 184738458          17.5
+#  6 BRA      2005 154831127 186917361          17.2
+#  7 BRA      2006 157150590 189012412          16.9
+#  8 BRA      2007 159407908 191026637          16.6
+#  9 BRA      2008 161618007 192979029          16.3
+# 10 BRA      2009 163798391 194895996          16.0
+# ... with 44 more rows
+```
+
+### 3. Understanding the data
+
+With our tidy data, we can proceed with the visualization and EDA. The end result will be the selection of one or more forecasting models.
+
+The `feasts` package provides us with a convenient function `autoplot()` that detects the structure of the `tsibble` and applies a `ggplot` object to the data.
+
+We split our data 
+```{r pop plot}
+pop_train <- pop_tidy %>% 
+  filter(year <= 2009)
+pop_query <- pop_tidy %>% 
+  filter(year > 2009 & year <= 2013)
+pop_train_query <- pop_tidy %>% 
+  filter(year <= 2013)
+# Total population plot
+pop_train %>% 
+  autoplot(total_pop) + ggtitle("Total population") + 
+  ylab("")
+# Rural population
+pop_train %>%
+  autoplot(rural_pop_pct) + ggtitle("Rural population (%)") + 
+  ylab("")
+```
+
+The total population has an upward trend for Mexico and Brazil, and it seems fairly constant for Russia.
+
+The rural population seems to be decreasing in all cases, with a steeper slope in both american countries.
+
+We will fit three models to each time series:
+
+* A random walk model with drift.
+* A simple TSLM.
+* An ETS.
+
+```{r pop model}
+pop_fit <- pop_train %>% 
+  model(`RW w/ drift` = RW(rural_pop_pct ~ drift()),
+        `TSLM w/ trend` = TSLM(rural_pop_pct ~ trend()),
+        ETS = ETS(rural_pop_pct ~ error("A") + trend("A") + season("N") )
+        )
+tidy(pop_fit)
+```
+
+### 4. Forecasting
+
+```{r pop fcst, fig.width=10, fig.height=8}
+pop_fcst <- pop_fit %>% 
+  forecast(h = "4 years") 
+pop_fcst %>% 
+  autoplot(pop_train_query) +
+  facet_grid(cols = vars(.model), rows = vars(country), scales = "free_y") + 
+  guides(color = FALSE) +
+  ylab("Rural population (%)")
+```
+
+We see that the models over estimate the decrease in rural population. We change the ETS model slightly and check if we get better results.
+
+```{r, fig.width=10, fig.height=8}
+pop_fit2 <- pop_train %>% 
+  model(`RW w/ drift` = RW(rural_pop_pct ~ drift()),
+        `TSLM w/ trend` = TSLM(rural_pop_pct ~ trend()),
+        ETS = ETS(rural_pop_pct ~ error("A") + trend("Ad") + season("N") )
+        )
+pop_fcst2 <- pop_fit2 %>% 
+  forecast(h = "4 years") 
+
+pop_fcst2 %>% 
+  autoplot(pop_train_query) +
+  facet_grid(cols = vars(.model), rows = vars(country), scales = "free_y") + 
+  guides(color = FALSE) +
+  ylab("Rural population (%)")
+```
+
+```{r}
+accuracy(pop_fcst2,pop_train_query) %>% 
+  arrange(country, MAPE)
+```
+
+It seems now that we have a better accuracy on our forecast, especially with the ETS model. We will proceed then and make our complete forecast with this ETS model.
+
+```{r, fig.width=6, fig.height=8}
+pop_train %>% 
+  model(ETS = ETS(rural_pop_pct ~ error("A") + trend("Ad") + season("N") )
+        ) %>% 
+  forecast(h = "12 years") %>% 
+  autoplot(pop_tidy) + 
+  geom_vline(xintercept = 2014, linetype ="dashed", color = "red") +
+  ylab("Rural population (%)") 
+```
 
 
 
 
------------------
-
-
-* **Programación**
-  - Para llevar a cabo iteraciones en objetos de **R**, es conveniente utilizar funciones de la paquetería `purrr`.
-
+***
+# References
 
