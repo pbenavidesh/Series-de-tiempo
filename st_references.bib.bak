@@ -11,4 +11,24 @@
   url       = {https://otexts.com/fpp3/},
 }
 
+@Book{Wickham2016,
+  author    = {Wickham, Hadley and Grolemund, Garrett},
+  publisher = {" O'Reilly Media, Inc."},
+  title     = {R for data science: import, tidy, transform, visualize, and model data},
+  year      = {2016},
+  note      = {Accesed: 2020-03-15},
+}
+
+@Article{Wickham2014,
+  author     = {Hadley Wickham},
+  journal    = {The Journal of Statistical Software},
+  title      = {Tidy data},
+  year       = {2014},
+  volume     = {59},
+  bdsk-url-1 = {http://www.jstatsoft.org/v59/i10/},
+  issue      = {10},
+  selected   = {TRUE},
+  url        = {http://www.jstatsoft.org/v59/i10/},
+}
+
 @Comment{jabref-meta: databaseType:bibtex;}
