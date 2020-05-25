@@ -1,0 +1,154 @@
+---
+title: "Series de tiempo"
+subtitle: "Verano 2020"
+author: "Mtro. Pablo Benavides-Herrera"
+date: 2020-05-15
+output:
+  ioslides_presentation:
+    widescreen: TRUE
+    logo: images/iteso.gif
+    incremental: FALSE
+---
+
+<style>
+.forceBreak { -webkit-column-break-after: always; break-after: column; }
+</style>
+
+# Introducción
+
+
+## Programa del curso {.build}
+**Profesor:** Mtro. Pablo Benavides Herrera
+
+- Lic. en Ingeniería Financiera, ITESO
+- Maestría en Economía, UDG (CUCEA)
+- Estudiante de PhD en Ciencias de la Ingeniería, ITESO
+- Director en [Exel Pitss](www.exelpitss.com)
+
+**Horario y días de clase:**
+
+- Lunes a jueves, 07:00 a 9:00 horas
+- 25 de mayo a 16 de julio de 2020
+- Unirse a las reuniones de Microsoft Teams [aquí](   https://teams.microsoft.com/l/meetup-join/19%3aaaee151311094f2f96f6d37c9448ac4f%40thread.tacv2/1590188172669?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
+
+## {data-background=images/pups.gif data-background-size=cover}
+
+## Evaluación {.build}
+
+> - **80%** Proyectos.
+
+- **20%** Tareas y participación en clase.
+
+<div class="centered">
+![](images/hide-the-pain.jpg){width=50%}
+</div>
+
+
+## Prerrequisitos {.build}
+
+- Acceder a esta [liga](https://rstudio.cloud/spaces/71787/join?access_code=Sl1NumdfjmWnCX%2BnkNGh8ZE6KZ2NB9dV5rcGM5pX), para crear una cuenta en **RStudio Cloud** y unirse al espacio **STV2020**. Preferentemente, utilicen su cuenta del ITESO.
+
+![](images/Rstats.png){width=15%} Instalar **R**. Pueden descargarlo del [CRAN](https://cloud.r-project.org/) (the **C**omprehensive **R** archive **N**etwork).
+
+![](images/RStudio.png){width=15%} Instalar **RStudio**. Se puede descargar [aquí](http://www.rstudio.com/download).
+
+
+# ¿Qué se puede pronosticar? 
+
+## {data-background=images/gigafactory.png data-background-size=cover}
+
+<div class="notes">
+
+La *demanda de insumos* de una fábrica.
+
+</div>
+
+## {data-background=images/sales.jpg data-background-size=cover}
+
+<div class="notes">
+
+Las *ventas* de una empresa o la propagación de un virus.
+
+</div>
+
+## {data-background=images/energy_demand.jpg data-background-size=cover}
+
+<div class="notes">
+
+La *demanda* de energía eléctrica de una ciudad o región.
+
+</div>
+
+
+## Se pueden generar pronósticos con distintos horizontes {.build .columns-2}
+
+**De corto plazo:**
+
+- Para los siguientes 5, 10 minutos.
+- Para la siguiente hora.
+- Para el día siguiente.
+
+**Mediano plazo:**
+
+- Para la siguiente semana.
+- Para el siguiente mes.
+- El siguiente trimestre.
+
+<p class="forceBreak"></p>
+
+**De largo plazo:**
+
+- Para el siguiente año.
+- Para la siguiente década.
+- Etc.
+
+<div class="notes">
+
+Dependiendo la situación y los datos disponibles.
+
+</div>
+
+# ¿Todas las variables son igual de predecibles?
+
+## {data-background=images/eclipse.jpg data-background-size=cover}
+
+<div class="notes">
+
+Un eclipse solar o lunar, la puesta de sol, la rotación y traslación de la Tierra...
+
+</div>
+
+## {data-background=images/bmv.jpeg data-background-size=cover}
+
+<div class="notes">
+
+El precio de una acción, o el valor de un índice bursátil, el tipo de cambio o el valor del oro.
+
+</div>
+
+## Factores que influyen en el pronóstico de una variable {.build}
+
+> - Qué tan bien conocemos los factores o elementos que influyen en ella.
+
+<br>
+
+> - Qué tantos datos tenemos disponibles.
+
+<br>
+
+> - ¿El pronóstico que vamos a realizar puede influir en el resultado de la variable a predecir?
+
+## El análisis de series de tiempo con **R** {.columns-2}
+
+**R** nos puede ayudar a llevar a cabo de una manera bastante sencilla todo el análisis de pronóstico, desde el momento en que contamos con los datos, hasta la estimación final. 
+
+Durante el curso estaremos utilizando **R**, específicamente el `tidyverse` y la paquetería `fable`.
+
+Veamos una breve introducción [aquí](https://rpubs.com/pbenavides/r_tidyverse).
+
+<p class="forceBreak"></p>
+
+![](images/tidyverse1.png){width=45%}
+
+
+![](images/fable.png){width=45%}
