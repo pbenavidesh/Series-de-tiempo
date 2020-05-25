@@ -1,16 +1,16 @@
 ---
-title: "Introduccion a series de tiempo y pronosticos"
+title: "Introduccion a series de tiempo y pronósticos"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: cerulean
     highlight: tango
-  
+  github_document:
+    toc: yes
+    dev: jpeg
 date: '2020-03-01'
+author: "Pablo Benavides-Herrera"
 ---
 
 ```{r paquterias ocultas, echo=FALSE, results='hide', message=FALSE}
@@ -20,7 +20,7 @@ library(knitr)
 
 ## ¿Qué se puede pronosticar?
 
-Hay muchos fenómenos o variables que se pueden pronosticar; p. ej. los insumos que va a requerir una planta el siguiente mes o semana, las ventas de cierta sucursal en el mediano o largo plazo, la demanda de energia para una region del pais en las siguientes 24 horas, etc.
+Hay muchos fenómenos o variables que se pueden pronosticar; p. ej. los insumos que va a requerir una planta el siguiente mes o semana, las ventas de cierta sucursal en el mediano o largo plazo, la demanda de energia para una region del país en las siguientes 24 horas, etc.
 
 Asi, podemos necesitar pronosticos para muy corto plazo (minutos, horas,...), diarios, semanales, mensuales, hasta de largo plazo (para los siguientes 5, 10 años).
 
