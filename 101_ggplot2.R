@@ -39,13 +39,16 @@
 
 print("¡Hola, mundo!")
 
-# Carga de paqueterías ----------------------------------------
+# Carga de paqueterías ####
 # Una buena práctica es cargar todas las paqueterías necesarias
 # al inicio del código, junto con variables que se especifiquen
 # manualmente. Esto permite ser más claros sobre prerrequisitos
 # o consideraciones que se realizan.
 
 # Cargamos las paqueterías necesarias
+# Si la paquetería no está instalada, es necesario instalarla con
+# install.packages("tidyverse")
+
 library(tidyverse)
 library(lubridate)
 library(patchwork)
@@ -53,8 +56,8 @@ library(patchwork)
 # variables manuales
 x <- 3
 y <- 8
-z <- x + y
 
+meses <- 6
 
 # Datos --------------------------------------------------------
 
@@ -66,6 +69,9 @@ data(mpg)
 
 mpg
 
+
+help("mpg")
+
 # Después de analizar cada variable, vemos que las vars.
 # categóricas (factores) están marcadas como "chr"
 # (character o texto), por lo cual sería conveniente cambiar
@@ -75,7 +81,7 @@ mpg
 # medida en "millas por galón" a "km por litro"), podemos usar
 # mutate():
 
-mpg <- mpg %>% 
+mpg <- mpg %>% # pipe operator
   mutate(manufacturer = as_factor(manufacturer),
          hwy = hwy * 1.609 / 3.785)
 
@@ -90,7 +96,7 @@ mpg <- mpg %>%
   mutate_at(.vars = c("class",
                       "drv",
                       "cyl"), .funs = as_factor) %>% 
-  mutate(trans = fct_lump_min(trans, 5, other_level = "Otros"))
+  mutate(trans = fct_lump_min(trans, 20, other_level = "Otros"))
 mpg
 
 
@@ -100,7 +106,7 @@ mpg
 # graficarlos y conocer varios tipos de gráficas que se 
 # pueden hacer con ggplot2.
 
-# Graficaaremos la var. displ en el eje x y la variable
+# Graficaremos la var. displ en el eje x y la variable
 # hwy en el eje y. Haremos un diagrama de dispersión
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy))
@@ -162,6 +168,13 @@ ggplot(data = mpg) +
                            size = cyl),
              alpha = 0.7)
 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy,
+                           color = class,
+                           shape = class,
+                           size = class),
+             alpha = 0.7)
 
 # Varios gráficos en la misma imagen con patchwork -----------
 
