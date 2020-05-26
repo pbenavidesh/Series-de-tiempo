@@ -47,10 +47,7 @@ print("¡Hola, mundo!")
 
 # Cargamos las paqueterías necesarias
 library(tidyverse)
-# library(lubridate)
-# library(tsibble)
-# library(feasts)
-# library(fable)
+library(lubridate)
 library(patchwork)
 
 # variables manuales
@@ -236,3 +233,31 @@ ggplot(data = mpg) +
              alpha = 0.5) + 
   ggtitle("Color variable, alpha fija y facetas por tracción y cilindraje") +
   facet_grid(cyl ~ drv)
+
+
+# Gráficas de líneas --------------------------------------------
+
+# Otro tipo de gráfico muy utilizado es el de líneas.
+data("economics")
+
+economics # para ver los datos en la consola. Se puede ver 
+# la tabla completa con view(economics), o haciendo clic en
+# los datos en el panel del lado derecho "Environment".
+
+help("economics") # para ver la documentación de los datos
+# funciona también para todas las funciones.
+
+# Ver algunas diferencias entre un objeto tibble y un 
+# data.frame tradiciona
+as.data.frame(economics)
+
+# Graficar el desempleo a lo largo del tiempo
+ggplot(economics,
+       aes(x = date, y = unemploy)) + 
+  geom_line()
+
+
+ggplot(economics %>% filter(date>=ymd("2006-01-01")),
+       aes(x = date, y = unemploy)) + 
+  geom_line() + geom_point(size = 1)
+
