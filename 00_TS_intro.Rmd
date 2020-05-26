@@ -33,6 +33,16 @@ output:
 
 ## {data-background=images/pups.gif data-background-size=cover}
 
+## Datos de contacto y material del curso
+
+- pbenavides@iteso.mx
+
+- 3316052603
+
+- https://rpubs.com/pbenavides
+
+- https://github.com/pbenavidesh/Series-de-tiempo   
+
 ## Evaluación {.build}
 
 > - **80%** Proyectos.
