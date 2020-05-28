@@ -68,6 +68,7 @@ library(feasts)
 library(fable)
 library(patchwork)
 library(tsibbledata)
+library(nycflights13)
 ```
 
 
@@ -604,6 +605,9 @@ We are tasked with producing forecasts of the rural population as a percentage i
 
 ```{r pop data}
 pop <- read_csv("./data/world_bank_pop.csv")
+# If you don't have the csv file, you can run:
+# data(world_bank_pop, package = "tidyr")
+# pop <- world_bank_pop
 pop
 # A tibble: 1,056 x 20
 #    country indicator `2000` `2001` `2002` `2003`  `2004`  `2005`   `2006`   `2007`
@@ -773,7 +777,31 @@ pop_train %>%
   ylab("Rural population (%)") 
 ```
 
+## B) 2013 NYC Flights
 
+The `nycflights13` package contains all the flights that departed from one of NYC's airports on 2013.
+
+It contains several `tibbles`:
+
+* airlines
+
+* airports
+
+* flights
+
+* planes
+
+* weather
+
+We can get a sneak peak at them by calling them.
+
+```{r}
+airlines
+airports
+flights
+planes
+weather
+```
 
 
 ***
