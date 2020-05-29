@@ -1,0 +1,818 @@
+---
+title: "Introducción a R"
+subtitle: "Aprendiendo a usar R"
+author: "Pablo Benavides Herrera"
+date: 2020-05-27
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: cerulean
+    highlight: tango
+---
+
+# Introducción
+
+Este es un Notebook de [R Markdown](http://rmarkdown.rstudio.com). Cuando se ejecuta código dentro del notebook, los resultados aparecen debajo del código. 
+
+El código se puede ejecutar de varias maneras:
+
+* Haciendo clic en el botón de *Run*,
+* Haciendo clic en el botón de *Play* en cada "chunk" (o pedazo de código),
+* Tecleando *Ctrl+Shift+Enter* dentro del "chunk" deseado. 
+
+Se pueden agregar nuevos "chunks" tecleando *Ctrl+Alt+I* o dando clic en *Insert Chunk*.
+
+noeslomismoqueyoescribaasí a que yo escriba así.
+
+```{r prueba}
+3 + 4
+4 * 3
+x <- 3 + 5 + 8 + 7 + 13 + 21 +
+  14 + 
+  4
+x
+```
+
+
+Para ver la versión renderizada del código, hay que hacer clic en *Preview*.
+
+**NOTA:** *Aquí no es necesario escribir un "#" al inicio de la línea para crear texto (y no código).*
+
+Cuando se trabaja en RStudio, podemos crear proyectos (Rproj) que nos permiten organizar nuestro análisis de datos, junto con las tablas originales, los resultados, etc., de tal manera que es muy fácil de compartir y replicar por otras
+personas o en otros equipos.
+
+
+Para dar claridad al código, se pueden agregar encabezados de distintos niveles. Esto se logra agregando un "#" Al inicio (para el primer orden de encabezado), "##" para el segundo, "###" para el tercero, etc.
+
+Otra ventaja de incluir secciones en su código es que eso te permite navegar de manera rápida entre ellas.
+
+Otro atajo del teclado que es muy útil es (*CTRL + Enter*), que sirve para correr la(s) línea(s) de código seleccionada(s), o (*CTRL + Shift + Enter*) para
+correr todo el "chunk". P. ej.:
+
+```{r hello-world}
+print("¡Hola, mundo!")
+print("¡Adiós, mundo!")
+```
+
+Pueden agregar ecuaciones de $\LaTeX$:
+
+$$
+\sum_{i=1}^n{3x_i + 4}
+$$
+
+**Pueden encontrar una guía muy completa sobre R Markdown [aquí](https://bookdown.org/yihui/rmarkdown/).**
+
+## Carga de paqueterías
+
+Una buena práctica es cargar todas las paqueterías necesarias  al inicio del código, junto con variables que se especifiquen manualmente. Esto permite ser más claros sobre prerrequisitos o consideraciones que se realizan. Si la paquetería no está instalada, es necesario instalarla con `install.packages("tidyverse")`, p. ej.
+
+```{}
+install.packages("tidyverse")
+```
+
+
+```{r pkgs, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(patchwork)
+library(gapminder)
+library(plotly)
+library(gganimate)
+library(quantmod)
+```
+
+# Gráficas con `ggplot2`
+
+Primero cargaremos los datos que utilizaremos de ejemplo para graficar.
+
+```{r datos1}
+data(mpg)
+mpg
+```
+
+Después de analizar cada variable, vemos que las vars. categóricas (factores) están marcadas como "chr" (character o texto), por lo cual sería conveniente cambiar algunas de ellas a factores.
+
+Si queremos cambiar el fabricante a factor y hwy (que está medida en "millas por galón" a "km por litro"), podemos usar `mutate()`:
+
+```{r datos1-mutate}
+mpg <- mpg %>% # pipe operator
+  mutate(manufacturer = as_factor(manufacturer),
+         hwy = hwy * 1.609 / 3.785)
+mpg
+```
+
+Si queremos aplicar la misma transformación a varias vars. podemos usar `mutate_at()` para escoger las variables, o `mutate_if()` para que, con base en una condición, R escoja las variables a modificar:
+
+```{r datos1-mutate2}
+mpg <- mpg %>% 
+  mutate_at(.vars = c("class",
+                      "drv",
+                      "cyl"), 
+            .funs = as_factor) %>% 
+  mutate(trans = fct_lump_min(trans, 20, 
+                              other_level = "Otros"))
+mpg
+```
+
+Teniendo nuestros datos ya limpios, podemos proceder a graficarlos y conocer varios tipos de gráficas que se pueden hacer con `ggplot2.`
+
+Graficaremos la var. displ en el eje x y la variable hwy en el eje y. Haremos un diagrama de dispersión.
+
+```{r geom_point}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(y = hwy, x = displ))
+```
+
+
+Un gráfico de ggplot siempre comenzará con la función `ggplot()`, que genera un sistema de coordenadas, al que agregamos capas. En este caso, agregamos una capa de "puntos", mapeando, a traves de `aes()` las variables *x* ^ *y*.
+
+
+## Modificar el color, forma y tamaño {.tabset .tabset-fade}
+
+Si se desea controlar el color, forma, tamaño, transparencia, etc. a través de alguna otra variable, se puede hacer incluyéndola dentro del `aes()` del `ggplot()`.
+
+### Color
+
+Ahora queremos cambiar el `color` de los puntos, de acuerdo a una tercera variable: la clase de auto (`class`).
+
+```{r geom_point-color, echo=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = class)
+             )
+```
+
+### Forma
+
+De forma alternativa, pudimos haber cambiado la forma de los puntos, dependiendo la clase (en vez del color), con `shape`.
+
+```{r geom_point-shape}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy, 
+                           shape = class))
+```
+
+### Transparencia
+O la transparencia de los mismos con `alpha`:
+
+```{r geom_point-alpha}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy, 
+                           alpha = class))
+```
+
+### Tamaño
+
+O el tamaño con `size`:
+
+```{r geom_point-size}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy, 
+                           size = class))
+```
+
+## {-}
+**Disclaimer:** *Los gráficos anteriores son de carácter meramente ilustrativo. Como se aprecia en los warnings, algunas de esas configuraciones no son ideales para este tipo de variables.*
+
+***
+## Otras personalizaciones
+
+Si, por otro lado, se quisiera cambiar alguno de esos atributos por default, sin que éstos dependan de alguna variable, se puede hacer si se especifican fuera del `aes()`
+
+```{r geom_point-fixed color}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy),
+             color = "blue")
+```
+
+Cuidado, porque si se pone dentro del aes() no va a dar el resultado que buscamos:
+
+```{r geom_point-color-wrong, message=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue")) +
+  ggtitle("Definir el color fijo dentro del aes() produce errores")
+```
+
+También se pueden juntar varios de estos atributos al mismo tiempo, si eso se deseara:
+
+```{r geom_point-col shape size, warning=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy,
+                           color = class,
+                           shape = drv,
+                           size = cyl),
+             alpha = 0.7)
+```
+
+Se pueden asociar varias características a la misma variable:
+
+```{r geom_point-col shape size2, warning=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy,
+                           color = class,
+                           shape = class,
+                           size = class),
+             alpha = 0.7)
+```
+
+## Varias gráficas en una sola con `patchwork`
+
+Los gráficos que recién creamos pueden ser almacenados en variables. La paquetería patchwork nos permite juntar dos o más gráficas de ggplot en una sola imagen. Retomemos algunas de las gráficas anteriores.
+
+**NOTA:** *El nombre se escoge arbitrariamente.*
+
+```{r ggplots, message=FALSE}
+# Las gráficas a poner en una sola imagen
+g1 <- ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))+
+  ggtitle("La gráfica más básica")
+
+g2 <- ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))+
+  ggtitle("Color variable")
+
+g3 <- ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")+
+  ggtitle("Color fijo")
+
+g4 <- ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy,
+                           color = class,
+                           shape = drv,
+                           size = cyl),
+             alpha = 0.7) + 
+  ggtitle("Col, forma y tam var, alpha fija")
+```
+
+El acomodo se puede guardar en una variable también. Con `patchwork` es bastante intuitiva la manera de acomodar las gráficas.
+
+* `+` sirve para agregar gráficos en esa línea (también funciona utilizar `|`).
+
+* `/` sirve para crear una nueva fila.
+
+```{r patchwork1, fig.height=12,fig.width=10, warning=FALSE}
+fig1 <- g1 /
+  (g2 + g3) /
+  g4
+
+fig1
+```
+
+Se pueden agregar títulos y subtítulos globales con `plot_annotation()`. También, se puede dejar espacios en blanco usando `plot_spacer()`:
+
+```{r patchwork2, fig.width=10,fig.height=12, warning=FALSE}
+fig1 + 
+  plot_annotation(title = "Gráficas con ggplot2",
+                  subtitle = "Cambiando la estética de varias maneras")
+
+(g1 + plot_spacer()) /
+  (g4) /
+  (g2 + g3) +
+  plot_annotation(title = "Gráficas con ggplot2",
+                  subtitle = "Otro acomodo distinto")
+```
+
+## Uso de facetas {.tabset}
+
+Otra opción para personalizar gráficas es utilizar facetas. Esto divide nuestro gráfico en varios subgráficos, de acuerdo a alguna variable especificada.
+
+### `facet_wrap()`
+
+Para separar los subgráficos con base en una variable:
+
+```{r facet_wrap, warning=FALSE, message=FALSE, fig.height=6,fig.width=8}
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, 
+                             y = hwy,
+                             color = class,
+                             shape = drv),
+               alpha = 0.7) + 
+    ggtitle("Facetas por cilindraje") +
+  facet_wrap(~ cyl)
+```
+
+### `facet_grid()`
+
+Las facetas se pueden poner en ambos ejes, usando dos variables:
+
+```{r facet_grid, warning=FALSE, message=FALSE, fig.height=6,fig.width=8}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy,
+                           color = class),
+             alpha = 0.5) + 
+  ggtitle("Facetas por tracción y cilindraje") +
+  facet_grid(cyl ~ drv)
+```
+
+## Gráficas de líneas {.tabset}
+
+Otro tipo de gráfico muy utilizado es el de líneas. Usaremos otro conjunto de datos para esto.
+
+```{r datos2, warning=FALSE, message=FALSE}
+data("economics")
+```
+
+Se puede acceder a la documentación de este dataset (y de cualquier función), a través de la función `help()`:
+```{r help econ, eval=FALSE}
+help("economics")
+```
+
+
+Estos datos que hemos trabajado son de tipo `tibble`. Podemos observar lgunas diferencias entre un objeto `tibble` y un `data.frame` tradicional:
+
+### Tibble
+
+Te muestra solo las primeras 10 filas, así como el tipo de datos de cada columna. También te da en resumen la dimensión de la tabla (filas x columnas).
+```{r tibble, eval=FALSE}
+economics
+# A tibble: 574 x 6
+#    date         pce    pop psavert uempmed unemploy
+#    <date>     <dbl>  <dbl>   <dbl>   <dbl>    <dbl>
+#  1 1967-07-01  507. 198712    12.6     4.5     2944
+#  2 1967-08-01  510. 198911    12.6     4.7     2945
+#  3 1967-09-01  516. 199113    11.9     4.6     2958
+#  4 1967-10-01  512. 199311    12.9     4.9     3143
+#  5 1967-11-01  517. 199498    12.8     4.7     3066
+#  6 1967-12-01  525. 199657    11.8     4.8     3018
+#  7 1968-01-01  531. 199808    11.7     5.1     2878
+#  8 1968-02-01  534. 199920    12.3     4.5     3001
+#  9 1968-03-01  544. 200056    11.7     4.1     2877
+# 10 1968-04-01  544  200208    12.3     4.6     2709
+# ... with 564 more rows
+```
+
+### Data.frame
+
+```{r data.frame, eval=FALSE}
+as.data.frame(economics)
+#           date    pce    pop psavert uempmed unemploy
+# 1   1967-07-01  506.7 198712    12.6     4.5     2944
+# 2   1967-08-01  509.8 198911    12.6     4.7     2945
+# 3   1967-09-01  515.6 199113    11.9     4.6     2958
+# 4   1967-10-01  512.2 199311    12.9     4.9     3143
+# 5   1967-11-01  517.4 199498    12.8     4.7     3066
+# 6   1967-12-01  525.1 199657    11.8     4.8     3018
+# 7   1968-01-01  530.9 199808    11.7     5.1     2878
+# 8   1968-02-01  533.6 199920    12.3     4.5     3001
+# 9   1968-03-01  544.3 200056    11.7     4.1     2877
+# 10  1968-04-01  544.0 200208    12.3     4.6     2709
+# 11  1968-05-01  549.8 200361    12.0     4.4     2740
+# 12  1968-06-01  556.3 200536    11.7     4.4     2938
+# 13  1968-07-01  563.2 200706    10.7     4.5     2883
+# 14  1968-08-01  567.0 200898    10.5     4.2     2768
+# 15  1968-09-01  568.2 201095    10.6     4.6     2686
+# 16  1968-10-01  571.6 201290    10.8     4.8     2689
+# 17  1968-11-01  576.7 201466    10.6     4.4     2715
+# 18  1968-12-01  576.5 201621    11.1     4.4     2685
+# 19  1969-01-01  583.5 201760    10.3     4.4     2718
+# 20  1969-02-01  588.7 201881     9.7     4.9     2692
+# 21  1969-03-01  588.9 202023    10.2     4.0     2712
+# 22  1969-04-01  593.9 202161     9.7     4.0     2758
+# 23  1969-05-01  600.3 202331    10.1     4.2     2713
+# 24  1969-06-01  600.9 202507    11.1     4.4     2816
+# 25  1969-07-01  602.7 202677    11.8     4.4     2868
+# 26  1969-08-01  609.9 202877    11.5     4.4     2856
+# 27  1969-09-01  613.2 203090    11.6     4.7     3040
+# 28  1969-10-01  618.5 203302    11.4     4.5     3049
+# 29  1969-11-01  620.5 203500    11.6     4.8     2856
+# 30  1969-12-01  622.8 203675    11.8     4.6     2884
+# 31  1970-01-01  628.7 203849    11.8     4.6     3201
+# 32  1970-02-01  634.0 204008    11.7     4.5     3453
+# 33  1970-03-01  632.3 204156    12.4     4.6     3635
+# 34  1970-04-01  636.0 204401    13.3     4.1     3797
+# 35  1970-05-01  642.4 204607    12.4     4.7     3919
+# 36  1970-06-01  646.3 204830    12.3     4.9     4071
+# 37  1970-07-01  648.5 205052    13.5     5.1     4175
+# 38  1970-08-01  652.9 205295    13.4     5.4     4256
+# 39  1970-09-01  659.1 205540    12.9     5.2     4456
+# 40  1970-10-01  658.3 205788    13.1     5.2     4591
+# 41  1970-11-01  656.6 206024    13.6     5.6     4898
+# 42  1970-12-01  665.6 206238    13.2     5.9     5076
+# 43  1971-01-01  676.1 206466    13.3     6.2     4986
+# 44  1971-02-01  679.4 206668    13.3     6.3     4903
+# 45  1971-03-01  682.0 206855    13.5     6.4     4987
+# 46  1971-04-01  688.8 207065    13.2     6.5     4959
+# 47  1971-05-01  691.1 207260    13.6     6.7     4996
+# 48  1971-06-01  699.8 207462    14.7     5.7     4949
+# 49  1971-07-01  698.9 207661    13.8     6.2     5035
+# 50  1971-08-01  704.9 207881    13.6     6.4     5134
+# 51  1971-09-01  713.0 208114    13.3     5.8     5042
+# 52  1971-10-01  715.8 208345    13.3     6.5     4954
+# 53  1971-11-01  720.9 208555    13.1     6.4     5161
+# 54  1971-12-01  728.4 208740    13.0     6.2     5154
+# 55  1972-01-01  731.5 208917    12.5     6.2     5019
+# 56  1972-02-01  736.2 209061    12.8     6.6     4928
+# 57  1972-03-01  749.2 209212    11.8     6.6     5038
+# 58  1972-04-01  752.5 209386    11.5     6.7     4959
+# 59  1972-05-01  758.0 209545    11.7     6.6     4922
+# 60  1972-06-01  761.6 209725    11.7     5.4     4923
+# 61  1972-07-01  769.9 209896    11.7     6.1     4913
+# 62  1972-08-01  776.3 210075    12.0     6.0     4939
+# 63  1972-09-01  781.1 210278    12.2     5.6     4849
+# 64  1972-10-01  794.9 210479    13.0     5.7     4875
+# 65  1972-11-01  800.5 210656    13.6     5.7     4602
+# 66  1972-12-01  806.1 210821    13.7     6.1     4543
+# 67  1973-01-01  816.5 210985    12.4     5.7     4326
+# 68  1973-02-01  825.8 211120    12.5     5.2     4452
+# 69  1973-03-01  832.8 211254    12.7     5.5     4394
+# 70  1973-04-01  835.7 211420    13.2     5.0     4459
+# 71  1973-05-01  841.6 211577    13.2     4.9     4329
+# 72  1973-06-01  844.3 211746    13.6     5.0     4363
+# 73  1973-07-01  854.1 211909    13.2     5.2     4305
+# 74  1973-08-01  853.3 212092    13.9     4.9     4305
+# 75  1973-09-01  869.2 212289    13.1     5.4     4350
+# 76  1973-10-01  868.2 212475    14.4     5.5     4144
+# 77  1973-11-01  876.9 212634    14.4     5.1     4396
+# 78  1973-12-01  876.6 212785    14.8     4.7     4489
+# 79  1974-01-01  884.5 212932    14.3     5.0     4644
+# 80  1974-02-01  889.7 213074    14.2     5.1     4731
+# 81  1974-03-01  901.4 213211    13.4     4.8     4634
+# 82  1974-04-01  910.8 213361    13.1     5.0     4618
+# 83  1974-05-01  922.4 213513    12.8     4.6     4705
+# 84  1974-06-01  928.0 213686    12.8     5.3     4927
+# 85  1974-07-01  937.9 213854    12.8     5.7     5063
+# 86  1974-08-01  954.8 214042    12.1     5.0     5022
+# 87  1974-09-01  955.1 214246    12.9     5.3     5437
+# 88  1974-10-01  959.2 214451    13.4     5.5     5523
+# 89  1974-11-01  956.2 214625    13.8     5.2     6140
+# 90  1974-12-01  961.8 214782    14.0     5.7     6636
+# 91  1975-01-01  975.6 214931    13.2     6.3     7501
+# 92  1975-02-01  989.4 215065    12.5     7.1     7520
+# 93  1975-03-01  990.6 215198    12.7     7.2     7978
+# 94  1975-04-01  995.0 215353    14.2     8.7     8210
+# 95  1975-05-01 1018.9 215523    17.3     9.4     8433
+# 96  1975-06-01 1026.8 215768    14.3     8.8     8220
+# 97  1975-07-01 1039.8 215973    12.6     8.6     8127
+# 98  1975-08-01 1047.0 216195    13.0     9.2     7928
+# 99  1975-09-01 1054.8 216393    13.0     9.2     7923
+# 100 1975-10-01 1060.9 216587    13.4     8.6     7897
+# 101 1975-11-01 1075.8 216771    12.7     9.5     7794
+# 102 1975-12-01 1092.1 216931    12.0     9.0     7744
+# 103 1976-01-01 1107.1 217095    11.7     9.0     7534
+# 104 1976-02-01 1107.7 217249    12.3     8.2     7326
+# 105 1976-03-01 1114.9 217381    12.2     8.7     7230
+# 106 1976-04-01 1125.4 217528    11.7     8.2     7330
+# 107 1976-05-01 1122.7 217685    12.3     8.3     7053
+# 108 1976-06-01 1140.5 217861    11.4     7.8     7322
+# 109 1976-07-01 1149.6 218035    11.7     7.7     7490
+# 110 1976-08-01 1158.0 218233    11.7     7.9     7518
+# 111 1976-09-01 1168.8 218440    11.4     7.8     7380
+# 112 1976-10-01 1176.8 218644    11.1     7.7     7430
+# 113 1976-11-01 1189.0 218834    11.4     8.4     7620
+# 114 1976-12-01 1211.5 219006    10.6     8.0     7545
+# 115 1977-01-01 1215.0 219179    10.6     7.5     7280
+# 116 1977-02-01 1231.3 219344     9.3     7.2     7443
+# 117 1977-03-01 1238.3 219504    10.5     7.2     7307
+# 118 1977-04-01 1247.3 219684    10.5     7.3     7059
+# 119 1977-05-01 1257.1 219859    10.3     7.9     6911
+# 120 1977-06-01 1263.6 220046    10.6     6.2     7134
+# 121 1977-07-01 1280.5 220239    10.5     7.1     6829
+# 122 1977-08-01 1285.7 220458    10.9     7.0     6925
+# 123 1977-09-01 1294.5 220688    11.1     6.7     6751
+# 124 1977-10-01 1311.4 220904    11.0     6.9     6763
+# 125 1977-11-01 1327.0 221109    11.2     7.0     6815
+# 126 1977-12-01 1336.0 221303    11.4     6.8     6386
+# 127 1978-01-01 1329.5 221477    11.9     6.5     6489
+# 128 1978-02-01 1355.1 221629    11.1     6.7     6318
+# 129 1978-03-01 1377.5 221792    11.0     6.2     6337
+# 130 1978-04-01 1396.4 221991    10.8     6.1     6180
+# 131 1978-05-01 1412.0 222176    10.3     5.7     6127
+# 132 1978-06-01 1425.8 222379    10.0     6.0     6028
+# 133 1978-07-01 1426.8 222585    10.9     5.8     6309
+# 134 1978-08-01 1447.0 222805    10.5     5.8     6080
+# 135 1978-09-01 1452.9 223053    10.6     5.6     6125
+# 136 1978-10-01 1466.9 223271    10.7     5.9     5947
+# 137 1978-11-01 1480.6 223477    10.5     5.5     6077
+# 138 1978-12-01 1496.5 223670    10.4     5.6     6228
+# 139 1979-01-01 1502.4 223865    11.1     5.9     6109
+# 140 1979-02-01 1517.8 224053    11.1     5.9     6173
+# 141 1979-03-01 1531.2 224235    11.2     5.9     6109
+# 142 1979-04-01 1538.4 224438    11.0     5.4     6069
+# 143 1979-05-01 1558.8 224632    10.3     5.6     5840
+# 144 1979-06-01 1575.7 224843     9.9     5.6     5959
+# 145 1979-07-01 1586.1 225055    10.6     5.9     5996
+# 146 1979-08-01 1615.6 225295     9.7     4.8     6320
+# 147 1979-09-01 1633.9 225547     9.4     5.5     6190
+# 148 1979-10-01 1641.6 225801     9.7     5.5     6296
+# 149 1979-11-01 1657.3 226027     9.7     5.3     6238
+# 150 1979-12-01 1666.3 226243    10.1     5.7     6325
+# 151 1980-01-01 1697.3 226451     9.9     5.3     6683
+# 152 1980-02-01 1701.4 226656    10.1     5.8     6702
+# 153 1980-03-01 1708.2 226849    10.2     6.0     6729
+# 154 1980-04-01 1695.2 227061    11.3     5.8     7358
+# 155 1980-05-01 1700.1 227251    11.4     5.7     7984
+# 156 1980-06-01 1718.8 227522    11.2     6.4     8098
+# 157 1980-07-01 1747.1 227726    11.3     7.0     8363
+# 158 1980-08-01 1763.8 227953    11.3     7.5     8281
+# 159 1980-09-01 1780.5 228186    11.7     7.7     8021
+# 160 1980-10-01 1817.1 228417    11.3     7.5     8088
+# 161 1980-11-01 1826.8 228612    11.6     7.7     8023
+# 162 1980-12-01 1851.7 228779    11.4     7.5     7718
+# 163 1981-01-01 1870.0 228937    10.9     7.4     8071
+# 164 1981-02-01 1884.2 229071    10.8     7.1     8051
+# 165 1981-03-01 1902.9 229224    10.8     7.1     7982
+# 166 1981-04-01 1904.4 229403    10.9     7.4     7869
+#  [ reached 'max' / getOption("max.print") -- omitted 408 rows ]
+```
+
+## {-}
+
+***
+
+Grafiquemos el desempleo a lo largo del tiempo.
+
+```{r geom_line, message=FALSE}
+ggplot(economics,
+       aes(x = date, y = unemploy)) + 
+  geom_line()
+```
+
+Filtrando los datos y añadiendo dos capas de gráficos (puntos y líneas):
+
+```{r geom_line + point, message=FALSE, warning=FALSE}
+ggplot(economics %>% filter(year(date)>=2006),
+       aes(x = date, y = unemploy)) + 
+  geom_line(color = "red") + 
+  geom_point(size = 1, color ="green")
+```
+Sería exactamente el mismo resultado si definimos el `aes()` dentro de cada uno de los `geoms`:
+
+```{r geom_line + point aes independent}
+ggplot(economics %>% filter(year(date)>=2006)) + 
+  geom_line(aes(x = date, y = unemploy), color = "red") + 
+  geom_point(aes(x = date, y = unemploy), size = 1, color ="green")
+```
+
+Se pueden crear sus propias `tibbles` directamente en **R** con la función `tibble()`:
+
+```{r}
+tibble(fecha = c("2020-05-27","2020-05-28","2020-05-29"),
+       dolar = c(24,24.3,25),
+       `dia caluroso` = c(1, 0, 1)) %>%
+  mutate(fecha = ymd(fecha))
+```
+
+
+# Transformación de datos con `dplyr`
+
+Utilizaremos los datos de `gapminder` para revisar varios ejemplos. Explorando la tabla, vemos que contiene 1,704 filas con 6 columnas:
+
+* País `country`
+* Continente `continent`
+* Año `year`
+* Esperanza de vida (en años) `lifeExp`
+* Población `pop`
+* PIB per cápita (en USD, ajustados por la inflación) `gdpPercap`
+
+```{r gapminder}
+data(gapminder)
+gapminder
+```
+Si quisiéramos filtrar la tabla para mantener sólo los países asiáticos, lo podríamos lograr con el verbo `filter()`. Opcionalmente, podríamos validar con `distinct()` si nuestro filtro logró el objetivo:
+
+```{r gap filter continent}
+# Para quedarnos solo con países asiáticos
+gapminder %>% 
+  filter(continent == "Asia")
+# Validación
+gapminder %>% 
+  filter(continent == "Asia") %>% 
+  distinct(continent)
+```
+
+Vemos que las filas de la tabla se redujeron (a 396) y que, efectivamente, logramos el objetivo de mantener puros países de Asia.
+
+Podemos ordenar una tabla con respecto a una de sus variables con `arrange()`. Por defáult, el orden será ascendente. Si se desea en orden descendente, agreamos `desc()`. Probemos mostrando a los países que tienen la mayor población en el año 2007.
+
+```{r gap arranged}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  arrange(desc(pop))
+```
+
+Ahora, si deseáramos obtener una subgráfica de líneas de cuantro países asiáticos (Nepal, Irak, Cambodia y China), lo podríamos hacer de la siguiente forma:
+
+```{r gap plot facets country}
+gapminder %>% 
+  filter(country %in% c("Nepal", "Iraq", "Cambodia","China")) %>% 
+  ggplot(aes(x = year, y = lifeExp)) +
+  geom_line() + facet_wrap(~ country) +
+  ggtitle("Separación de los países por facetas")
+```
+
+Otra alternativa sería mostrar una sola gráfica y definir el color de línea por país. Aquí se ejemplifica también cómo cambiar el nombre de los ejes, la posición de la leyenda, entre otros.
+
+```{r gap plot country color}
+gapminder %>% 
+  filter(country %in% c("Indonesia","India","Oman", "Taiwan")) %>% 
+  ggplot(aes(x = year, y = lifeExp, color = country)) +
+  geom_line() +
+  ylab("Esperanza de vida (años)") + xlab("") +
+  ggtitle("Cambio de la esperanza de vida para algunos paises asiáticos") +
+  labs(color = "") + theme(legend.position = "bottom")
+```
+
+Se podrían hacer más configuraciones:
+
+```{r gap plot country color linetype}
+gapminder %>% 
+  filter(country %in% c("Indonesia","India","Oman", "Taiwan")) %>% 
+  ggplot(aes(x = year, y = lifeExp, color = country, linetype = country)) +
+  geom_line() +
+  ylab("Esperanza de vida (años)") + xlab("") +
+  ggtitle("Cambio de la esperanza de vida para algunos paises asiáticos") +
+  labs(color = "", linetype ="") + 
+  theme(legend.position = "bottom")
+```
+
+Podemos analizar la relación entre la esperanza de vida y el PIB per cápita, ya que se dice que existe una relación directa entre ambas.
+
+Haremos el análisis para el año 2007:
+
+
+```{r gap lifeExp GDP 2007}
+gapminder %>% 
+  filter(year == 2007) %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp, color = continent,
+             size = pop)) +
+  geom_point() + 
+  scale_x_log10() + 
+  ylab("Esperanza de vida (años)") +
+  xlab("PIB per cápita (USD con ajuste inflacionario, escala log10)") + 
+  labs(color ="", size="")
+```
+
+Pero, ¿qué pasa si queremos observar el cambio de estos factores a lo largo del tiempo? Claro, podríamos crear muchas gráficas distintas, cambiando el argumento `filter(year == "cada uno de los años")`. Pero esto, aparte de que sería laborioso, no sería práctico para analizarlo.
+
+# Gráficas interactivas {.tabset}
+
+## `plotly`
+
+Lo que podemos hacer es crear una gráfica interactiva, apoyados de la paquetería [`plotly`](https://plotly.com/r/). Los cambios que tenemos que hacer en este caso en particular son muy sencillos. Pueden consultar [este libro electrónico](https://plotly-r.com/index.html) para más detalles.
+
+* Haber instalado y cargado `plotly`
+* Agregar `aes(frame = year)` a la estética de la gráfica.
+* Guardar el gráfico en una variable (el nombre es indiferente), y posteriormente ejecutar la función `ggplotly()` con la variable que contiene al gráfico.
+
+**NOTA:** Casi cualquier gráfico hecho con `ggplot2` se puede convertir en uno interactivo con la función `ggplotly()`.
+
+
+```{r plotly gap, fig.width=8, fig.height=6}
+int_plot1 <- gapminder %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, color = continent,
+             size = pop, label = country)) +
+  geom_point(aes(frame = year)) + 
+  scale_x_log10() + 
+  ylab("Esperanza de vida (años)") +
+  xlab("PIB per cápita (USD con ajuste inflacionario)") + 
+  labs(color ="", size="")
+
+ggplotly(int_plot1)
+```
+
+```{r plotly by facets, fig.width=8, fig.height=6}
+int_plot2 <- gapminder %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, color = country,
+             size = pop, label = country)) +
+  geom_point(aes(frame = year)) + 
+  scale_x_log10() + 
+  facet_wrap(~ continent) +
+  ylab("Esperanza de vida (años)") +
+  xlab("PIB per cápita (USD con ajuste inflacionario)") + 
+  # labs(color ="", size="")
+  theme(legend.position = "none")
+
+  
+ggplotly(int_plot2)
+```
+
+Otro tipo de gráfico que puede proporcionarnos mucha información es un *diagrama de caja y bigotes*. Aquí, la interpretación es algo así:
+
+* Los bigotes muestran los valores mínimo y máximo (sin considerar *outliers*),
+* el inicio de la caja representa el primer cuartil (25% de los datos),
+* La línea interna de la caja es la mediana (el 50% de los datos),
+* el final de la caja muestra el tercer cuartil (75% de los datos) y,
+* en caso de que la gráfica muestre puntos fuera de la caja, se considerarían como *outliers*.
+
+```{r gap boxplot}
+gap_box <- gapminder %>%
+  filter(year == 2007) %>% 
+  ggplot(aes(x = continent, y = lifeExp)) +
+  geom_boxplot()
+
+ggplotly(gap_box)
+```
+
+Definiendo una función especial, se pueden crear gráficas acumulativas de líneas también:
+
+```{r plotly cumulative line}
+invisible(getSymbols("AAPL",src='yahoo'))
+
+df <- data.frame(Date=index(AAPL),coredata(AAPL))
+df <- tail(df, 30)
+df$ID <- seq.int(nrow(df))
+
+accumulate_by <- function(dat, var) {
+  var <- lazyeval::f_eval(var, dat)
+  lvls <- plotly:::getLevels(var)
+  dats <- lapply(seq_along(lvls), function(x) {
+    cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
+  })
+  dplyr::bind_rows(dats)
+}
+
+df <- df %>%
+  accumulate_by(~ID)
+
+p <- ggplot(df,aes(ID, AAPL.Close, frame = frame)) +
+  geom_line()
+
+fig <- ggplotly(p) %>%
+  layout(
+    title = "AAPL: Last 30 days",
+    yaxis = list(
+      title = "Close",
+      zeroline = F,
+      tickprefix = "$"
+    ),
+    xaxis = list(
+      title = "Day",
+      zeroline = F, 
+      showgrid = F
+    )
+  ) %>% 
+  animation_opts(
+    frame = 100, 
+    transition = 0, 
+    redraw = FALSE
+  ) %>%
+  animation_slider(
+    currentvalue = list(
+      prefix = "Day "
+    )
+  )
+
+fig
+```
+
+
+
+## `gganimate`
+
+Esto no funciona igual para un gráfico de líneas. Existe otra paquetería que nos permite hacer cosas similares: [`gganimate`](https://gganimate.com/articles/gganimate.html). [Esta página](https://www.datanovia.com/en/blog/gganimate-how-to-create-plots-with-beautiful-animation-in-r/) contiene un breve tutorial de varias opciones.
+
+
+```{r, results='hide'}
+p1 <- gapminder %>% 
+  filter(country %in% c("Mexico", "United States", "Chile")) %>%
+  ggplot(aes(x = year, y = lifeExp,
+             color = country)) + 
+  geom_line() +
+  theme(legend.position = "top") +
+  labs(x = "Año", y = "Esperanza de vida (años)", title = "Evolución de la esperanza de vida en el tiempo")
+p1 + transition_reveal(year)
+```
+
+```{r}
+p2 <- gapminder %>% 
+  filter(country %in% c("Mexico", "United States", "Chile")) %>%
+  ggplot(aes(x = year, y = lifeExp,
+             color = country)) + 
+  geom_line() +
+  theme(legend.position = "top") +
+  labs(x = "Año", y = "Esperanza de vida (años)", title = "Evolución de la esperanza de vida en el tiempo") +
+  transition_time(year)
+
+animate(p2, fps = 10)
+```
+
+
+
+
+```{r}
+p <- ggplot(
+  airquality,
+  aes(Day, Temp, group = Month, color = factor(Month))
+  ) +
+  geom_line() +
+  scale_color_viridis_d() +
+  labs(x = "Day of Month", y = "Temperature") +
+  theme(legend.position = "top")
+
+p + transition_reveal(Day)
+```
+
+
+
+
+
