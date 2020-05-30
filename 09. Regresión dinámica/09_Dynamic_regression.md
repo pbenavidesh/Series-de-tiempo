@@ -31,7 +31,7 @@ la temperatura.
 
 Recordando, un modelo de regresión tiene la forma general
 
-\[y_{t}=\beta_{0}+\beta_{1} x_{1, t}+\cdots+\beta_{k} x_{k, t}+\varepsilon_{t}\]
+\[y_{t}=\beta_{0}+\beta_{1}%20x_{1,t}+\cdots+\beta_{k}%20x_{k, t}+\varepsilon_{t}\]
 
 donde \(y_t\) es la variable que queremos pronosticar, \(x_{k, t}\) son
 las variables independientes que utilizábamos para explicar a \(y_t\) y
