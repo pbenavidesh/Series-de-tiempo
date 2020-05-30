@@ -24,3 +24,9 @@ Otras fuentes de apoyo que pueden serles útiles para el análisis de econometr�
 *	Lütkepohl, H., & Krätzig, M. (Eds.). (2004). *Applied time series econometrics*. Cambridge university press.
 
 *	Greene, W. H. (2003). *Econometric analysis*. Pearson Education India.
+
+***
+
+Los temas que estaremos revisando son:
+
+1. [Introducción](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/00.%20Introducci%C3%B3n/01_Intro_a_series_de_tiempo.md)
