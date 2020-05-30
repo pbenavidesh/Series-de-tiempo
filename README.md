@@ -29,4 +29,22 @@ Otras fuentes de apoyo que pueden serles útiles para el análisis de econometr�
 
 Los temas que estaremos revisando son:
 
-1. [Introducción](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/00.%20Introducci%C3%B3n/01_Intro_a_series_de_tiempo.md)
+1. [Introducción](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/00.%20Introducci%C3%B3n/01_Intro_a_series_de_tiempo.md) al curso.
+
+2. [Repaso](https://github.com/pbenavidesh/Series-de-tiempo/tree/master/01.%20R%20tutorials) de algunas paqueterías útiles para la ciencia de datos y el análisis de series de tiempo.
+
+3. Conoceremos la [descomposición de series de tiempo](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/03.%20Descomposici%C3%B3n/03_Descomposicion_ST.md).
+
+4. Analizaremos algunas [características](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/04.%20Caracter%C3%ADsticas%20de%20ST/04_TS_features.md) de las ST.
+
+5. Aprenderemos las bases de los [pronósticos](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/05.%20Pron%C3%B3sticos/05_Bases_pronosticos.md).
+
+Descubriremos y ajustaremos varios tipos de modelos para pronóstico:
+
+6. [Regresión lineal].
+
+7. [Suavización exponencial](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/07.%20Suavizaci%C3%B3n%20exponencial/07_ETS.md).
+
+8. [ARIMA](https://github.com/pbenavidesh/Series-de-tiempo/tree/master/08.%20ARIMA).
+
+9. [Regresión dinámica](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/09.%20Regresi%C3%B3n%20din%C3%A1mica/09_Dynamic_regression.md).
