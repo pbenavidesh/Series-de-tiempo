@@ -7,7 +7,7 @@ output:
   html_notebook:
     toc: TRUE
     toc_float: TRUE
-    theme: cerulean
+    theme: spacelab
     highlight: tango
 ---
 
@@ -718,7 +718,7 @@ Definiendo una función especial, se pueden crear gráficas acumulativas de lín
 ```{r plotly cumulative line}
 invisible(getSymbols("AAPL",src='yahoo'))
 
-df <- data.frame(Date=index(AAPL),coredata(AAPL))
+df <- data.frame(Date=zoo::index(AAPL),coredata(AAPL))
 df <- tail(df, 30)
 df$ID <- seq.int(nrow(df))
 
@@ -771,35 +771,30 @@ fig
 
 Esto no funciona igual para un gráfico de líneas. Existe otra paquetería que nos permite hacer cosas similares: [`gganimate`](https://gganimate.com/articles/gganimate.html). [Esta página](https://www.datanovia.com/en/blog/gganimate-how-to-create-plots-with-beautiful-animation-in-r/) contiene un breve tutorial de varias opciones.
 
+**NOTA:** *Se requiere instalar las paqueterías `png` y `gifski` adicionales a `gganimate`.
 
-```{r, results='hide'}
+```{r gganimate, warning=FALSE, results='hide', eval=FALSE}
 p1 <- gapminder %>% 
   filter(country %in% c("Mexico", "United States", "Chile")) %>%
   ggplot(aes(x = year, y = lifeExp,
              color = country)) + 
   geom_line() +
   theme(legend.position = "top") +
-  labs(x = "Año", y = "Esperanza de vida (años)", title = "Evolución de la esperanza de vida en el tiempo")
+  labs(x = "Año", y = "Esperanza de vida (años)", 
+       title = "Evolución de la esperanza de vida en el tiempo")
+
 p1 + transition_reveal(year)
+
+anim_save(filename = "figs/LifeExp_gganim.gif")
 ```
 
-```{r}
-p2 <- gapminder %>% 
-  filter(country %in% c("Mexico", "United States", "Chile")) %>%
-  ggplot(aes(x = year, y = lifeExp,
-             color = country)) + 
-  geom_line() +
-  theme(legend.position = "top") +
-  labs(x = "Año", y = "Esperanza de vida (años)", title = "Evolución de la esperanza de vida en el tiempo") +
-  transition_time(year)
-
-animate(p2, fps = 10)
-```
+![](figs/LifeExp_gganim.gif)
 
 
 
 
-```{r}
+
+```{r, warning=FALSE, results='hide', eval=FALSE}
 p <- ggplot(
   airquality,
   aes(Day, Temp, group = Month, color = factor(Month))
@@ -810,8 +805,10 @@ p <- ggplot(
   theme(legend.position = "top")
 
 p + transition_reveal(Day)
-```
 
+anim_save(filename = "figs/airquality.gif")
+```
+![](figs/airquality.gif)
 
 
 
