@@ -1,0 +1,324 @@
+---
+title: "`ggplot2` tutorial"
+author: "Pablo Benavides Herrera"
+date: 2020-05-30
+tutorial:
+  id: "ggplot2"
+  version: 0.1
+output: 
+  learnr::tutorial:
+    progressive: TRUE
+    allow_skip: TRUE
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(learnr)
+library(lubridate)
+library(tsibble)
+library(tsibbledata)
+library(plotly)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Calentamiento
+
+```{r quiz-warmup-q}
+quiz(caption = "Prueba tus conocimientos sobre las gráficas en `ggplot2`. Puedes utilizar el espacio de abajo para probar con código",
+question("Si quisiera hacer un diagrama de dispersión, ¿cuál `geom` utilizaría?",
+         answer("`geom_scatter`", message = "Este tipo de `geom` no existe en `ggplot2` (todavía)"),
+         answer("`geom_disp`", message = "Este tipo de `geom` no existe en `ggplot2` (todavía)"),
+         answer("`geom_point`", correct = TRUE),
+         answer("`geom_line`", message = "Este tipo de `geom` produce líneas, no un diagrama de dispersión."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+         ),
+
+question("¿Cuál sería la opción correcta para definir de color verde los puntos?",
+         answer("`geom_point(aes(x, y), color = 'green')`",
+                correct = TRUE, message = "Para definir un color fijo, debe ir **fuera** del argumento `aes()`"),
+         answer("`geom_point(aes(x, y, color = 'green'))`",
+                message =  "Prueba intentando una gráfica con esto para que veas por qué esto no da el resultado esperado." ),
+         answer("`geom_point(aes(x, y), color = 'verde')`",
+                message = "Hay colores predefinidos con nombre, desafortunadamente, en español aún no."),
+         answer("`geom_point(aes(x, y, color = 'verde'))`", message = "El nombre del color no está predefinido, y su acomodo tampoco. Intenta nuevamente."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+         ),
+
+question("Si la mejor gráfica para su análisis es una de caja y bigotes, ¿cuál `geom` sería la función correcta?",
+         answer("`geom_boxplot`", correct = TRUE, message = "**'boxplot'** es como se le conoce comúnmente a estas gráfiacs en inglés."),
+         answer("`geom_boxwhiskers`", message = "Este tipo de `geom` no existe en `ggplot2`"),
+         answer("`geom_box`", message = "Este tipo de `geom` no existe en `ggplot2`"),
+         answer("`geom_plot`", message = "Este tipo de `geom` no existe en `ggplot2`"),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+         ),
+
+question("Para ver la distribución de una variable **categórica**, ¿qué tipo de gráfico sería el mejor?",
+         answer("barras/columnas", 
+                correct = TRUE),
+         answer("histograma", message = 
+                  "Estas gráficas sirven para variables continuas"),
+         answer("líneas", message = "Podría ser, pero no es lo más recomendado"),
+         answer("pastel", 
+                message = "Estas podrían servir para ver la proporción relativa de un grupo."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+         ),
+
+question("Si tienes una tabla (p. ej. `mpg`) con *n* registros y requieres quedarte solo con los primeros 100 registros, ¿qué función utilizarías? **Tip:** Primero ve la tabla mpg en el código debajo.",
+         answer("`mpg %>% slice(1:10)`", correct = TRUE),
+         answer("`mpg %>% slice(10)`", message = "Prueba corriendo el código para ver si resulta lo que esperabas."),
+         answer("`mpg %>% filter(1:10)`", message = "La función `filter` filtra la tabla dependiendo si se cumple cierta **condición**."),
+         answer("`mpg %>% filter(10)`", message = "La función `filter` filtra la tabla dependiendo si se cumple cierta **condición**."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+         )
+)
+```
+```{r quiz-warmup-ex, exercise=TRUE, exercise.lines =10}
+
+```
+
+## Gráficas básicas
+
+*Escriba el código que genere la gráfica adecuada a cada serie que se presenta a continuación*
+
+### La famosa tabla `mpg`
+
+Utilizando los datos precargados `mpg`, cree un gráfico de dispersión entre el rendimiento del combustible en ciudad (`cty`) y el de carretera (`hwy`), cambiando el color de los puntos a naranjas. Deberías obtener una gráfica igual a esta:
+
+```{r point-example}
+mpg %>% 
+  ggplot(aes(x = cty, y = hwy)) +
+  geom_point(color = "orange")
+```
+
+
+```{r point, exercise=TRUE, exercise.lines = 5}
+
+```
+```{r point-hint}
+mpg %>% 
+  ggplot(aes(x = , y = )) +
+  geom_
+```
+
+###
+
+Ahora, defina el color dependiendo la transmisión (`trans`) del auto, para ver si se muestran *clusters* marcados.
+
+```{r point-col, exercise=TRUE, exercise.lines = 5}
+
+```
+```{r point-col-hint}
+mpg %>% 
+  ggplot(aes(x = , y = , color = )) +
+  geom_point()
+```
+
+### Pasajeros de avión
+
+Ahora cree una *gráfica de tiempo* con los datos precargados de `pasajeros`:
+
+```{r AirPassengers}
+pasajeros <- tibble(fecha = c(tsibble::yearmonth( zoo::index(AirPassengers))),
+                    cantidad = c(zoo::coredata(AirPassengers)))
+pasajeros
+```
+
+```{r passengers, exercise=TRUE, exercise.lines = 5}
+
+```
+<div id="passengers-hint">
+**Hint:** Las gráficas de tiempo generalmente se hacen con *líneas*.
+</div>
+
+###
+
+Ahora, cambia el tipo de línea a una línea punteada de color ladrillo (`firebrick`).
+
+```{r pass, exercise=TRUE, exercise.lines = 5}
+
+```
+```{r pass-solution}
+pasajeros %>% 
+  ggplot(aes(x = fecha, y = cantidad)) + 
+  geom_line(linetype = "dotted", color = "firebrick")
+```
+
+### Precios de acciones
+
+Para estos ejercicios, se proporciona el precio histórico de algunas acciones. Esto se encuentra guardado en `acciones`.
+
+```{r}
+acciones <- gafa_stock
+acciones
+```
+
+¿Cuántas acciones distintas tiene esta muestra?
+
+```{r stock, exercise=TRUE, exercise.lines=4}
+
+```
+```{r stock-hint-1}
+acciones %>% 
+  distinct()
+```
+```{r stock-hint-2}
+acciones %>% 
+  distinct(Symbol)
+```
+
+###
+
+Muestra el histórico del precio de cierre (`Close`) todas las acciones en la misma gráfica, identificando cada una por colores distintos.
+
+```{r stock-ts, exercise=TRUE, exercise.lines=5}
+
+```
+```{r stock-ts-hint}
+acciones %>% 
+  ggplot(aes(x = Date, y = Close, color = )) +
+  geom_line()
+```
+
+###
+
+Si todo salió bien, tendrás una gráfica con una línea por cada acción. ¿Se alcanza a percibir bien el comportamiento de cada una? Seguramente no, ya que la escala es muy diferente entre ellas. Prueba realizando una transformación (con logaritmo base 10) al eje *y*, para ver si se puede ver mejor el comportamiento de todas.
+
+```{r stock-ts-log, exercise=TRUE, exercise.lines=6}
+
+```
+```{r stock-ts-log-solution}
+acciones %>% 
+  ggplot(aes(x = Date, y = Close, color = Symbol)) +
+  geom_line() +
+  scale_y_log10()
+```
+
+
+
+## Gráficas más elaboradas
+
+### Los datos `mpg` (sí, otra vez)
+
+Cree subgráficos para cada conjunto de autos que tienen el mismo tren motriz (`drv`).
+```{r facets, exercise=TRUE, exercise.lines=5}
+
+```
+<div id="facets-hint">
+**Hint:** Prueba utilizando *facetas*.
+</div>
+
+###
+
+Ahora, sobre eso mismo, agrega colores dependiendo la transmisión (`trans`). Adicionalmente, cambia la forma de todos los puntos a que sean triángulos. 
+
+```{r facets-col, exercise=TRUE, exercise.lines = 7}
+
+```
+<div id="facets-col-hint">
+**Hint:** Las formas de los puntos vienen resumidas en el *cheatsheet* de `ggplot2`. Puedes consultarlo [aquí](https://ggplot2.tidyverse.org/).
+</div>
+
+### Acciones
+
+Filtra la tabla `acciones`, para que solo tengas el último trimestre de 2015 y guárdalo en la variable `acciones_q415`.
+
+```{r stocks-filter, exercise=TRUE, exercise.lines=5}
+
+```
+```{r stocks-filter-hint-1}
+acciones_q415 <- acciones %>% 
+  filter()
+```
+```{r stocks-filter-hint-2}
+acciones_q415 <- acciones %>% 
+  filter(yearquarter(Date) == )
+```
+```{r stocks-filter-hint-3}
+acciones_q415 <- acciones %>% 
+  filter(yearquarter(Date) == yearquarter())
+```
+```{r stocks-filter-hint-4}
+acciones_q415 <- acciones %>% 
+  filter(yearquarter(Date) == yearquarter("2015 Q4"))
+```
+
+###
+
+Con su nueva variable `acciones_q415`, realice una gráfica de tiempo interactiva donde:
+
+* la variable a graficar sea el precio de cierre, `Close`,
+* Cada acción tenga un color distinto y esté en un subgráfico,
+* Se agregue una capa de puntos, donde el tamaño del punto sea el volumen de transacciones `Volume` y vaya mostrándose conforme avanza el tiempo (**Tip:** *utiliza as.numeric() para el argumento* `frame`),
+* no mostrar la leyenda, dado que es redundante,
+* hacer que la escala del eje *y* sea libre para cada subgráfico, para poder observar mejor los cambios.
+
+Su gráfica se debería ver algo así:
+
+```{r, fig.height=8, fig.width=8, warning=FALSE}
+p1 <- acciones %>% 
+  filter(yearquarter(Date) == yearquarter("2015 Q4")) %>%
+  ggplot(aes(x = Date, y = Close, color = Symbol)) +
+  geom_point(aes(size = Volume, 
+                frame = as.numeric(Date))) +
+  geom_line() +
+  theme(legend.position = "none") +
+  facet_wrap(~ Symbol, scales = "free_y", ncol = 2)
+
+ggplotly(p1)
+```
+
+
+```{r stocks-int-plot, fig.width=8, fig.height=8, exercise=TRUE, exercise.lines = 15}
+
+```
+```{r stocks-int-plot-hint-1}
+p1 <- acciones_q415 %>% 
+  ggplot(aes(x = , y = , 
+             color = )) +
+  geom_point(aes(size = , 
+                frame = as.numeric())) +
+  geom_line() +
+  theme(legend.position = ) +
+  facet_wrap(~ Symbol, 
+             scales = , 
+             ncol = 2)
+
+ggplotly(p1)
+```
+```{r stocks-int-plot-hint-2}
+p1 <- acciones_q415 %>% 
+  ggplot(aes(x = , y = , 
+             color = )) +
+  geom_point(aes(size = , 
+                frame = as.numeric(Date))) +
+  geom_line() +
+  theme(legend.position = ) +
+  facet_wrap(~ Symbol, 
+             scales = "free_y", 
+             ncol = 2)
+
+ggplotly(p1)
+```
+```{r stocks-int-plot-hint-3}
+p1 <- acciones_q415 %>% 
+  ggplot(aes(x = Date, y = Close, 
+             color = Symbol)) +
+  geom_point(aes(size = Volume, 
+                frame = as.numeric(Date))) +
+  geom_line() +
+  theme(legend.position = "none") +
+  facet_wrap(~ Symbol, 
+             scales = "free_y", 
+             ncol = 2)
+
+ggplotly(p1)
+```
+
+
