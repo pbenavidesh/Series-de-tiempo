@@ -4,23 +4,37 @@ output:
   html_notebook:
     toc: TRUE
     toc_float: TRUE
-    theme: cerulean
+    theme: spacelab
     highlight: tango
 ---
 
-`tidyquant` es una paquetería de **R** que tiene dos principales funciones:
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width = 8)
+```
+<center>
 
-* Ser un puente para usuarios acostumbrados a trabajar en Excel.
+![](../images/tidyquant.png){width=40%}
+
+</center>
+
+
+[`tidyquant`](https://business-science.github.io/tidyquant/index.html) es una paquetería de **R** que tiene dos principales funciones:
+
+* Ser un puente para usuarios acostumbrados a trabajar en Excel. Más información en [este blog](https://www.business-science.io/finance/2020/02/26/r-for-excel-users.html).
 
 * Unir las paqueterías `quantmod` (para análisis financiero) y `xts` (para manejo de series de tiempo), con la estructura y funcionamiento de las paqueterías que conforman el `tidyverse`.
 
 Para comenzar, veamos unos breves ejemplos. Lo primero que debemos hacer (después de instalar `tidyquant`) es cargar las paqueterías en el entorno.
 
-```{r pkg}
+**NOTA:** *Este documento está basado en la [documentación]() y tutoriales que se muestran en la página de `tidyquant`*
+
+```{r pkgs, message=FALSE}
 # install.packages("tidyquant") # correr solo una vez por equipo
 library(tidyverse)
 library(tidyquant)
 library(tsibble)
+library(plotly)
+library(lubridate)
 ```
 
 Al cargarla, se muestra información respecto a las paqueterías que está cargando y si hubiera funciones que están sustituyendo a otras previamente cargadas.
@@ -72,6 +86,8 @@ Vemos las diferentes opciones que tenemos con esta función con `tq_get_options(
 tq_get_options()
 ```
 
+### Precio de acciones
+
 Especificando el argumento `get = "stock.prices"`, podemos descargar el **precio de una o más acciones** simultáneamente. Si se quiere definir un periodo de tiempo, se agregan los argumentos `from = ` y `to =`.
 
 Para obtener el precio de la acción de TESLA durante 2019:
@@ -84,15 +100,33 @@ Para descargar simultáneamente los precios de todas las acciones que componen e
 
 ```{r sp500 stock prices}
 sp500 <- tq_index("SP500") %>% 
-  tq_get(get = "stock.prices", from = "2020-01-01")
+  tq_get(get = "stock.prices", from = "2020-05-01")
 sp500
 ```
 
-Esto nos regresó más de 47 mil filas de datos, con varias columnas de información relevante.
+De manera similar, se pueden obtener los datos de las acciones en particular que se deseen. P. ej., si se quiere obtener el precio de Microsoft (MSFT), Apple (AAPL), Johnson & Johnson (JNJ), Visa (V), podemos hacer lo siguiente:
+
+```{r tq_get multiple stocks}
+c("MSFT","AAPL","JNJ","V") %>% 
+  tq_get(get = "stock.prices", from = "2019-01-01", to = "2020-01-01")
+```
+
+
+### Datos económicos
+
+Los datos económicos de la reserva federal del banco de St. Louis (o FRED, para resumirlo) posee más de 765,000 series de tiempo de EEUU e internacionales, de 96 fuentes distintas, que se pueden descargar directamente desde **R**. Para esto, es necesario conocer el código de la serie (que se puede encontrar en la página web del FRED). Descarguemos, por ejemplo, las ventas mensuales totales de autos en EEUU. La serie se llama `TOTALNSA` y descargaremos datos a partir de enero de 1980.
+
+```{r FRED data}
+car_sales <- tq_get("TOTALNSA", get = "economic.data", from = "1980-01-01")
+car_sales
+```
+
+
+***
 
 Para ver cómo sería la consulta de las otras fuentes de información, se puede consultar fácilmente la documentación de la paquetería o dar clic [aquí](https://business-science.github.io/tidyquant/articles/TQ01-core-functions-in-tidyquant.html#fred-economic-data),
 
-## Transformaciones de datos cuantitativos
+# Transformaciones de datos cuantitativos
 
 Muchas de las transformaciones que normalmente se utilizan en el análisis financiero se pueden realizar directamente con `tidyquant`. Por simplicidad, utilizaremos la tabla `FANG` que contiene precios de las acciones de Facebook, Amazon, Netflix y Google de 2013 a 206.
 
@@ -110,10 +144,336 @@ FANG %>%
 
 Si se quisiera calcular los **rendimientos mensuales** de las acciones, utilizaríamos `mutate_fun = monthlyReturn`:
 
-```{r}
+```{r monthly returns}
 FANG %>%
   group_by(symbol) %>% 
   tq_transmute(select = adjusted, mutate_fun = monthlyReturn)
 ```
 
+Se pueden calcular fácilmente indicadores de análisis técnico, como el MACD (Moving Average Convergence Divergence) y la señal:
+
+```{r MACD}
+FANG %>%
+    group_by(symbol) %>%
+    tq_mutate(select     = close, 
+              mutate_fun = MACD, 
+              col_rename = c("MACD", "Signal"))
+```
+
+## Ejemplo: convertir los precios a rendimientos
+
+### Rendimientos anuales
+
+Seguiremos utilizando la tabla `FANG` para este ejemplo. Para poder convertir los datos podemos usar `tq_transmute()`, junto con la función `periodReturn` para obtener los rendimientos anuales aritméticos.
+
+```{r annual returns}
+FANG_annual_returns <- FANG %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = "yearly", 
+                 type       = "arithmetic")
+FANG_annual_returns
+```
+
+Utilizando `ggplot2`, podemos graficar esto fácilmente:
+
+```{r annual returns plot}
+FANG_annual_returns %>%
+    ggplot(aes(x = date, y = yearly.returns, fill = symbol)) +
+    geom_col() +
+    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "FANG: Annual Returns",
+         subtitle = "Get annual returns quickly with tq_transmute!",
+         y = "Annual Returns", x = "") + 
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+    theme_tq() + 
+    scale_fill_tq()
+```
+
+### Rendimientos logarítmicos diarios
+
+```{r daily log ret}
+FANG_daily_log_returns <- FANG %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = "daily", 
+                 type       = "log",
+                 col_rename = "monthly.returns")
+FANG_daily_log_returns
+```
+
+La gráfica:
+
+```{r daily log ret plot}
+FANG_daily_log_returns %>%
+    ggplot(aes(x = monthly.returns, fill = symbol)) +
+    geom_density(alpha = 0.5) +
+    labs(title = "FANG: Charting the Daily Log Returns",
+         x = "Monthly Returns", y = "Density") +
+    theme_tq() +
+    scale_fill_tq() + 
+    facet_wrap(~ symbol, ncol = 2)
+```
+
+
+# Gráficas financieras
+
+A continuación se presentan varios tipos de gráficas que son útiles en el análisis financiero. Para agregar un tema específico de `tidyquant`, se puede agregar la capa `theme_tq()` a los `ggplot`s.
+
+Utilizaremos los siguientes datos para graficar:
+
+```{r plot data}
+AAPL <- tq_get("AAPL", get = "stock.prices", from = "2015-09-01", to = "2016-12-31")
+AMZN <- tq_get("AMZN", get = "stock.prices", from = "2000-01-01", to = "2016-12-31")
+```
+
+Más adelante haremos "zoom" a algunas gráficas, por lo que aquí definiremos el inicio y fin del periodo de zoom:
+
+```{r zoom dates}
+end <- ymd("2016-12-31")
+start <- end - weeks(6)
+```
+
+
+### Gráfica de líneas
+
+La tradicional, no hay mucho que decir. 
+
+```{r AAPL line plot}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_line() +
+    labs(title = "AAPL Line Chart", y = "Closing Price", x = "") + 
+    theme_tq()
+```
+
+### Bar chart
+
+Es similar a la de líneas, pero aquí especificamos precios de apertura, cierre, máximo y mínimo y reemplazamos `geom_line()` por `geom_barchart()`
+
+```{r AAPL barchart}
+apple_bar <- AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = "AAPL Bar Chart", y = "Closing Price", x = "") + 
+    theme_tq()
+
+apple_bar
+```
+
+Podemos hacer zoom a la gráfica agregando `coord_x_date()`
+
+
+```{r zoom barchart}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = "AAPL Bar Chart", 
+         subtitle = "Zoomed in using coord_x_date",
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(start, end),
+                 ylim = c(100, 120)) + 
+    theme_tq()
+```
+
+
+Se pueden cambiar los colores con `colour_up` y `colour_down`, así como el tamaño.
+
+
+```{r green red barchart}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close),
+                     colour_up = "darkgreen", colour_down = "darkred", size = 1) +
+    labs(title = "AAPL Bar Chart", 
+         subtitle = "Zoomed in, Experimenting with Formatting",
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(start, end),
+                 ylim = c(100, 120)) + 
+    theme_tq()
+```
+
+
+### Gráfica de velas (*candlestick*)
+
+El `geom` para este tipo de gráficos es simplemente `geom_candlestick()`
+
+```{r candlestick}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = "AAPL Candlestick Chart", y = "Closing Price", x = "" ) +
+    theme_tq()
+```
+
+De igual manera, podemos hacer zoom a la gráfica para ver algún periodo con mayor detalle:
+
+```{r candlestick zoom}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = "AAPL Candlestick Chart", 
+         subtitle = "Zoomed in using coord_x_date",
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim =  c(start, end),
+                 ylim = c(100, 120)) + 
+    theme_tq()
+```
+
+Aquí se pueden cambiar el color de cuatro cosas: las líneas hacia arriba (`colour_up`), líneas hacia abajo (`colour_down`), los rectángulos (`fill_up` y `fill_down`).
+
+```{r candlestick green red}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close),
+                        colour_up = "darkgreen", colour_down = "darkred", 
+                        fill_up  = "darkgreen", fill_down  = "darkred") +
+    labs(title = "AAPL Candlestick Chart", 
+         subtitle = "Zoomed in, Experimenting with Formatting",
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(start, end),
+                 ylim = c(100, 120)) + 
+    theme_tq()
+```
+
+
+### Graficar varios activos
+
+Grafiquemos entonces las acciones contenidas en `FANG`, utilizando `facet_wrap()` para separarlas en un subgráfico.
+
+```{r candlestick multi}
+FANG %>%
+    filter(date >= start - days(2 * 15)) %>%
+    ggplot(aes(x = date, y = close, group = symbol)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = "FANG Candlestick Chart", 
+         subtitle = "Experimenting with Mulitple Stocks",
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(start, end)) +
+    facet_wrap(~ symbol, ncol = 2, scale = "free_y") + 
+    theme_tq()
+```
+
+# Visualizar tendencias
+
+## Medias móviles
+
+Las medias móviles son básicas para el análisis de series de tiempo. `tidyquant` tiene varios tipos de medias móviles ya precargados, que podemos graficar de manera muy sencilla.
+
+### Medias móviles simples de 50 y 200 días
+
+```{r SMA}
+AAPL %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    geom_ma(ma_fun = SMA, n = 50, linetype = 5, size = 1.25) +
+    geom_ma(ma_fun = SMA, n = 200, color = "red", size = 1.25) + 
+    labs(title = "AAPL Candlestick Chart", 
+         subtitle = "50 and 200-Day SMA", 
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(end - weeks(24), end),
+                 ylim = c(100, 120)) + 
+    theme_tq()
+```
+
+
+### Medias móviles para varios activos
+
+Igual que antes, se pueden graficar varias acciones simultáneamente, utilizando facetas.
+
+Ahora aplicaremos un *Volume-weighted average (VWMA)* para las acciones en ``FANG`.
+
+
+```{r VWMA}
+start <- end - weeks(6)
+FANG %>%
+    filter(date >= start - days(2 * 50)) %>%
+    ggplot(aes(x = date, y = close, volume = volume, group = symbol)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    geom_ma(ma_fun = VWMA, n = 15, wilder = TRUE, linetype = 5) +
+    geom_ma(ma_fun = VWMA, n = 50, wilder = TRUE, color = "red") + 
+    labs(title = "FANG Bar Chart", 
+         subtitle = "50 and 200-Day EMA, Experimenting with Multiple Stocks", 
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(start, end)) +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") + 
+    theme_tq()
+```
+
+
+## Bandas de Bollinger
+
+Las bandas de Bollinger se usan para graficar la volatilidad de activos financieros. En **R** se pueden graficar fácilmente con `geom_bbands()`
+
+```{r BBands}
+AAPL %>%
+    ggplot(aes(x = date, y = close, open = open,
+               high = high, low = low, close = close)) +
+    geom_candlestick() +
+    geom_bbands(ma_fun = SMA, sd = 2, n = 20) +
+    labs(title = "AAPL Candlestick Chart", 
+         subtitle = "BBands with SMA Applied", 
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(end - weeks(24), end),
+                 ylim = c(100, 120)) + 
+    theme_tq()
+```
+
+
+De manera similar a las gráficas anteriores, podemos graficar las bandas de bollinger para varias acciones simultáneamente.
+
+```{r BBands multi}
+start <- end - weeks(24)
+FANG %>%
+    filter(date >= start - days(2 * 20)) %>%
+    ggplot(aes(x = date, y = close, 
+               open = open, high = high, low = low, close = close, 
+               group = symbol)) +
+    geom_barchart() +
+    geom_bbands(ma_fun = SMA, sd = 2, n = 20, linetype = 5) +
+    labs(title = "FANG Bar Chart", 
+         subtitle = "BBands with SMA Applied, Experimenting with Multiple Stocks", 
+         y = "Closing Price", x = "") + 
+    coord_x_date(xlim = c(start, end)) +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") + 
+    theme_tq()
+```
+
+
+## Temas
+
+Se pueden definir temas para modificar rápidamente el aspecto visual de sus gráficas:
+
+* **Light:** `theme_tq() + scale_color_tq() + scale_fill_tq()`
+
+* **Dark:** `theme_tq_dark() + scale_color_tq(theme = "dark") + scale_fill_tq(theme = "dark")`
+
+* **Green:** `theme_tq_green() + scale_color_tq(theme = "green") + scale_fill_tq(theme = "green")`
+
+Veamos un ejempl con el tema oscuro:
+
+```{r dark theme}
+n_mavg <- 50 # Number of periods (days) for moving average
+FANG %>%
+    filter(date >= start - days(2 * n_mavg)) %>%
+    ggplot(aes(x = date, y = close, color = symbol)) +
+    geom_line(size = 1) +
+    geom_ma(n = 15, color = "darkblue", size = 1) + 
+    geom_ma(n = n_mavg, color = "red", size = 1) +
+    labs(title = "Dark Theme",
+         x = "", y = "Closing Price") +
+    coord_x_date(xlim = c(start, end)) +
+    facet_wrap(~ symbol, scales = "free_y") +
+    theme_tq_dark() +
+    scale_color_tq(theme = "dark") +
+    scale_y_continuous(labels = scales::dollar)
+```
+
+
+# Performance Analysis
+
+El análisis del desempeño de activos financieros es un tema bastante amplio, y que no es objeto de este curso. Sin embargo, en la documentación de [`tidyquant`](https://business-science.github.io/tidyquant/articles/TQ05-performance-analysis-with-tidyquant.html) vienen varios ejemplos de algunas metodologías que podrían llegar a aplicar.
 
