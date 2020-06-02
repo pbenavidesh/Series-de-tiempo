@@ -1,14 +1,14 @@
 ---
 title: "Descomposición de series de tiempo"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: cerulean
     highlight: tango
+  github_document:
+    toc: yes
+    dev: jpeg
 ---
 
 Como hemos visto, las series de tiempo pueden presentar varios patrones, y comúnmente es útil dividir o descomponer la serie en cada uno de esos patrones. Recordando, una serie de tiempo puede exhibir:
@@ -32,8 +32,6 @@ Ahora, lo que buscamos es analizar datos lo más sencillos posibles, por lo que 
 Parte de la variación en las series de tiempo puede deberse a efectos muy sencillos que tienen que ver con el calendario. Algunos ejemplos de esto pueden ser variaciones en datos mensuales, debido a la cantidad de días hábiles en cada mes. Tomemos el caso del volumen de transacciones de Alphabet Inc., holding de Google, entre otras.
 
 ```{r ajuste calendario google, warning=FALSE, results='hide', message=FALSE}
-
-if (!require("easypackages")) install.packages("easypackages")
 library("easypackages")
 packages("tidyverse","quantmod","lubridate", "patchwork", "fpp2","fpp3","scales")
 
