@@ -1,0 +1,88 @@
+---
+title: "Importación de datos y limpieza"
+author: "Pablo Benavides Herrera"
+date: 2020-06-01
+output: 
+  html_notebook:
+    theme: darkly
+---
+
+Vamos a importar los datos `world_bank_pop.csv`. Lo primero siempre es cargar las paqueterías necesarias.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+Vamos a cargar los datos. Para que sea más fácil y reproducible su R Notebook, es necesario que estén guardados dentro de la carpeta en donde se encuentra su proyecto.
+
+```{r}
+wb_pop <- read_csv("data/world_bank_pop.csv")
+wb_pop
+```
+Vemos que los datos no están limpios.
+
+Lo primero que tenemos que hacer es pasar los años a filas. Usaremos `pivot_longer()` de la paquetería `tidyr`.
+
+```{r}
+wb_pop_long <-  wb_pop %>% 
+  pivot_longer(cols = -c(country, indicator),
+               names_to = "año", values_to = "valor"
+               ) %>% 
+  mutate(año = as.integer(año))
+wb_pop_long
+```
+
+
+Ahora queremos pasar los indicadores a columnas distintas.
+```{r}
+wb_pop_long %>% 
+  pivot_wider(names_from = indicator,
+              values_from = valor)
+```
+
+Pudimos haber hecho estos dos pasos en uno solo, con ayuda de los pipes (` %>% `).
+
+```{r}
+wb_pop_tidy <- wb_pop %>% 
+  # primero pasamos los años a filas
+  pivot_longer(cols = -c(country, indicator),
+               names_to = "año", values_to = "valor"
+               ) %>% 
+  # cambiamos los años para que sean números enteros
+  mutate(año = as.integer(año)) %>% 
+  # ahora pasamos los indicadores a columnas
+  pivot_wider(names_from = indicator,
+              values_from = valor) %>% 
+  # cambio la variable country a factores
+  mutate(country = as_factor(country))
+wb_pop_tidy
+```
+
+Si quisiéramos ver solo los datos para México, podemos usar `filter()`.
+
+Para quedarnos solo con datos de México:
+```{r}
+wb_pop_tidy %>% 
+  filter(country == "MEX")
+```
+
+Para quedarnos con datos de México y solo las variables de año y población urbana total:
+
+```{r}
+wb_pop_tidy %>% 
+  filter(country == "MEX") %>% 
+  select(año, SP.URB.TOTL)
+```
+
+Ahora, si quisiéramos **todas** las variables, menos `SP.URB.TOTL`, para México y Brasil:
+
+```{r}
+wb_pop_tidy %>% 
+  filter(country %in% c("MEX","BRA")) %>% 
+  select(-SP.URB.TOTL)
+```
+
+
+
+
