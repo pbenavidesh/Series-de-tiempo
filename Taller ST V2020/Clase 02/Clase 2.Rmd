@@ -24,13 +24,18 @@ library(readxl)
 library(fpp3)
 ```
 
+# Algunas series de tiempo
 
-# Tipo de cambio USD/JPY
+## Tipo de cambio USD/JPY
+
+Cargamos los datos a **R**.
 
 ```{r}
 usd_jpy <- read_csv("USD_JPY.csv")
 usd_jpy
 ```
+
+### Gráfica de tiempo
 
 ```{r}
 p <- usd_jpy %>% 
@@ -39,6 +44,8 @@ p <- usd_jpy %>%
 
 ggplotly(p)
 ```
+
+### Gráfica de velas
 
 ```{r}
 p <- ggplot(data = usd_jpy, aes(x = TimeStamp, y = Close)) +
@@ -49,22 +56,16 @@ p + coord_x_datetime(xlim = c("2019-07-01","2019-08-01"),
                      ylim = c(106,109.5))
 ```
 
+## Horas que pasan los americanos durmiendo
 
-
-```{r}
-my_data %>% 
-  unite(date, Year:Month) %>% 
-  mutate(date = yearmonth(date))
-```
-
-
-# Sara
+Carga de los datos.
 
 ```{r}
 americans <- read_excel("Time Americans Spend Sleeping.xlsx")
 americans
 ```
 
+### Gráfica por tipo de días
 
 ```{r}
 p <- americans %>% 
@@ -76,6 +77,7 @@ p <- americans %>%
 ggplotly(p)
 ```
 
+### Gráfica por tipo de días y Sexo
 
 ```{r}
 p <- americans %>% 
@@ -87,12 +89,14 @@ ggplotly(p)
 ```
 
 
-# Ventas de autos
+## Ventas de autos
 
 ```{r}
 car_sales <- tq_get("TOTALNSA", get = "economic.data", from = "1977-01-01")
 car_sales
 ```
+
+### Gráfica de tiempo
 
 ```{r}
 p <- car_sales %>% 
@@ -102,8 +106,11 @@ p <- car_sales %>%
 ggplotly(p)
 ```
 
-# 
+# Tipos de ajustes/transformaciones
 
+## Ajustes por población
+
+Tomaremos la tabla `global_economy` y vamos a filtrarla para quedarnos con cuatro países y graficar el PIB y el PIB con escala logarítmica.
 
 ```{r}
 ge <- global_economy %>% 
@@ -113,15 +120,16 @@ p3 <- ggplot(ge) + aes(x = Year, y = GDP, color = Country) +
   geom_line(size = 1)
 
 p3
-
-p3 + scale_y_log10()
 ```
+Revisando la última población registrada de cada país.
+
 ```{r}
-global_economy %>% 
-  filter(Country %in% c("Australia", "Mexico", "Iceland", "Colombia"),
-         Year == 2017) %>% 
+ge %>% 
+  filter(Year == 2017) %>% 
   arrange(desc(Population))
 ```
+
+Vemos que existe una gran diferencia en la población de estos países. Para poder comparar el PIB entre ellos, sería mejor realizar un **ajuste por población** y revisar la variable *PIB per cápita*.
 
 ```{r}
 ge <- global_economy %>% 
@@ -132,6 +140,19 @@ p4 <- ggplot(ge) + aes(x = Year, y = GDP / Population, color = Country) +
 
 p4
 ```
+
+## Transformaciones matemáticas
+
+Comúnmente se podrán llevar a cabo transformaciones logarítmicas.
+
+```{r}
+p3 + scale_y_log10()
+```
+
+
+## Ajustes por inflación
+
+Tomaremos la tabla precargada `aus_retail` y seleccionaremos la industria de impresión. Resumiremos los datos de manera anual y compararemos las gráficas de la serie en precios corrientes y ajustados por inflación (o a *precios constantes*).
 
 ```{r}
 print_retail <- aus_retail %>%
@@ -152,13 +173,19 @@ print_retail %>%
     ggtitle("Turnover for the Australian print media industry")
 ```
 
-Estas paqueterías son parte del tidyver*ts*.
+# El ecosistema tidyver*ts*
+
+Estas paqueterías son parte del tidyver*ts* y utilizan la misma filosofía del `tidyverse`, pero se especializan en el análisis de series de tiempo.
 
 ```{r}
 library(tsibble)
 library(feasts)
 library(fable)
 ```
+
+## Transformaciones de Box-Cox
+
+Otra familia de transformaciones, que depende de un parámetro $\lambda$ para escoger el tipo de transformación a realizar. Para ejemplificarlo, tomamos los datos precargados `aus_production`.
 
 ```{r}
 aus_production
@@ -169,6 +196,14 @@ Graficar la producción de gas.
 ```{r}
 aus_production %>% autoplot(Gas)
 ```
+
+Queremos *estabilizar la varianza* y una transformación logarítmica (o Box-Cox con $\lambda = 0$) parece no ser suficiente:
+
+```{r}
+aus_production %>% autoplot(log(Gas))
+```
+
+Obtenemos la **característica de Guerrero** para decidir el valor óptimo de $\lambda$.
 
 ```{r}
 (lambda <- aus_production %>%
@@ -181,6 +216,8 @@ Podemos aplicar la transformación directo en el `autoplot`.
 ```{r}
 aus_production %>% autoplot(box_cox(Gas, lambda))
 ```
+
+## Descomposición de series de  tiempo
 
 ```{r}
 us_retail_employment <- us_employment %>%
@@ -221,6 +258,7 @@ us_retail_employment %>%
   xlab("Year") + ylab("Persons (thousands)") +
   ggtitle("Total employment in US retail")
 ```
+### Descomposición clásica
 
 ```{r}
 us_retail_employment %>%
@@ -230,6 +268,7 @@ us_retail_employment %>%
   ggtitle("Classical additive decomposition of total US retail employment")
 ```
 
+### Descomposición X11
 
 ```{r}
 x11_dcmp <- us_retail_employment %>%
@@ -249,6 +288,7 @@ x11_dcmp %>%
 x11_dcmp %>% 
   gg_subseries(seasonal)
 ```
+### Descomposición SEATS
 
 ```{r}
 seats_dcmp <- us_retail_employment %>%
@@ -258,6 +298,7 @@ autoplot(seats_dcmp) + xlab("Year") +
   ggtitle("SEATS decomposition of total US retail employment")
 ```
 
+### Descomposición STL
 
 ```{r}
 us_retail_employment %>%
