@@ -1,5 +1,7 @@
 Descomposición de series de tiempo
 ================
+Pablo Benavides Herrera
+2020-02-28
 
   - [Transformaciones y ajustes](#transformaciones-y-ajustes)
       - [Ajustes de calendario](#ajustes-de-calendario)
@@ -55,44 +57,80 @@ días hábiles en cada mes. Tomemos el caso del volumen de transacciones
 de Alphabet Inc., holding de Google, entre otras.
 
 ``` r
-if (!require("easypackages")) install.packages("easypackages")
 library("easypackages")
-packages("tidyverse","quantmod","lubridate", "patchwork", "fpp2","fpp3","scales")
+packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales")
 
+# Código usando quantmod
 
+# getSymbols("GOOG", from = "2015-01-01")
+# 
+# transacciones_mensuales <- GOOG %>%
+#   as_tibble() %>%
+#   mutate(date = zoo::index(GOOG),
+#          year = year(date),
+#          month = month(date)) %>%
+#   unite(year_mon, year, month,sep = "-") %>%
+#   mutate(year_mon = yearmonth(year_mon)) %>%
+#   select(date, year_mon, Volumen = GOOG.Volume) %>%
+#   group_by(year_mon) %>%
+#   summarise(Monthly_volume = sum(Volumen),
+#             trading_days = n(),
+#             mean_volume = mean(Volumen)) %>%
+#   as_tsibble(index = year_mon)
 
-getSymbols("GOOG", from = "2015-01-01")
+# Código usando tidyquant
+transacciones_mensuales <- tq_get("GOOG", get = "stock.prices",
+                                  from = "2015-01-01") %>%
+  summarise_by_time(date, .by = "month",
+                    monthly_volume = sum(volume),
+                    trading_days = n(),
+                    mean_volume = mean(volume)) %>%
+  mutate(month = yearmonth(date)) %>% select(month,-date, monthly_volume:mean_volume) %>% 
+  as_tsibble(index = month)
 
-transacciones_mensuales <- GOOG %>% 
-  as_tibble() %>%
-  mutate(date = zoo::index(GOOG), 
-         year = year(date), 
-         month = month(date)) %>% 
-  unite(year_mon, year, month,sep = "-") %>%
-  mutate(year_mon = yearmonth(year_mon)) %>% 
-  select(date, year_mon, Volumen = GOOG.Volume) %>% 
-  group_by(year_mon) %>% 
-  summarise(Monthly_volume = sum(Volumen),
-            trading_days = n(),
-            mean_volume = mean(Volumen)) %>% 
-  as_tsibble(index = year_mon)
-  
-  
+# en vez de "summarise_by_time se pudo haber hecho esto:
 
+# group_by(month = floor_date(date, "month")) %>%
+#   summarise(monthly_volume = sum(volume),
+#             trading_days = n(),
+#             mean_volume = mean(volume)) %>%
+#   mutate(month = yearmonth(date)) %>% select(month,-date, monthly_volume:mean_volume) %>% 
+#   as_tsibble(index = month)
+```
+
+Podemos graficar ambas con dos (o más) alternativas: cada variable por
+separado y unirlas con `patchwork`, o utilizar `pivot_longer()` y
+`facet_wrap()`.
+
+``` r
+# Opción 1
 p1 <- ggplot(data = transacciones_mensuales) + 
-  geom_line(aes(x = year_mon, y = Monthly_volume)) +
+  geom_line(aes(x = month, y = monthly_volume)) +
   ylab("Vol. total mensual") + 
   xlab("mes")
 
 p2 <- ggplot(data = transacciones_mensuales) + 
-  geom_line(aes(x = year_mon, y = mean_volume)) +
+  geom_line(aes(x = month, y = mean_volume)) +
   ylab("Vol. promedio diario") +
   xlab("mes")
 
 p1 / p2
 ```
 
-![](03_Descomposicion_ST_files/figure-gfm/ajuste%20calendario%20google-1.jpeg)<!-- -->
+![](03_Descomposicion_ST_files/figure-gfm/unnamed-chunk-1-1.jpeg)<!-- -->
+
+``` r
+# Opción 2
+
+transacciones_mensuales %>% 
+  pivot_longer(cols = c(monthly_volume, mean_volume),
+               names_to = "variable", values_to = "valor") %>% 
+  ggplot(aes(x = month, y = valor)) +
+  geom_line() + ylab("mes") +
+  facet_wrap(~ variable, ncol = 1, scales = "free_y")
+```
+
+![](03_Descomposicion_ST_files/figure-gfm/unnamed-chunk-1-2.jpeg)<!-- -->
 
 La serie original tomando el total de transacciones mensuales presenta
 mayor variación que cuando ajustamos la serie por los dias calendario

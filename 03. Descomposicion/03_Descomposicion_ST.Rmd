@@ -1,5 +1,7 @@
 ---
 title: "Descomposición de series de tiempo"
+author: "Pablo Benavides Herrera"
+date: 2020-02-28
 output:
   html_notebook:
     toc: yes
@@ -10,6 +12,10 @@ output:
     toc: yes
     dev: jpeg
 ---
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo= TRUE,
+                      fig.height = 6, fig.width = 7)
+```
 
 Como hemos visto, las series de tiempo pueden presentar varios patrones, y comúnmente es útil dividir o descomponer la serie en cada uno de esos patrones. Recordando, una serie de tiempo puede exhibir:
 
@@ -33,40 +39,71 @@ Parte de la variación en las series de tiempo puede deberse a efectos muy senci
 
 ```{r ajuste calendario google, warning=FALSE, results='hide', message=FALSE}
 library("easypackages")
-packages("tidyverse","quantmod","lubridate", "patchwork", "fpp2","fpp3","scales")
+packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales")
 
+# Código usando quantmod
 
+# getSymbols("GOOG", from = "2015-01-01")
+# 
+# transacciones_mensuales <- GOOG %>%
+#   as_tibble() %>%
+#   mutate(date = zoo::index(GOOG),
+#          year = year(date),
+#          month = month(date)) %>%
+#   unite(year_mon, year, month,sep = "-") %>%
+#   mutate(year_mon = yearmonth(year_mon)) %>%
+#   select(date, year_mon, Volumen = GOOG.Volume) %>%
+#   group_by(year_mon) %>%
+#   summarise(Monthly_volume = sum(Volumen),
+#             trading_days = n(),
+#             mean_volume = mean(Volumen)) %>%
+#   as_tsibble(index = year_mon)
 
-getSymbols("GOOG", from = "2015-01-01")
+# Código usando tidyquant
+transacciones_mensuales <- tq_get("GOOG", get = "stock.prices",
+                                  from = "2015-01-01") %>%
+  summarise_by_time(date, .by = "month",
+                    monthly_volume = sum(volume),
+                    trading_days = n(),
+                    mean_volume = mean(volume)) %>%
+  mutate(month = yearmonth(date)) %>% select(month,-date, monthly_volume:mean_volume) %>% 
+  as_tsibble(index = month)
 
-transacciones_mensuales <- GOOG %>% 
-  as_tibble() %>%
-  mutate(date = zoo::index(GOOG), 
-         year = year(date), 
-         month = month(date)) %>% 
-  unite(year_mon, year, month,sep = "-") %>%
-  mutate(year_mon = yearmonth(year_mon)) %>% 
-  select(date, year_mon, Volumen = GOOG.Volume) %>% 
-  group_by(year_mon) %>% 
-  summarise(Monthly_volume = sum(Volumen),
-            trading_days = n(),
-            mean_volume = mean(Volumen)) %>% 
-  as_tsibble(index = year_mon)
-  
-  
+# en vez de "summarise_by_time se pudo haber hecho esto:
 
+# group_by(month = floor_date(date, "month")) %>%
+#   summarise(monthly_volume = sum(volume),
+#             trading_days = n(),
+#             mean_volume = mean(volume)) %>%
+#   mutate(month = yearmonth(date)) %>% select(month,-date, monthly_volume:mean_volume) %>% 
+#   as_tsibble(index = month)
+```
+Podemos graficar ambas con dos (o más) alternativas: cada variable por separado y unirlas con `patchwork`, o utilizar `pivot_longer()` y `facet_wrap()`.
+
+```{r}
+# Opción 1
 p1 <- ggplot(data = transacciones_mensuales) + 
-  geom_line(aes(x = year_mon, y = Monthly_volume)) +
+  geom_line(aes(x = month, y = monthly_volume)) +
   ylab("Vol. total mensual") + 
   xlab("mes")
 
 p2 <- ggplot(data = transacciones_mensuales) + 
-  geom_line(aes(x = year_mon, y = mean_volume)) +
+  geom_line(aes(x = month, y = mean_volume)) +
   ylab("Vol. promedio diario") +
   xlab("mes")
 
 p1 / p2
+# Opción 2
+
+transacciones_mensuales %>% 
+  pivot_longer(cols = c(monthly_volume, mean_volume),
+               names_to = "variable", values_to = "valor") %>% 
+  ggplot(aes(x = month, y = valor)) +
+  geom_line() + ylab("mes") +
+  facet_wrap(~ variable, ncol = 1, scales = "free_y")
 ```
+
+
 
 La serie original tomando el total de transacciones mensuales presenta mayor variación que cuando ajustamos la serie por los dias calendario (llegando al volumen promedio diario).
 
@@ -85,9 +122,8 @@ ge <- global_economy %>%
 
 p3 <- ggplot(ge) + aes(x = Year, y = GDP, color = Country) + 
   geom_line()
-
+ 
 p3
-
 ```
 
 ¿Realmente creen que la economía de México esté a la par de la economía de Australia e, incluso, muy superior a la de Islandia?
@@ -203,7 +239,7 @@ p5a
 (p5 | p6) / (p7 | p8)
 ```
 
-```{r box-cox shiny}
+```{r box-cox shiny, include=FALSE}
 # sliderInput("lambda",
 #   label = "Selecciona el valor de lambda: ",
 #   min = -1, max = 2, value = 0,
