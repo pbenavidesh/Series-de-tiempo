@@ -1,0 +1,287 @@
+---
+title: "Series de tiempo y descomposición"
+subtitle: "Clase 02"
+author: "Pablo Benavides-Herrera"
+date: 2020-06-03
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: united
+    highlight: tango
+---
+
+# Prerrequisitos
+
+Se requiere tener instaladas y cargadas las siguientes paqueterías.
+
+```{r pkgs, message=FALSE}
+library(tidyverse)
+library(tidyquant)
+library(plotly)
+library(tsibble)
+library(readxl)
+library(fpp3)
+```
+
+
+# Tipo de cambio USD/JPY
+
+```{r}
+usd_jpy <- read_csv("USD_JPY.csv")
+usd_jpy
+```
+
+```{r}
+p <- usd_jpy %>% 
+  ggplot(aes(x = TimeStamp, y = Close)) +
+  geom_line()
+
+ggplotly(p)
+```
+
+```{r}
+p <- ggplot(data = usd_jpy, aes(x = TimeStamp, y = Close)) +
+  geom_candlestick(aes(open = Open, high = High, low = Low, close = Close), colour_up = "darkgreen",colour_down = "red", size = 1)
+p
+
+p + coord_x_datetime(xlim = c("2019-07-01","2019-08-01"), 
+                     ylim = c(106,109.5))
+```
+
+
+
+```{r}
+my_data %>% 
+  unite(date, Year:Month) %>% 
+  mutate(date = yearmonth(date))
+```
+
+
+# Sara
+
+```{r}
+americans <- read_excel("Time Americans Spend Sleeping.xlsx")
+americans
+```
+
+
+```{r}
+p <- americans %>% 
+  filter(Sex == "Both") %>% 
+  ggplot(aes(x = Year, `Avg hrs per day sleeping`, 
+             color = `Age Group`)) +
+  geom_line() + facet_wrap(~ `Type of Days`, nrow = 1)
+
+ggplotly(p)
+```
+
+
+```{r}
+p <- americans %>% 
+  ggplot(aes(x = Year, `Avg hrs per day sleeping`, 
+             color = `Age Group`)) +
+  geom_line() + facet_grid(`Type of Days` ~ Sex)
+
+ggplotly(p)
+```
+
+
+# Ventas de autos
+
+```{r}
+car_sales <- tq_get("TOTALNSA", get = "economic.data", from = "1977-01-01")
+car_sales
+```
+
+```{r}
+p <- car_sales %>% 
+  ggplot(aes(x = date, y = price)) + 
+  geom_line()
+
+ggplotly(p)
+```
+
+# 
+
+
+```{r}
+ge <- global_economy %>% 
+  filter(Country %in% c("Mexico", "Iceland", "Australia", "Colombia"))
+
+p3 <- ggplot(ge) + aes(x = Year, y = GDP, color = Country) + 
+  geom_line(size = 1)
+
+p3
+
+p3 + scale_y_log10()
+```
+```{r}
+global_economy %>% 
+  filter(Country %in% c("Australia", "Mexico", "Iceland", "Colombia"),
+         Year == 2017) %>% 
+  arrange(desc(Population))
+```
+
+```{r}
+ge <- global_economy %>% 
+  filter(Country %in% c("Australia", "Mexico", "Iceland", "Colombia"))
+
+p4 <- ggplot(ge) + aes(x = Year, y = GDP / Population, color = Country) +
+  geom_line(size = 1) + ylab("GDP per capita")
+
+p4
+```
+
+```{r}
+print_retail <- aus_retail %>%
+  filter(Industry == "Newspaper and book retailing") %>%
+  group_by(Industry) %>%
+  index_by(Year = year(Month)) %>%
+  summarise(Turnover = sum(Turnover))
+aus_economy <- global_economy %>%
+  filter(Code == "AUS")
+print_retail %>%
+  left_join(aus_economy, by = "Year") %>%
+  mutate(Adjusted_turnover = Turnover / CPI) %>%
+  gather("Type", "Turnover", Turnover, Adjusted_turnover, factor_key = TRUE) %>%
+  ggplot(aes(x = Year, y = Turnover)) +
+    geom_line() +
+    facet_grid(vars(Type), scales = "free_y") +
+    xlab("Years") + ylab(NULL) +
+    ggtitle("Turnover for the Australian print media industry")
+```
+
+Estas paqueterías son parte del tidyver*ts*.
+
+```{r}
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+```{r}
+aus_production
+```
+
+Graficar la producción de gas.
+
+```{r}
+aus_production %>% autoplot(Gas)
+```
+
+```{r}
+(lambda <- aus_production %>%
+  features(Gas, features = guerrero) %>%
+  pull(lambda_guerrero))
+```
+
+Podemos aplicar la transformación directo en el `autoplot`.
+
+```{r}
+aus_production %>% autoplot(box_cox(Gas, lambda))
+```
+
+```{r}
+us_retail_employment <- us_employment %>%
+  filter(year(Month) >= 1990, Title == "Retail Trade") %>%
+  select(-Series_ID)
+
+us_retail_employment
+
+us_retail_employment %>%
+  autoplot(Employed) +
+  xlab("Year") + ylab("Persons (thousands)") +
+  ggtitle("Total employment in US retail")
+```
+
+```{r}
+dcmp <- us_retail_employment %>%
+  model(STL(Employed))
+
+components(dcmp)
+```
+
+```{r}
+us_retail_employment %>%
+  autoplot(Employed, color='gray') +
+  autolayer(components(dcmp), trend, color='red') +
+  xlab("Year") + ylab("Persons (thousands)") +
+  ggtitle("Total employment in US retail")
+```
+
+```{r}
+components(dcmp) %>% autoplot() + xlab("Year")
+```
+
+```{r}
+us_retail_employment %>%
+  autoplot(Employed, color='gray') +
+  autolayer(components(dcmp), season_adjust, color='blue') +
+  xlab("Year") + ylab("Persons (thousands)") +
+  ggtitle("Total employment in US retail")
+```
+
+```{r}
+us_retail_employment %>%
+  model(classical_decomposition(Employed, type = "additive")) %>%
+  components() %>%
+  autoplot() + xlab("Year") +
+  ggtitle("Classical additive decomposition of total US retail employment")
+```
+
+
+```{r}
+x11_dcmp <- us_retail_employment %>%
+  model(x11 = feasts:::X11(Employed, type = "additive")) %>%
+  components()
+
+autoplot(x11_dcmp) + xlab("Year") +
+  ggtitle("Additive X11 decomposition of US retail employment in the US")
+```
+
+```{r}
+x11_dcmp %>% 
+  gg_season()
+```
+
+```{r}
+x11_dcmp %>% 
+  gg_subseries(seasonal)
+```
+
+```{r}
+seats_dcmp <- us_retail_employment %>%
+  model(seats = feasts:::SEATS(Employed)) %>%
+  components()
+autoplot(seats_dcmp) + xlab("Year") +
+  ggtitle("SEATS decomposition of total US retail employment")
+```
+
+
+```{r}
+us_retail_employment %>%
+  model(STL(Employed ~ trend(window=7) + season(window = "periodic"),
+    robust = TRUE)) %>%
+  components() %>%
+  autoplot()
+```
+
+```{r}
+usd_ts <- usd_jpy %>%
+  as_tsibble(index = TimeStamp) %>% 
+  fill_gaps() %>% fill(Close)
+
+usd_ts %>% 
+  model(STL(Close)) %>% 
+  components() %>% autoplot()
+```
+```{r}
+ge %>% 
+  model(STL(log(GDP))) %>% 
+  components() %>% 
+  autoplot()
+```
+
+
+
