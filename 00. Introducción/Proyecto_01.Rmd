@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(tidyquant)
 library(plotly)
+library(DT)
 ```
 
 ## Características
@@ -32,31 +33,101 @@ library(plotly)
 - Formato:
 
   - R Notebook (markdown) o
-  - Presentación en R (`ioslides` o `slidy`, p. ej.)
+  - Presentación en R ([`ioslides`](https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html) o [`slidy`](https://bookdown.org/yihui/rmarkdown/slidy-presentation.html), p. ej.)
   
 <br>
 
-## Contenido {.smaller .build}
+# Contenido de la presentación
+
+## Contenido {.columns-2 .smaller .build}
 
 - Selección de una o más series de tiempo
+
 - Importación a **R** usando `readr`, `readxl`, etc.
+
 - Limpieza de los datos
+
 - Inspección visual de la serie con gráficas:
-  - dispersión
-  - líneas
-  - caja y bigotes
-  - velas o barchart *(en caso de serie de financiera)*
+  - *dispersión*
+  - *líneas*
+  - *caja y bigotes*
+  - *velas o barchart (en caso de serie de financiera)*
+  - *histogramas, densidades, correlaciones*
+
+<p class="forceBreak"></p>
+  
 - Detección de outliers u observaciones faltantes e investigación de ellos
-  - ¿Cuál es el motivo?, ¿es un dato real o error de medición?
+  - *¿Cuál es el motivo?, ¿es un dato real o error de medición?*
+
 - Revisar si la serie requiere algún ajuste o transformación matemática
+
 - Hacer la descomposición de la serie de tiempo.
 
-----------------
+- **Muy importante la interpretación de los resultados.**
 
-```{r, echo=TRUE, fig.align='center'}
+# Criterios de evaluación y entregables
+
+## Criterios de evaluación {.smaller .build}
+
+Cada criterio se califica con una escala de 1 (peor) a 5 (mejor). Todos tienen la misma ponderación.
+
+**1. Contenido**
+
+  - *¿Cuenta con la teoría suficiente?*
+  - *¿Las tablas, gráficas son relevantes al análisis de la serie de tiempo?*
+  - *¿El equipo muestra dominio de los temas presentados?*
+  
+**2. Claridad y presentación**
+
+  - *¿Se lleva una buena estructura de la presentación?*
+  - *¿Las gráficas, tablas, etc. tienen sus correspondientes ejes, títulos bien marcados?*
+  - *¿Se muestra una fluidez en la presentación y entre los integrantes del equipo?*
+  - *¿Se está leyendo directamente la presentación o el material visual se utiliza de referencia y apoyo para continuar con la presentación?*
+  
+**3. Comentarios a presentación de terceros**
+  - *¿El equipo cumplió con los requisitos?, ¿qué sugerencias de mejora le pueden dar?*
+* **NOTA:** No es necesario ser muy *rolleros*, sino que estén bien expresadas las ideas y, de la manera más resumida, puedan presentar el tema en cuestión. Si se presenta código, debe ser por alguna razón relevante.
+
+## Entregables
+
+Cada equipo debe entregar (*con un solo integrante que lo envíe es suficiente*) lo siguiente:
+
+- Archivo `.Rproj` de su proyecto.
+
+- `Rscripts`, `R Notebooks`, etc. trabajados.
+
+- Presentación
+
+- Archivo con los datos trabajados (.xlsx, .csv, etc.)
+
+# Ejemplos de diapositivas con `ioslides`
+
+## Transformar un `ggplot` a interactivo
+
+Muchas veces basta con agregar `ggplotly()` al gráfico creado.
+```{r, echo=FALSE, fig.align='center'}
 autos <- tq_get("TOTALNSA", get = "economic.data", from = "1977-01-01")
 p <- autos %>% ggplot(aes(date, price)) + geom_line() + 
-  labs(title = "Ventas totales de autos en EEUU", x = "fecha", y = "miles")
+  labs(title = "Ventas totales de autos en EEUU", x = "fecha", y = "miles de unidades")
 ggplotly(p)
+```
+
+## Transformaciones de datos {.smaller}
+
+Agregar, quitar, renombrar o transformar variables es muy sencillo en **R** con ``mutate`, `select`, `rename`...
+
+```{r, echo=TRUE}
+tabla <- mpg %>% 
+  select(- trans) %>% 
+  mutate(`Relación consumo ciudad/carretera` = hwy / cty,
+         `cty` = cty * 1.609/3.785) %>% 
+  rename(`km/l ciudad` = cty)
+tabla
+```
+
+## {.smaller}
+
+```{r}
+datatable(tabla)
 ```
 
