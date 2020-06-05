@@ -1,0 +1,62 @@
+---
+title: "Proyecto 1"
+subtitle: "Series de tiempo"
+author: "Pablo Benavides-Herrera"
+date: "3/6/2020"
+output: 
+  ioslides_presentation:
+    widescreen: TRUE
+    logo: ../images/iteso.gif
+    incremental: FALSE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(tidyquant)
+library(plotly)
+```
+
+## Características
+
+- Equipos de tres personas
+
+<br>
+
+- Fecha de entrega y presentación:
+  
+  - Martes, 9 de junio
+
+<br>
+  
+- Formato:
+
+  - R Notebook (markdown) o
+  - Presentación en R (`ioslides` o `slidy`, p. ej.)
+  
+<br>
+
+## Contenido {.smaller .build}
+
+- Selección de una o más series de tiempo
+- Importación a **R** usando `readr`, `readxl`, etc.
+- Limpieza de los datos
+- Inspección visual de la serie con gráficas:
+  - dispersión
+  - líneas
+  - caja y bigotes
+  - velas o barchart *(en caso de serie de financiera)*
+- Detección de outliers u observaciones faltantes e investigación de ellos
+  - ¿Cuál es el motivo?, ¿es un dato real o error de medición?
+- Revisar si la serie requiere algún ajuste o transformación matemática
+- Hacer la descomposición de la serie de tiempo.
+
+----------------
+
+```{r, echo=TRUE, fig.align='center'}
+autos <- tq_get("TOTALNSA", get = "economic.data", from = "1977-01-01")
+p <- autos %>% ggplot(aes(date, price)) + geom_line() + 
+  labs(title = "Ventas totales de autos en EEUU", x = "fecha", y = "miles")
+ggplotly(p)
+```
+
