@@ -5,8 +5,8 @@ account: pablo-benavides
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2405559
-bundleId: 3226247
+bundleId: 3244931
 url: https://pablo-benavides.shinyapps.io/dcmp_examples/
-when: 1591235570.25664
+when: 1591657329.40637
 asMultiple: FALSE
 asStatic: FALSE

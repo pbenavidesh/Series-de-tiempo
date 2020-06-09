@@ -22,6 +22,25 @@ shinyServer(function(input, output) {
         glob_econ %>% 
             select(Country, Year, gdp = input$gdp_var)
     })
+    
+    us_ret_ma <- reactive({
+        if (input$ma2 == TRUE){
+            us_retail_employment %>% 
+                mutate(ma1 = slide_dbl(Employed, mean, 
+                                      .size = input$ma, 
+                                      .align = "cr"),
+                       ma_ma =slide_dbl(ma1, mean, 
+                                      .size = input$ma3, 
+                                      .align = "cl")
+                       )
+        } else {
+            us_retail_employment %>% 
+                mutate(ma = slide_dbl(Employed, mean,
+                                      .size = input$ma,
+                                      .align = "cr"))
+        }
+        
+    })
 
     output$gdp <- renderPlotly({
         ge <- gdp_vars() %>% 
@@ -39,7 +58,24 @@ shinyServer(function(input, output) {
             } else {
                 gg
             }
-                    
-                    
+    })
+    
+    output$ma_plot <- renderPlot({
+        if (input$ma2 == TRUE){
+            us_ret_ma() %>%
+                autoplot(Employed, color='gray', size = 0.9) +
+                geom_line(aes(y = ma_ma), color = 'red', size = 1) +
+                xlab("Year") + ylab("Persons (thousands)") +
+                ggtitle(paste0("Total employment in US retail, ",
+                              input$ma3,"x",input$ma,"-MA"))
+        } else{
+            us_ret_ma() %>%
+                autoplot(Employed, color='gray', size = 0.9) +
+                geom_line(aes(y = ma), color='red', size = 1) +
+                xlab("Year") + ylab("Persons (thousands)") +
+                ggtitle(paste0("Total employment in US retail, ",
+                              input$ma,"-MA"))
+        }
+        
     })
 })

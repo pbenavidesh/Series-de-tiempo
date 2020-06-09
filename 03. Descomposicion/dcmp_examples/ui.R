@@ -57,7 +57,31 @@ shinyUI(fluidPage( shinythemes::themeSelector(),
                             ),
                      column(8,
                             plotlyOutput("gdp"))
-                 )
+                 ),
+                 hr(),
+                 fluidRow(
+                     column(12,
+                            h1("Medias móviles"))
+                 ),
+                 fluidRow(
+                     column(4,
+                            wellPanel(
+                                sliderInput("ma",
+                                            label = "Selecciona el orden de la media móvil",
+                                            min = 1, max = 50,
+                                            value = 7, step = 1),
+                                checkboxInput("ma2",
+                                              label = "Aplica media móvil a la media móvil",
+                                              value = FALSE),
+                                conditionalPanel("input.ma2 == 1",
+                                                 sliderInput("ma3",
+                                                             label = "Orden de la media móvil de la media móvil",
+                                                             min = 1, max = 10,
+                                                             value = 2, step = 1)))),
+                     column(8,
+                            plotOutput("ma_plot"))
+                            
+                 ) # fluidRow
                  # , sidebarLayout(
                  #     sidebarPanel(
                  #         sliderInput("lambda",
