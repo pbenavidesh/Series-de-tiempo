@@ -1,21 +1,29 @@
 ---
 title: "Las bases de los pronósticos"
+author: "Pablo Benavides-Herrera"
+date: 2020-04-06
 output:
   html_notebook:
     toc: yes
     toc_float: yes
-    theme: cerulean
+    theme: united
     highlight: tango
   github_document:
     toc: yes
     dev: jpeg
+always_allow_html: TRUE
 ---
+
+![](../images/tsibble.png){width=30%} 
+![](../images/fable.png){width=30%}
+![](../images/feasts.png){width=30%} 
+
 
 Las paqueterías a usar en este documento:
 
 ```{r, message=FALSE}
 library("easypackages")
-packages("tidyverse","fpp3")
+packages("tidyverse","fpp3", "tsibble", "feasts","fable")
 ```
 
 
@@ -30,11 +38,11 @@ El flujo de trabajo, cuando se va a realizar un proceso, se puede dividir en pas
 5. Revisar el desempeño del modelo (evaluación)
 6. Producir pronósticos
 
-### 1. Preparación de los datos (limpieza)
+## 1. Preparación de los datos (limpieza)
 
 Esto siempre es lo primero que se hace y puede ir desde simplemente cargar los datos en **R**, hasta limpiezas más detalladas, como identificar valores omitidos, `NA`, filtrado de la serie, etc. Para esto, utilizamos varias funciones de las paqueterías `tsibble` y `tidyverse`, que simplifican mucho estas tareas.
 
-### 2. Gráfica de los datos (visualización)
+## 2. Gráfica de los datos (visualización)
 
 Continuaremos trabajando con los datos de `global_economy` para ejemplificar esto.
 
@@ -45,7 +53,7 @@ global_economy %>%
     ggtitle("PIB de Suecia") + ylab("$US billions")
 ```
 
-### 3. Definición del modelo (especificación)
+## 3. Definición del modelo (especificación)
 
 Antes de ajustar un modelo a los datos, se debe **describir** el modelo. Existen muchos tipos de modelos de pronóstico distintos, y es muy importante que escojamos el más apropiado, para obtener buenos pronósticos.
 
@@ -58,7 +66,7 @@ TSLM(GDP  ~ trend())
 ```
 
 
-### 4. Entrenamiento del modelo (estimación)
+## 4. Entrenamiento del modelo (estimación)
 
 Una vez que se especificó el modelo, lo que sigue es entrenar al modelo.
 
@@ -77,11 +85,11 @@ Con esto se ajustó un modelo lineal y el objeto resultante es un `mable` (model
 fit
 ```
 
-### 5. Revisar el desempeño del modelo (evaluación)
+## 5. Revisar el desempeño del modelo (evaluación)
 
 Ya teniendo el modelo entrenado, debemos revisar el *performance* en los datos reales. Esto es, ¿qué tan bien se ajusta el modelo a los datos?, en caso de estar indecisos entre varios modelos, ¿cuál escogemos como el mejor y por qué?
 
-### 6. Producir pronósticos
+## 6. Producir pronósticos
 
 Cuando ya evaluamos que el modelo ajustado se encuentra dentro de los parámetros deseados, podemos proceder a realizar los pronósticos. En .**R**, podemos usar el comando `forecast()`, en el cual debemos especificar el número de periodos a pronosticar. Por ejemplo, par pronosticar los siguientes 12 meses, escribiríamos `h = 12`. También podemos usar lenguaje ordinario (en inglés), `h = "1 year"`.
 
@@ -97,15 +105,16 @@ fit %>% forecast(h = "3 years") %>%
   autoplot(global_economy) +
     ggtitle("PIB de Suecia") + ylab("$US billions")
 ```
+***
 
-# Métodos sencillos de pronóstico
+# Métodos sencillos de pronóstico {.tabset}
 
 Utilizaremos de *benchmark* a lo largo del curso estos métodos básicos de pronóstico. En ocasiones, a pesar de su sencillez, pueden llegar a ser muy útiles.
 
 Utilizaremos los datos de producción de ladrillos para esta sección.
 
 ```{r bricks}
-bricks <- aus_production %>% filter_index(1970 ~ 2004)
+bricks <- aus_production %>% filter_index("1970" ~ "2004")
 ```
 
 ### Método del promedio (media)
@@ -409,22 +418,27 @@ donde $\hat{y}_{T+1} | T$ es el pronóstico de un periodo (one-step) y $e_{T+1}$
 
 Si realizamos esto varias veces, obtendremos muchos escenarios futuros posibles. Para ver algunos de ellos, utilizamos `generate`.
 
-![Dr. Strange simulando mediante bootstrap 14,000,605 escenarios posibles](dr_strange.jpeg)
+![Dr. Strange simulando mediante bootstrap 14,000,605 escenarios posibles](../images/dr_strange.jpeg)
 
 ```{r bootstrap}
 fit <- google_2015 %>%
   model(NAIVE(Close))
-sim <- fit %>% generate(h = 30, times = 5, bootstrap = TRUE)
+
+sim <- fit %>%  generate(h = 30, times = 5, bootstrap = TRUE) # only works with dev version
+
 sim
 ```
+
+
+
 
 Lo que hicimos fue generar 5 escenarios futuros posibles (`times = 5`) para los siguientes 30 días de trading (`h = 30`). Si graficamos esto, tenemos:
 
 ```{r bootstrap plot}
 google_2015 %>%
   ggplot(aes(x = day)) +
-  geom_line(aes(y = Close)) +
-  geom_line(aes(y = .sim, colour = as.factor(.rep)), data = sim) +
+  geom_line(aes(y = Close), size = 1) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)), data = sim, size = 1) +
   ggtitle("Google closing stock price") +
   guides(col = FALSE)
 ```
@@ -452,6 +466,7 @@ fc %>% autoplot(google_2015) +
 4. Realicen el diagnóstico de residuales e interpreten los resultados.
 5. Ejecuten un pronóstico (ustedes deciden el horizonte de pronóstico) y definan si utilizar el método bootstrap o no y justifiquen su decisión.
 
+***
 
 # Pronósticos con transformaciones
 
@@ -596,6 +611,15 @@ aus_production %>%
 ```
 Esto filtra los últimos 20 datos (5 años).
 
+A partir de `dplyr 1.0.0`, existen algunas variantes de `slice()` que pueden sernos bastante útiles, como `slice_head()`, `slice_tail()`, `slice_sample()`, `slice_max()`, etc.
+
+Podemos reescribir el código de arriba para hacerlo más explícito:
+
+```{r}
+aus_production %>% 
+  slice_tail(n = 20)
+```
+
 Podemos usar `slice` para datos agrupados:
 
 ```{r}
@@ -676,8 +700,12 @@ beer_fc %>%
 ```
 
 ```{r model accuracy}
-accuracy(beer_fc, recent_production)
+accuracy(beer_fit)
 ```
 
+```{r forecast accuracy}
+beer_fc %>% 
+  accuracy(recent_production)
+```
 
 
