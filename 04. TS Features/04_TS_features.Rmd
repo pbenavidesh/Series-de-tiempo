@@ -7,9 +7,11 @@ output:
   html_notebook:
     toc: yes
     toc_float: yes
-    theme: cerulean
+    theme: united
     highlight: tango
 ---
+
+![](../images/feasts.png)
 
 En el pasado, ya hemos revisado varias características de las series de tiempo. La paquetería `feasts` *(**FE**atures **A**nd **S**tatistics from **T**ime **S**eries)* incluye varias funciones para calcular varias características. Cualquier tipo de resumen que le podamos realizar a una serie de tiempo se consideraría una característica.
 
