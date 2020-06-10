@@ -1,32 +1,48 @@
 ---
 title: "Características de las series de tiempo"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: united
     highlight: tango
+  github_document:
+    toc: yes
+    dev: jpeg
+always_allow_html: true
 ---
 
 ![](../images/feasts.png)
 
-En el pasado, ya hemos revisado varias características de las series de tiempo. La paquetería `feasts` *(**FE**atures **A**nd **S**tatistics from **T**ime **S**eries)* incluye varias funciones para calcular varias características. Cualquier tipo de resumen que le podamos realizar a una serie de tiempo se consideraría una característica.
+En el pasado, ya hemos revisado varias características de las series de tiempo. La paquetería [`feasts`](https://feasts.tidyverts.org/) *(**F**ature **E**xtraction **A**nd **S**tatistics from **T**ime **S**eries)* incluye varias funciones para calcular varias características. Cualquier tipo de resumen que le podamos realizar a una serie de tiempo se consideraría una característica.
 
 ### Características estadísticas básicas
 
 Algunas de las más sencillas son la media, mínimo, máximo, ... y las podemos calcular utilizando la función `features()`. Tomemos de ejemplo los datos del turismo en Australia, `tourism`.
 
-```{r stat features1, message=FALSE}
-if (!require("easypackages")) install.packages("easypackages")
+```{r stat features1, message=FALSE, warning=FALSE}
 library("easypackages")
-packages("tidyverse","lubridate", "patchwork", "fpp2","fpp3","scales")
+packages("tidyverse","lubridate", "patchwork", "fpp2","fpp3","scales","DT")
 glimpse(tourism)
-
-tourism %>% features(Trips, mean)
+tourism %>% features(Trips, list(mean =mean))
 ```
+
+***
+La paquetería `DT` nos permite crear `datatables` o tablas interactivas.
+
+```{r}
+tourism %>% features(Trips, list(mean =mean)) %>% datatable(filter = "top")
+```
+
+Si tenemos variables categóricas (`factors`), podemos filtrar seleccionando cada nivel.
+
+```{r}
+tourism %>% 
+  mutate_if(is.character,as_factor) %>% 
+  features(Trips, list(mean =mean)) %>% datatable(filter = "top")
+```
+
+***
 
 Calculamos la característica de la media y se muestra en la columna `V1`. Si queremos calcular varias características y nombrarlas, lo podemos hacer así:
 
