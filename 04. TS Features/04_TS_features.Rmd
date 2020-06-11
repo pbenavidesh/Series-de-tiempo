@@ -1,5 +1,7 @@
 ---
 title: "Características de las series de tiempo"
+author: "Pablo Benavides-Herrera"
+date: 2020-04-01
 output:
   html_notebook:
     toc: yes
@@ -14,7 +16,7 @@ always_allow_html: true
 
 ![](../images/feasts.png)
 
-En el pasado, ya hemos revisado varias características de las series de tiempo. La paquetería [`feasts`](https://feasts.tidyverts.org/) *(**F**ature **E**xtraction **A**nd **S**tatistics from **T**ime **S**eries)* incluye varias funciones para calcular varias características. Cualquier tipo de resumen que le podamos realizar a una serie de tiempo se consideraría una característica.
+En el pasado, ya hemos revisado varias características de las series de tiempo. La paquetería [`feasts`](https://feasts.tidyverts.org/) *(**F**eature **E**xtraction **A**nd **S**tatistics from **T**ime **S**eries)* incluye varias funciones para calcular varias características. Cualquier tipo de resumen que le podamos realizar a una serie de tiempo se consideraría una característica.
 
 ### Características estadísticas básicas
 
