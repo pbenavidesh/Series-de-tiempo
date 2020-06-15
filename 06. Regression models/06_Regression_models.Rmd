@@ -1,0 +1,29 @@
+---
+title: "Modelos de regresión para series de tiempo"
+author: "Pablo Benavides-Herrera"
+date: 2020-12-06
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: united
+    highlight: tango
+---
+
+Los modelos que veremos aquí tienen como idea principal encontrar relaciones lineales entre la serie que queremos pronosticar, $y$, con una o más series distintas, *x*. En otras palabras, pronosticaremos los valores futuros de una serie, a partir de los cambios en otra serie que la afecte.
+
+Es muy común querer predecir de esta forma. Por ejemplo, una tienda de helados podría encontrar una relación entre sus **ventas** ($y$) y la **temperatura** ($x_1$). O las **ventas** de *Nike*, a partir de cuánto **gastan en publicidad y mercadotecnia**.
+
+En la literatura podemos encontrar muchos nombres para las variables $y$ ^ $x$. P. ej.
+
+| $y$ (var. de pronóstico) | $x$ (vars. predictoras) |
+|:------------------------:|:-----------------------:|
+| Var. dependiente         |  Vars. independientes   |
+| Explicada                |  Explicativas           |
+| Regresada                |  Regresoras             |
+| Respuesta                |  Estímulo               |
+| Resultado                |  Covariante             |
+| Controlada               |  De control             |
+
+
+
