@@ -125,9 +125,8 @@ $$
 \hat{y}_{T+h | T}=\bar{y}=\left(y_{1}+\cdots+y_{T}\right) / T
 $$
 
-```{r}
+```{r, warning=FALSE}
 bricks %>% model(MEAN(Bricks))
-
 ```
 
 ### Método ingenuo (Naïve method)
@@ -149,27 +148,8 @@ Un método similar es el ingenuo estacional. Lo que cambia con el anterior es qu
 $$
 \hat{y}_{T+h | T}=y_{T+h-m(k+1)}
 $$
-
-```{r beer_fit y fcst}
-# Set training data from 1992 to 2006
-train <- aus_production %>% filter_index("1992 Q1" ~ "2006 Q4")
-# Fit the models
-beer_fit <- train %>%
-  model(
-    Mean = MEAN(Beer),
-    `Naïve` = NAIVE(Beer),
-    `Seasonal naïve` = SNAIVE(Beer)
-  )
-# Generate forecasts for 14 quarters
-beer_fc <- beer_fit %>% forecast(h=14)
-
-# Plot forecasts against actual values
-beer_fc %>%
-  autoplot(train, level = NULL) +
-    autolayer(filter_index(aus_production, "2007 Q1" ~ .), color = "black") +
-    ggtitle("Forecasts for quarterly beer production") +
-    xlab("Year") + ylab("Megalitres") +
-    guides(colour=guide_legend(title="Forecast"))
+```{r, message=FALSE}
+bricks %>% model(SNAIVE(Bricks))
 ```
 
 ### Método del drift (deriva)
@@ -179,7 +159,41 @@ Este método es una variación del método ingenuo, que permite que el pronósti
 $$
 \hat{y}_{T+h | T}=y_{T}+\frac{h}{T-1} \sum_{t=2}^{T}\left(y_{t}-y_{t-1}\right)=y_{T}+h\left(\frac{y_{T}-y_{1}}{T-1}\right)
 $$
+
+```{r}
+bricks %>% model(RW(Bricks ~ drift()))
+```
+
 Esto es lo mismo que trazar una línea recta que conecte el primer y último punto en los datos históricos y continuar la recta hacia adelante.
+
+```{r beer_fit y fcst}
+# Set training data from 1992 to 2006
+train <- aus_production %>% filter_index("1992 Q1" ~ "2006 Q4")
+# Fit the models
+beer_fit <- train %>%
+  model(
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  )
+# Generate forecasts for 14 quarters
+beer_fc <- beer_fit %>% forecast(h=14)
+
+# Plot forecasts against actual values
+beer_fc %>%
+  autoplot(train, level = NULL) +
+  autolayer(filter_index(aus_production, "2007 Q1" ~ .), 
+            color = "black") +
+  ggtitle("Forecasts for quarterly beer production") +
+  xlab("Year") + ylab("Megalitres") +
+  guides(colour=guide_legend(title="Forecast")) +
+  geom_vline(xintercept = as.Date("2007-01-01"), color = "firebrick",
+             linetype = "dashed") +
+  annotate("label", x = c(as.Date("2003-01-01"),as.Date("2009-01-01")),
+           y = 550, label = c("Train set", "Test set"),
+           color = c("black","blue"))
+```
 
 Otro ejemplo:
 
