@@ -1,0 +1,94 @@
+---
+title: "Los elementos básicos de una Shiny App"
+author: "Pablo Benavides-Herrera"
+date: 2020-06-13
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: spacelab
+    highlight: tango
+---
+
+# La estructura básica
+
+Toda aplicación que creemos en shiny consta de al menos:
+
+* Una interfaz gráfica, **UI**.
+
+* Una función de servidor, **SERVER**.
+
+* La introducción de una función para correr la app, `shinyApp()`.
+
+```{r, eval = FALSE}
+library(shiny)
+
+# Define UI for application
+ui <- fluidPage(
+
+)
+
+# Define server logic required
+server <- function(input, output) {
+
+
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+```
+
+Dentro de cualquier *shiny app* se puede dar clic al botón **"Run app"**
+
+# Personalización de la interfaz gráfica (`ui`)
+
+## Formato de panel
+
+La función `sidebarLayout()` nos permite crear una app que contenga una barra secundaria por un lado (izq. o der.), y un panel principal. Para esto, especificamos dentro de esta función las funciones `sidebarPanel()` y `mainPanel()`, respectivamente.
+
+```{r, eval=FALSE}
+ui <- fluidPage(
+    titlePanel("Título de la app"),
+    sidebarLayout(
+        sidebarPanel("Título del panel"),
+        mainPanel("Título del main panel")
+    )
+)
+```
+
+## Funciones `HTML`
+
+Las shiny apps, al igual que los R Notebooks o R Markdown funcionan a base de HTML, por lo que se pueden utilizar funciones sin mayor problema.
+
+Algunas de estas son:
+
+* `h#()` para distintos niveles de encabezados.
+
+* `p()` para generar párrafos.
+
+* `strong()` para poner texto en **negritas**.
+
+* `em()` genera texto en *cursiva*.
+
+* `code()` pone texto en formato de `código`.
+
+```{r, eval=FALSE}
+ui <- fluidPage(
+    titlePanel("Título de la app"),
+    sidebarLayout(
+        sidebarPanel("sidebar panel"),
+        mainPanel("main panel",
+                  h1("encabezado nivel 1"),
+                  h2("encabezado nivel 2"),
+                  h3("encabezado nivel 3"),
+                  p("Inicia párrafo con texto normal,", 
+                    strong("texto en negritas dentro del párrafo,"),
+                    em("también texto en cursiva"), "y",
+                    code("texto con formato de código")),
+                  p("Un nuevo párrafo."))
+    )
+)
+```
+
+
