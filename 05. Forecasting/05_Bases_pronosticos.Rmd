@@ -194,6 +194,23 @@ beer_fc %>%
            y = 550, label = c("Train set", "Test set"),
            color = c("black","blue"))
 ```
+```{r}
+beer_fc %>%
+  filter(.model == "Seasonal naïve") %>% 
+  autoplot(train) +
+  autolayer(filter_index(aus_production, "2007 Q1" ~ .), 
+            color = "black") +
+  ggtitle("Seasonal naïve forecast for quarterly beer production") +
+  xlab("Year") + ylab("Megalitres") +
+  guides(colour=guide_legend(title="Forecast")) +
+  geom_vline(xintercept = as.Date("2007-01-01"), color = "firebrick",
+             linetype = "dashed") +
+  annotate("label", x = c(as.Date("2003-01-01"),as.Date("2009-01-01")),
+           y = 550, label = c("Train set", "Test set"),
+           color = c("black","blue"))
+```
+
+
 
 Otro ejemplo:
 
