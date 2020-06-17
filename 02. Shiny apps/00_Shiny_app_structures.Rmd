@@ -419,12 +419,74 @@ Estas funciones de `output` van acompañadas de una función similar en la parte
 | `verbatimTextOutput()`|Texto de consola | `renderPrint()`|
 | `imageOutput()`    | Imagen      | `renderImage()`       |
 
+Cada función de `output` también debe contar con su propio **identificador**, para llamarlo en el servidor.
 
 # Configuración del servidor, `server`
 
+Dentro del servidor se utilizan los valores proporcionados por el usuario para modificar las tablas, gráficas, etc. Se puede acceder a cada uno de esos valores a través de su identificador. 
 
+Si, p. ej., se creó un `sliderInput(inputId = "slider1")` con ID = `slider1`, se podría mandar llamar con **`input$slider1`**. Así, cualquier `input` puede ser llamado con `input$##`.
 
+Para configurar alguno de los `outputs`, es necesario almacenar su configuración dentro de la variable `output$` agregando el identificador del `output`. Entonces, si se había definido un `plotOutput(outputId = "plot1")`, la manera de almacenarlo sería **`output$plot1`**.
 
+Si se quisiera hacer una app muy sencilla que muestre un histograma y permita editar los bins que se muestran a través de una barra deslizante, podríamos hacer algo como:
 
+```{r hist_app}
+library(shiny)
+library(colourpicker)
 
+# User interface
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Mi primera app"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId =  "slider1",
+                        label = "Número de bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30)
+        ),
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput(outputId = "plot1")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    
+    output$plot1 <- renderPlot({
+       geyser <- faithful %>% 
+           as_tibble()
+       
+       bins <- seq(min(geyser$waiting), max(geyser$waiting),
+                   length.out = input$slider1)
+       
+       geyser %>% ggplot(aes(x = waiting)) +
+           geom_histogram(breaks = bins)
+        
+    })
+
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+
+donde:
+
+* El `sliderInput()` tiene el ID `slider1`
+
+* El `plotOutput()` tiene el ID `plot1`
+
+* Dentro del servidor,
+  
+  - se almacena el gráfico en `output$plot1`
+  
+  - se utilizan los bins seleccionados llamando `input$slider1`
 
