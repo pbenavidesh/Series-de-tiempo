@@ -10,6 +10,8 @@ output:
     highlight: tango
 ---
 
+# Introducción
+
 Los modelos que veremos aquí tienen como idea principal encontrar relaciones lineales entre la serie que queremos pronosticar, $y$, con una o más series distintas, *x*. En otras palabras, pronosticaremos los valores futuros de una serie, a partir de los cambios en otra serie que la afecte.
 
 Es muy común querer predecir de esta forma. Por ejemplo, una tienda de helados podría encontrar una relación entre sus **ventas** ($y$) y la **temperatura** ($x_1$). O las **ventas** de *Nike*, a partir de cuánto **gastan en publicidad y mercadotecnia**.
@@ -24,6 +26,32 @@ En la literatura podemos encontrar muchos nombres para las variables $y$ ^ $x$. 
 | Respuesta                |  Estímulo               |
 | Resultado                |  Covariante             |
 | Controlada               |  De control             |
+
+
+# El modelo lineal
+
+El caso más sencillo sería un **modelo de regresión lineal simple**, de la forma:
+
+$$
+y_t = \beta_0 + \beta_1 x_t + \varepsilon_t
+$$
+
+donde 
+
+* $\beta_0$ es conocido como el *intercepto* y representa el **valor predicho cuando $x = 0$.** 
+
+* $\beta_1$ es la *pendiente* de la recta. Nos indica el **cambio promedio en $y$, ante un cambio en una unidad de $x$**.
+
+* El término de error, $\varepsilon_t$ se asume aleatorio y decimos que captura los cambios debido a todas las otras variables que pudieran llegar a afectar a $y_t$, que no están explícitamente especificadas en el modelo.
+
+La recta resultante está dada entonces por $\beta_0 + \beta_1 x_t$, y la diferencia que existe en los puntos reales y ésta es $\varepsilon_t$.
+
+
+![*[(Hyndman, 2019)](https://otexts.com/fpp3/)*](../images/linreg.png)
+
+```{r}
+
+```
 
 
 
