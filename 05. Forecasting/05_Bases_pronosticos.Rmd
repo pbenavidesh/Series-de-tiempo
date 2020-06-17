@@ -318,11 +318,17 @@ Así, el método naïve parece generar pronósticos que capturan toda la informa
 Podemos obtener estas mismas gráficas con un solo comando, `gg_tsresiduals()`.
 
 ```{r gg_tsresiduals naive, warning=FALSE}
-google_2015 %>% model(NAIVE(Close)) %>% gg_tsresiduals()+ ggtitle("Diagnóstico de residuales para el modelo Naïve")
+google_2015 %>% 
+  model(NAIVE(Close)) %>% 
+  gg_tsresiduals() + 
+  ggtitle("Diagnóstico de residuales para el modelo Naïve")
 ```
 Como vimos antes, el método Naïve es óptimo para este tipo de series. ¿Qué hubiera sucedido si ajustáramos otro modelo? Probemos con el método de la media:
 ```{r gg_tsresiduals mean, warning=FALSE}
-google_2015 %>% model(MEAN(Close)) %>% gg_tsresiduals() + ggtitle("Diagnóstico de residuales para el modelo de Media")
+google_2015 %>% 
+  model(MEAN(Close)) %>% 
+  gg_tsresiduals() + 
+  ggtitle("Diagnóstico de residuales para el modelo de Media")
 ```
 
 Observamos que estas gráficas tienen un comportamiento muy distinto al Naïve:
