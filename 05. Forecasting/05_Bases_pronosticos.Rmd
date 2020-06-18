@@ -363,6 +363,8 @@ Q^{*}=T(T+2) \sum_{k=1}^{h}(T-k)^{-1} r_{k}^{2}
 $$
 En este caso es igual: valores grandes de $Q^{*}$ son indicios de que las autocorrelaciones no provienen de ruido blanco.
 
+Las pruebas para el modelo ingenuo:
+
 ```{r}
 # lag=h and fitdf=K
 aug %>% features(.resid, box_pierce, lag=10, dof=0)
@@ -370,6 +372,18 @@ aug %>% features(.resid, box_pierce, lag=10, dof=0)
 aug %>% features(.resid, ljung_box, lag=10, dof=0)
 
 ```
+Para el modelo de la media:
+
+```{r}
+google_2015 %>% 
+  model(MEAN(Close)) %>% augment() %>% 
+  features(.resid, box_pierce, lag = 10, dof = 0)
+
+google_2015 %>% 
+  model(MEAN(Close)) %>% augment() %>% 
+  features(.resid, ljung_box, lag = 10, dof = 0)
+```
+
 
 En ambas pruebas, el p-value resulta ser muy alto, por lo que no podemos distinguir los residuales del ruido blanco.
 
@@ -461,7 +475,7 @@ Si realizamos esto varias veces, obtendremos muchos escenarios futuros posibles.
 fit <- google_2015 %>%
   model(NAIVE(Close))
 
-sim <- fit %>%  generate(h = 30, times = 5, bootstrap = TRUE) # only works with dev version
+sim <- fit %>%  generate(h = 30, times = 5, bootstrap = TRUE, seed = 123) # only works with dev version
 
 sim
 ```
