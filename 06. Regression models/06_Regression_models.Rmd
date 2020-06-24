@@ -10,6 +10,16 @@ output:
     highlight: tango
 ---
 
+# Prerrequisitos
+
+Se requieren cargar las siguientes paqueterías para seguir los ejemplos.
+
+```{r, message=FALSE}
+library(easypackages)
+libraries("tidyverse","fpp3")
+```
+
+
 # Introducción
 
 Los modelos que veremos aquí tienen como idea principal encontrar relaciones lineales entre la serie que queremos pronosticar, $y$, con una o más series distintas, *x*. En otras palabras, pronosticaremos los valores futuros de una serie, a partir de los cambios en otra serie que la afecte.
@@ -49,9 +59,107 @@ La recta resultante está dada entonces por $\beta_0 + \beta_1 x_t$, y la difere
 
 ![*[(Hyndman, 2019)](https://otexts.com/fpp3/)*](../images/linreg.png)
 
-```{r}
+## Ejemplo: gasto de consumo en EEUU
 
+Como primer ejemplo, veamos las tasas de crecimiento del gasto de consumo, $y$, y su relación con el ingreso personal disponible, $x$.
+
+La gráfica de tiempo de ambas series:
+
+```{r}
+us_change %>%
+  ggplot(aes(x = Quarter)) +
+  geom_line(aes(y = Consumption, colour = "Consumo")) +
+  geom_line(aes(y = Income, colour = "Ingreso")) +
+  ylab("cambio %") + xlab("Año") +
+  guides(colour=guide_legend(title="Series")) + 
+  theme(legend.position = "top")
 ```
+
+Un diagrama de dispersión entre ambas series, para ver una posible correlación.
+
+```{r}
+us_change %>%
+  ggplot(aes(x=Income, y=Consumption)) +
+    ylab("Consumo (cambio % trimestral)") +
+    xlab("Ingreso (cambio % trimestral)") +
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE)
+```
+
+La línea azul en el gráfico sigue la ecuación que describe la **regresión lineal** que tiene por variable dependiente al consumo y como independiente al ingreso.
+
+## ¿Qué es una regresión lineal?
+
+### 
+
+![](../images/ed_edd_eddie.gif)
+
+El término de regresión fue acuñado por primera vez por Francis Galton en 1886. Él estaba estudiando la relación que existe entre la estatura de los hijos y la estatura de los padres.
+
+Lo que encontró fue lo siguiente, en resumen:
+
+* Los padres más altos, tendían a tener hijos más altos, mientras que los padres bajos tendían a tener hijos bajos.
+
+* En promedio, los hijos de padres altos no logran ser más altos que ellos. Similarmente, los hijos de padres bajos, en promedio son más altos que sus papás.
+
+* Así, Galton decía que había una tendencia a **regresar** a la estatura promedio.
+
+
+
+![](img/regression.png)
+
+![*De no cumplirse la regresión de Galton, sería común tener gente de la estatura de un Hobbit, y también de la estatura de un gigante.*](img/fellowship.jpg)
+
+Entonces, *el análisis de regresión en tiempos modernos trata sobre la relación de la dependencia entre una variable $y$, respecto de una o más variables exógenas (regresoras $x$) para predecir el valor promedio de la variable dependiente.*
+
+## Regresión y causalidad
+
+<style>
+div.orchid { background-color: orchid; border-radius: 5px; padding: 20px; color: black}
+</style>
+<div class = "orchid">
+
+>“Una relación estadística, por más fuerte y sugerente que sea, nunca podrá establecer una conexión causal: nuestras ideas de causalidad deben provenir de estadísticas externas y, en último término, de una u otra teoría” (Kendall & Stuart, 1961)
+
+<p style="text-align:center;font-weight:bold"> 
+Regresión $\neq$ Causalidad
+</p>
+<p style="text-align:center;font-weight:bold"> 
+Correlación $\neq$ Causalidad
+</p>
+
+</div>
+
+<br>
+<br>
+
+* Una relación estadística por sí misma no puede implicar causalidad.
+  * Se debe acudir a consideraciones a priori o teóricas.
+
+<br>
+
+* La causalidad puede determinarse también por sentido común.
+
+## ¿Qué significa que un modelo sea lineal?
+
+Se puede hablar de linealidad en dos sentidos:
+
+1. Linealidad en las variables; $x$.
+  - La esperanza condicional de $y$ es una función lineal de $x_i$.
+  
+2. Linealidad en los parámetros; $\beta$.
+  - La esperanza condicional de $y$ es lineal en los parámetros $\beta_i$.
+
+Para un modelo de regresión lineal, solo nos interesa que sea **lineal en los parámetros**.
+
+![*Todas estas funciones son **lineales en los parámetros** y pueden ser estimadas mediante un modelo de regresión lineal*](img/linear.png)
+
+Así, un modelo de regresión lineal puede generar una recta, o una variedad de curvas, dependiendo la **forma funcional** que se elija.
+
+## Mínimos cuadrados ordinarios (MCO-OLS)
+
+
+
 
 
 
