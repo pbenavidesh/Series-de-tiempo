@@ -1,0 +1,179 @@
+---
+title: "Modelos ARIMA: tendencias de movilidad por COVID-19"
+subtitle: "R Notebooks interactivos con `shiny`"
+author: "Pablo Benavides-Herrera"
+date: 2020-06-24
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: flatly
+    highlight: tango
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Prerrequisitos
+
+```{r pkgs, message=FALSE}
+library(shiny)
+library(tidyverse)
+library(fpp3)
+library(plotly)
+```
+
+
+# Introducción
+
+Utilizaremos modelos ARIMA para describir los patrones de movilidad en varias ciudades y/o países del mundo. Asimismo, aprenderemos a crear notebooks interactivos (con base en `shiny`).
+
+Estaremos explorando dos bases de datos:
+
+1. El reporte de [tendencias de movilidad de Apple](https://www.apple.com/covid19/mobility).
+
+2. El reporte de [tendencias de movilidad de la comunidad de Google](https://www.google.com/covid19/mobility/).
+
+# Apple
+
+## Importación y limpieza
+
+Importamos los datos con `read_csv()`.
+
+```{r apple_data}
+apple_df <- read_csv("applemobilitytrends-2020-06-22.csv")
+apple_df
+```
+
+Vemos que los datos no están en formato limpio (*tidy*), por lo que tenemos que limpiarlos:
+
+* Pasar las fechas a filas.
+* Quitar las columnas innecesarias.
+* Convertir las columnas de países/ciudades a factores.
+* Convertirlos en un objeto `tsibble`.
+* Agregar una variable para medir el cambio.
+
+```{r apple_tidy}
+apple <- apple_df %>% 
+  pivot_longer(cols = -c(geo_type:country),
+               names_to = "date") %>% 
+  select(-c(alternative_name)) %>% 
+  mutate(country = if_else(is.na(country),region,country),
+         date = ymd(date)) %>% 
+  mutate_if(is.character,as_factor) %>% 
+  as_tsibble(index = date, key = c(region, transportation_type,`sub-region`,country))
+apple <- apple %>% 
+  group_by_key() %>% 
+  mutate(change = value / first(value) - 1) %>% 
+  ungroup()
+apple
+```
+
+Veamos las distintas ciudades o regiones mostradas para México:
+
+```{r mexico_regions}
+apple %>% 
+  filter(country == "Mexico") %>% 
+  key_data() %>% 
+  arrange(region)
+```
+
+Observamos que solo para el agregado de México y la ciudad de México se tienen datos respecto a los tres tipos de transporte: conducción, caminata y tránsito. Para algunas ciudades se cuenta con datos respecto a la conducción y caminata y otras solo para conducción.
+
+Hagamos una gráfica interactiva para visualizar estas series.
+
+## Gráfica interactiva
+
+Vamos a crear algunas variables que nos serán de utilidad para la gráfica interactiva:
+
+
+```{r shiny-apple-plots, echo=FALSE}
+regions <- reactive({
+  
+})
+inputPanel(
+  selectInput(inputId = "pais",
+              label = "Selecciona el país",
+              choices = levels(apple$country),
+              selected = "Mexico"),
+  renderUI({
+    selectInput(inputId = "regiones",
+                label = "Selecciona la región",
+                choices = apple %>% filter(country == input$pais) %>% distinct(region) %>% pull())
+  }),
+  checkboxGroupInput(inputId = "transport_type",
+                     label = "Tipo de transporte",
+                     choices = levels(apple$transportation_type), inline = TRUE,
+                     selected = "driving")
+)
+
+
+df <- reactive({
+  apple %>% 
+    filter(country == input$pais,
+           transportation_type %in% c(input$transport_type),
+           region == input$regiones
+           
+           )
+})
+
+tabsetPanel(
+  tabPanel("tab1",
+           renderPlotly({
+   df() %>% 
+    ggplot(aes(x = date, y = change, color = transportation_type)) +
+    geom_line() + 
+  geom_hline(yintercept = 0,
+             linetype = "dashed", 
+             color = "firebrick") +
+  annotate("text", label = "Baseline", 
+           x = last(apple$date)-5, y = 0.05, 
+           size = 3, color = "firebrick") + 
+  guides(color = guide_legend(title = NULL))
+})
+    
+  ),
+  tabPanel("tab2")
+
+)
+
+```
+
+
+
+# Google
+
+## Importación y limpieza
+
+```{r goog_data}
+google_df <- read_csv("Global_Mobility_Report.csv")
+google_df
+```
+
+## Prueba {.tabset}
+
+### tab1 
+```{r}
+google <- google_df %>%
+  # select(-c(iso_3166_2_code:census_fips_code)) %>%
+  pivot_longer(cols = -c(country_region_code:date)) %>%
+  mutate(name = str_replace(name, pattern = "_percent_change_from_baseline","")) %>%
+  mutate_if(is.character,as_factor)
+google
+```
+
+```{r}
+google %>% 
+  duplicates(key = c(country_region, sub_region_1,sub_region_2,name), index = date)
+
+google %>% 
+  filter(google %>% 
+  are_duplicated(key = c(country_region, sub_region_1, sub_region_2, name), index = date))
+# %>%
+#   as_tsibble(index = date, key = c(country_region, sub_region_1,sub_region_2,name))
+```
+
+### tab2
+

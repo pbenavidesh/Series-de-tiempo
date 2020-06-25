@@ -12,11 +12,8 @@ runtime: shiny
 ---
 
 ```{r pkgs, message=FALSE}
-if(!require(tidyverse)) install.packages("tidyverse")
 library(tidyverse)
-if(!require(fpp3)) install.packages("fpp3")
 library(fpp3)
-if(!require(patchwork)) install.packages("patchwork")
 library(patchwork)
 ```
 
@@ -222,6 +219,7 @@ aus_total_retail <- aus_retail %>%
   summarise(Turnover = sum(Turnover))
 autoplot(aus_total_retail)
 ```
+
 Se puede ver que la serie en niveles no es estacionaria: tiene una tendencia creciente y una estacionalidad fuerte. La varianza de la serie ha ido creciendo, por lo que sacamos los logaritmos primero para estabilizarla.
 
 ```{r aus_retail log plot}
@@ -238,6 +236,7 @@ Vemos el orden de diferenciación estacional:
 aus_total_retail %>%
   features(log_turnover, unitroot_nsdiffs)
 ```
+
 La prueba nos indica que se requiere una diferenciación estacional. Revisamos si, adicionalmente, se necesitan sacar las primeras diferencias:
 
 ```{r ndiffs}
@@ -378,9 +377,9 @@ En resumen, **la PACF nos sirve para encontrar el orden *p* y la ACF para el ord
 Para ejemplificarlo, tomaremos los cambios porcentuales trimestrales en el gasto de consumo en EEUU:
 
 ```{r us_change, message=FALSE}
-us_change <- read_csv("us_change.csv") %>%
-  mutate(Time = yearquarter(Time)) %>%
-  as_tsibble(index = Time)
+# us_change <- read_csv("us_change.csv") %>%
+#   mutate(Time = yearquarter(Time)) %>%
+#   as_tsibble(index = Time)
 
 us_change %>% autoplot(Consumption) +
   labs(x = "Year", y = "Quarterly percentage change", title = "US consumption")
