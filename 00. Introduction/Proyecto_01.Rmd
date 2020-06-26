@@ -2,7 +2,7 @@
 title: "Proyecto 1"
 subtitle: "Series de tiempo"
 author: "Pablo Benavides-Herrera"
-date: "3/6/2020"
+date: 2020-06-03
 output: 
   ioslides_presentation:
     widescreen: TRUE
@@ -96,7 +96,7 @@ Cada equipo debe entregar (*con un solo integrante que lo envíe es suficiente*)
 
 - `Rscripts`, `R Notebooks`, etc. trabajados.
 
-- Presentación
+- Presentación (formato .html, .pdf, o .pptx)
 
 - Archivo con los datos trabajados (.xlsx, .csv, etc.)
 
