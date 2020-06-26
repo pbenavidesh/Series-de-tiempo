@@ -1,0 +1,105 @@
+---
+title: "Proyecto 2"
+subtitle: "Series de tiempo"
+author: "Pablo Benavides-Herrera"
+date: 2020-06-25
+output: 
+  slidy_presentation:
+    duration: 5
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Características
+
+- Equipos de tres personas (pueden ser los mismos del proyecto anterior o equipos nuevos)
+
+- Fecha de entrega:
+  
+  - Lunes, 29 de junio, 23:59 horas
+  
+- Fecha de presentación:
+
+  - Miércoles, 1 de julio, 07:00 horas
+
+- Formatos aceptados:
+
+  - Presentación en R ([`ioslides`](https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html) o [`slidy`](https://bookdown.org/yihui/rmarkdown/slidy-presentation.html), p. ej.) También se pueden generar presentaciones de PowerPoint directo de R.
+  
+  - [Shiny app](https://shiny.rstudio.com/)
+  
+
+## Contenido (1) 
+
+- Selección de una o más series de tiempo (*distintas a las vistas en clase o del proyecto anterior*).
+
+- Importación a **R** usando `readr`, `readxl`, etc.
+
+- Limpieza de los datos
+
+- Inspección visual de la serie con gráficas:
+  - *dispersión*
+  - *líneas*
+  - *caja y bigotes*
+  - *velas o barchart (en caso de serie de financiera)*
+  - *histogramas, densidades, correlaciones*
+
+## Contenido (2)
+
+- Detección de outliers u observaciones faltantes e investigación de ellos
+  - *¿Cuál es el motivo?, ¿es un dato real o error de medición?*
+  
+- Revisar si la serie requiere algún ajuste o transformación matemática
+
+- Hacer la descomposición de la serie de tiempo para verificar si presenta estacionalidad o no.
+
+- Realizar el flujo de pronóstico completo, incluyendo el mejor (o mejores) modelos de referencia y ponerlos a competir con los otros modelos vistos más complejos.
+
+- **Muy importante la interpretación de los resultados.**
+
+## Criterios de evaluación
+
+Cada criterio se califica con una escala de 1 (peor) a 5 (mejor). Todos tienen la misma ponderación.
+
+**1. Contenido**
+
+  - *¿Cuenta con la teoría suficiente?*
+  - *¿Las tablas, gráficas son relevantes al análisis de la serie de tiempo?*
+  - *¿El equipo muestra dominio de los temas presentados?*
+  - *¿Los modelos propuestos se ajustan correctamente a los datos?*
+  - *¿Son relevantes los modelos para las series elegidas?*
+  
+**2. Claridad y presentación**
+
+  - *¿Se lleva una buena estructura de la presentación?*
+  - *¿Las gráficas, tablas, etc. tienen sus correspondientes ejes, títulos bien marcados?*
+  - *¿Se muestra una fluidez en la presentación y entre los integrantes del equipo?*
+  - *¿Se está leyendo directamente la presentación o el material visual se utiliza de referencia y apoyo para continuar con la presentación?*
+  
+**3. Comentarios a presentación de terceros**
+  - Estudiar, analizar y reproducir el proyecto del grupo que les tocó y responder las siguientes preguntas:
+  - *¿El trabajo se pudo reproducir sin necesidad de alterar el código?*
+  - *¿Está completo en cuanto a los requisitos solicitados?*
+  - *De acuerdo a su percepción, ¿los modelos escogidos para pronóstico son los más adecuados?*
+  - *¿Su prueba de modelos fue exhaustiva?*
+  - *¿Qué sugerencias de mejora le pueden dar?*
+
+* **NOTA:** No es necesario ser muy *rolleros*, sino que estén bien expresadas las ideas y, de la manera más resumida, puedan presentar el tema en cuestión. Si se presenta código, debe ser por alguna razón relevante.
+
+## Entregables
+
+Cada equipo debe entregar (*con un solo integrante que lo envíe es suficiente*) lo siguiente:
+
+- Archivo `.Rproj` de su proyecto.
+
+- `Rscripts`, `R Notebooks`, etc. trabajados.
+
+- Presentación (formato .html, .pdf, o .pptx)
+
+- Archivo con los datos trabajados (.xlsx, .csv, etc.)
+
+- **Su proyecto debe ser reproducible y entendible por terceros (el profesor y el equipo que toque evaluarlos)**
+
+
