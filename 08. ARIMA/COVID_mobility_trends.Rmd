@@ -13,7 +13,9 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
 ```
 
 # Prerrequisitos
@@ -44,7 +46,8 @@ Importamos los datos con `read_csv()`.
 
 ```{r apple_data}
 apple_df <- read_csv("applemobilitytrends-2020-06-22.csv")
-apple_df
+
+head(apple_df,10)
 ```
 
 Vemos que los datos no están en formato limpio (*tidy*), por lo que tenemos que limpiarlos:
@@ -64,11 +67,13 @@ apple <- apple_df %>%
          date = ymd(date)) %>% 
   mutate_if(is.character,as_factor) %>% 
   as_tsibble(index = date, key = c(region, transportation_type,`sub-region`,country))
+
 apple <- apple %>% 
   group_by_key() %>% 
   mutate(change = value / first(value) - 1) %>% 
   ungroup()
-apple
+
+head(apple,10)
 ```
 
 Veamos las distintas ciudades o regiones mostradas para México:
@@ -90,26 +95,27 @@ Vamos a crear algunas variables que nos serán de utilidad para la gráfica inte
 
 
 ```{r shiny-apple-plots, echo=FALSE}
-regions <- reactive({
-  
-})
+# Panel para los inputs
 inputPanel(
+  # Selección de países
   selectInput(inputId = "pais",
               label = "Selecciona el país",
               choices = levels(apple$country),
               selected = "Mexico"),
+  # Selección condicional de regiones
   renderUI({
     selectInput(inputId = "regiones",
                 label = "Selecciona la región",
                 choices = apple %>% filter(country == input$pais) %>% distinct(region) %>% pull())
   }),
+  # Tipo de transporte a graficar
   checkboxGroupInput(inputId = "transport_type",
                      label = "Tipo de transporte",
                      choices = levels(apple$transportation_type), inline = TRUE,
                      selected = "driving")
 )
 
-
+# Filtrado reactivo de los datos
 df <- reactive({
   apple %>% 
     filter(country == input$pais,
@@ -118,10 +124,8 @@ df <- reactive({
            
            )
 })
-
-tabsetPanel(
-  tabPanel("tab1",
-           renderPlotly({
+# Gráfica interactiva
+renderPlotly({
    df() %>% 
     ggplot(aes(x = date, y = change, color = transportation_type)) +
     geom_line() + 
@@ -131,14 +135,10 @@ tabsetPanel(
   annotate("text", label = "Baseline", 
            x = last(apple$date)-5, y = 0.05, 
            size = 3, color = "firebrick") + 
-  guides(color = guide_legend(title = NULL))
+  guides(color = guide_legend(title = NULL)) +
+               scale_y_continuous(labels = scales::percent)+
+               ggtitle(paste("Mobility trends in ",input$regiones, ",", input$pais))
 })
-    
-  ),
-  tabPanel("tab2")
-
-)
-
 ```
 
 
@@ -148,32 +148,91 @@ tabsetPanel(
 ## Importación y limpieza
 
 ```{r goog_data}
-google_df <- read_csv("Global_Mobility_Report.csv")
-google_df
+google_df <- read_csv("Global_Mobility_Report.csv", col_types = cols(sub_region_2 = col_character()))
+
+head(google_df, 10)
 ```
 
-## Prueba {.tabset}
+Los datos limpios y en objeto `tsibble`:
 
-### tab1 
-```{r}
+```{r google_tidy}
 google <- google_df %>%
-  # select(-c(iso_3166_2_code:census_fips_code)) %>%
-  pivot_longer(cols = -c(country_region_code:date)) %>%
-  mutate(name = str_replace(name, pattern = "_percent_change_from_baseline","")) %>%
-  mutate_if(is.character,as_factor)
-google
+  select(-c(iso_3166_2_code:census_fips_code)) %>%
+  pivot_longer(cols = 
+                 -c(country_region_code:date)) %>%
+  mutate(name = str_replace(name, 
+                            pattern = 
+                              "_percent_change_from_baseline", ""),
+         sub_region_1 = if_else(is.na(sub_region_1),
+                                country_region,
+                                sub_region_1),
+         value = value / 100) %>%
+  mutate_if(is.character,as_factor) %>% 
+  mutate(name_label = sprintf("%.2f%%", 
+                              value * 100)) %>% 
+  as_tsibble(index = date, key = c(country_region, 
+                                   sub_region_1,
+                                   sub_region_2,
+                                   name))
+
+head(google,10)
 ```
 
-```{r}
-google %>% 
-  duplicates(key = c(country_region, sub_region_1,sub_region_2,name), index = date)
+La gráfica interactiva para los datos de Google.
 
-google %>% 
-  filter(google %>% 
-  are_duplicated(key = c(country_region, sub_region_1, sub_region_2, name), index = date))
-# %>%
-#   as_tsibble(index = date, key = c(country_region, sub_region_1,sub_region_2,name))
+```{r shiny-google-plot, echo=FALSE}
+# El panel para los inputs
+inputPanel(
+  # Selección de país
+  selectInput(inputId = "pais2",
+              label = "Selecciona el país",
+              choices = levels(apple$country),
+              selected = "Mexico"),
+  # Selección condicional de la región
+  renderUI({
+        selectInput(inputId = "subregion1",
+                    label = "Selecciona la región",
+                    choices = google %>% filter(country_region == input$pais2) %>% 
+                        distinct(sub_region_1) %>% pull(),
+                    selected = input$pais2)
+    }),
+  # Selección de los sectores a graficar
+  checkboxGroupInput(inputId = "sector",
+                     label = "Sector",
+                     choices = levels(google$name),
+                     inline = TRUE,
+                     selected = levels(google$name))
+)
+# Filtrado reactivo de los datos
+dfg <- reactive({
+        google %>% 
+            filter(country_region == input$pais2,
+                   name %in% c(input$sector),
+                   sub_region_1 == input$subregion1
+                   
+            )
+    })
+# Gráfica interactiva    
+renderPlotly({
+        p <- dfg() %>% 
+            ggplot(aes(x = date, y = value, 
+                       color = name,
+                       label = name_label)) +
+            geom_line() + 
+            geom_hline(yintercept = 0,
+                       linetype = "dashed", 
+                       color = "firebrick") +
+            annotate("text", label = "Baseline", 
+                     x = last(google$date)-5, y = 0.05, 
+                     size = 3, color = "firebrick") + 
+            guides(color = guide_legend(title = NULL)) +
+            scale_y_continuous(labels = scales::percent)+
+            ggtitle(paste("Mobility trends in ",input$subregion1,
+                          ",", input$pais2)) +
+            facet_wrap(~ name) +
+            theme(legend.position = "none")
+        
+        ggplotly(p, tooltip = c("x","label","color"))
+    })
 ```
-
-### tab2
 
