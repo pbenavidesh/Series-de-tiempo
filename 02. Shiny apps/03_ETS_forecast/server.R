@@ -1,26 +1,62 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
+# Server
 library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+    # Datos reactivos ####
+    econ <- reactive({
+        economia %>% 
+            filter(Country == input$pais,
+                   Indicador %in% c(input$indicadores))
     })
+    
+    econ_fit <- reactive({
+        econ() %>% 
+            model(modelos[[input$modelo]]
+            )
+    })
+
+    # Tab 1 - Gráfica de tiempo ####
+    output$time_plot <- renderPlotly({
+        econ() %>% 
+            ggplot(aes(x = Year, y = Valor, color = Indicador)) +
+            geom_line(size = 1) +
+            facet_wrap(~ Indicador, scales = "free_y") +
+            theme(legend.position = "none")
+    })
+    
+    # Tab 2 - Ajuste del modelo ####
+    output$report <- renderPrint({
+        econ_fit() %>% 
+            report()
+    })
+    
+    output$fit <- renderPlotly({
+        econ() %>% 
+            ggplot(aes(x = Year, y = Valor, color = Indicador)) +
+            geom_line(size = 1) +
+            geom_line(aes(y = .fitted), linetype = "dashed", size = 1, data = augment(econ_fit())) +
+            facet_wrap(~ Indicador, scales = "free_y") +
+            theme(legend.position = "none")
+    })
+    
+    output$fit_accuracy <- renderTable({
+        accuracy(econ_fit())
+    })
+    
+    # Tab 3 - Diagnóstico de residuos ####
+    output$resid_plot <- renderPlot({
+        econ_fit() %>% 
+            gg_tsresiduals() + 
+            ggtitle(paste("Diagnóstico de residuos para el modelo",
+                          input$modelo, sep = " "))
+    })
+    
+    output$portmanteau <- renderPrint({
+        augment(econ_fit()) %>% 
+            features(.resid, ljung_box, lag = 10, dof = 0)
+    })
+    
+        
 
 })
