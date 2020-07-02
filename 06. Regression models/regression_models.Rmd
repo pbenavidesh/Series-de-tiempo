@@ -1,0 +1,294 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# Prerrequisitos
+
+```{r pkgs, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tsibble)
+library(feasts)
+library(fable)
+library(tsibbledata)
+library(fpp3)
+```
+
+# US Change
+
+```{r}
+us_change
+```
+
+```{r}
+us_change %>% 
+  as_tibble() %>% 
+  select(-Quarter) %>% 
+  GGally::ggpairs()
+```
+
+**Una correlación, por más fuerte que sea entre dos variables, no puede implicar por sí misma causalidad.**
+
+```{r}
+us_change %>% 
+  pivot_longer(cols = -Quarter) %>% 
+  ggplot(aes(x = Quarter, y = value, color = name)) +
+  geom_line() +
+  facet_wrap(~ name, scales = "free_y") +
+  theme(legend.position = "none")
+```
+
+## Regresión lineal simple
+
+Realizamos un primer modelo, donde utilizaremos de variable predictora al ingreso disponible, para pronosticar el consumo.
+
+```{r}
+fit1 <- us_change %>% 
+  model(reg_lin_simple = TSLM(Consumption ~ Income)
+        )
+fit1 %>%  report()
+```
+
+$$ 
+H_0: \beta_i = 0
+$$
+
+$$
+H_0: \beta_1 = \beta_2 = \beta_3 = \ldots = 0
+$$
+
+
+```{r}
+augment(fit1) %>% 
+  ggplot(aes(x = Quarter)) +
+  geom_line(aes(y = Consumption, color = "Datos")) +
+  geom_line(aes(y = .fitted, color = "Fitted"))+
+  xlab("Año") + ylab(NULL) +
+  ggtitle("Cambios porcentuales en el gasto de Consumo en EEUU") +
+  guides(color = guide_legend(title = NULL))
+```
+
+El modelo no parece capturar adecuadamente la variación de los datos reales.
+
+```{r}
+augment(fit1) %>% 
+  ggplot(aes(x = Consumption, y = .fitted)) +
+  geom_point() +
+  ylab("Fitted (valores ajustados)") +
+  xlab("Datos (reales históricos)") +
+  ggtitle("Cambios porcentuales en el gasto de Consumo en EEUU") +
+  geom_abline(intercept = 0, slope = 1)
+```
+
+```{r}
+fit1 %>% 
+  gg_tsresiduals()
+```
+
+```{r}
+augment(fit1) %>% 
+  features(.resid, ljung_box, lag= 10, dof = 2)
+```
+Es evidente que este modelo se puede mejorar. Probemos incluyendo las otras predictoras.
+
+## Regresión lineal múltiple
+
+```{r}
+fit2 <- us_change %>% 
+  model(
+    reg_lin_multiple = TSLM(Consumption ~ Income + Production + 
+                              Savings + Unemployment)
+  )
+report(fit2)
+```
+
+
+
+```{r}
+augment(fit2) %>% 
+  ggplot(aes(x = Quarter)) +
+  geom_line(aes(y = Consumption, color = "Datos")) +
+  geom_line(aes(y = .fitted, color = "Fitted"))+
+  xlab("Año") + ylab(NULL) +
+  ggtitle("Cambios porcentuales en el gasto de Consumo en EEUU") +
+  guides(color = guide_legend(title = NULL))
+```
+
+Este modelo parece capturar más variación de los datos históricos.
+
+```{r}
+augment(fit2) %>% 
+  ggplot(aes(x = Consumption, y = .fitted)) +
+  geom_point() +
+  ylab("Fitted (valores ajustados)") +
+  xlab("Datos (reales históricos)") +
+  ggtitle("Cambios porcentuales en el gasto de Consumo en EEUU") +
+  geom_abline(intercept = 0, slope = 1)
+```
+
+```{r}
+fit2 %>% 
+  gg_tsresiduals()
+```
+
+```{r}
+augment(fit2) %>% 
+  features(.resid, ljung_box, lag= 10, dof = 2)
+```
+```{r}
+df <- left_join(us_change, residuals(fit2), by = "Quarter")
+df %>% 
+  select(-c(Consumption, .model)) %>% 
+  pivot_longer(cols = c(Income:Unemployment)) %>% 
+  ggplot(aes( x = value, y = .resid, color = name)) + 
+  geom_point() + ylab("Residuales") + xlab("Predictoras") +
+  facet_wrap(~ name, scales = "free_x") +
+  theme(legend.position = "none")
+```
+
+```{r}
+augment(fit2) %>% 
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  labs(x = "Ajustados", y = "Residuales")
+```
+
+```{r}
+glance(fit2) %>% 
+  select(adj_r_squared, AIC, AICc, BIC)
+```
+
+```{r}
+fit3 <- us_change %>% 
+  model(r1 = TSLM(Consumption ~ Income),
+        r2 = TSLM(Consumption ~ Income + Production),
+        r3 = TSLM(Consumption ~ Income + Production + Savings + Unemployment),
+        r4 = TSLM(Consumption ~ Income + Production + Savings))
+fit3 %>% 
+  glance() %>% 
+  select(.model, adj_r_squared, AIC, AICc, BIC)
+```
+
+```{r}
+fit3 %>% 
+  select(r3) %>% 
+  report()
+```
+
+## Selección de predictoras
+
+1. Escoger subconjuntos de predictoras y probarlo.
+2. Backwards stepwise regression:
+  - Empezamos con un modelo que contenga todas las predictoras.
+  - Quitamos una a la vez.
+  - Mantenemos el modelo si mejora la medida de desempeño predictivo ($\bar{R}^2$, AICc,...).
+  - Seguirlo haciendo hasta no encontrar mejoras adicionales.
+3. Forwards stepwise regression:
+  - Comenzar con un modelo que solo incluya al intercepto.
+  - Se van agregando las predictoras una a la vez.
+  - La predictora que mejore más al modelo se mantiene.
+  - Se itera hasta no tener mejoría adicional.
+
+## Pronóstico
+
+### Pronósticos *ex-ante*
+
+En estos pronósticos solo se utiliza información disponible hasta el último dato del histórico. A estos pronósticos se les considera como **pronósticos reales**. Aquí las predictoras se deben pronosticar antes de poder producir el pronóstico de la variable de interés.
+
+### Pronósticos *ex-post*
+
+Con estos pronósticos se utiliza información real disponible de las predictoras. Estos pronósticos ya no son **reales** (en el sentido estricto). La variable a pronosticar ($y$) sigue siendo desconocida.
+
+### Pronósticos basados en escenarios
+
+```{r}
+fit_escenarios <- us_change %>% 
+  model(lineal = TSLM(Consumption ~ Income + Savings + Unemployment))
+# Necesitamos agregar nuevos datos de las predictoras
+optimista_futuro <- new_data(us_change,4) %>% 
+  mutate(Income = c(0, 0.3, 0.7,1), Savings = 0.5, Unemployment = 0)
+
+pesimista_futuro <- new_data(us_change,4) %>% 
+  mutate(Income = -1, Savings = -0.5, Unemployment = 0)
+
+fc_optimista <- forecast(fit_escenarios, new_data = optimista_futuro) %>% 
+  mutate(Escenario = "Optimista") %>% 
+  as_fable(response = "Consumo", key = "Escenario")
+
+fc_pesimista <- forecast(fit_escenarios, new_data = pesimista_futuro) %>% 
+  mutate(Escenario = "Pesimista") %>% 
+  as_fable(response = "Consumo", key = "Escenario")
+
+us_change %>% 
+  autoplot(Consumption) +
+  autolayer(bind_rows(fc_optimista,fc_pesimista))
+```
+
+# Producción de cerveza
+
+Los datos.
+
+```{r}
+cerveza <- aus_production %>% 
+  filter(year(Quarter)>=1992)
+
+cerveza %>% 
+  autoplot(Beer) +
+  labs(x = "Año", y = "Megalitros")
+```
+
+Existe una variable predictora para definir la tendencia de la serie. Para esto utilizaríamos simplemente `trend()`. Adicionalmente, existe la predictora `season()` que genera en automático las variables *dummy* estacionales.
+
+```{r}
+fit_cerveza <- cerveza %>% 
+  model(TSLM(Beer ~ trend() + season() )
+        )
+report(fit_cerveza)
+```
+
+```{r}
+augment(fit_cerveza) %>% 
+  ggplot(aes(x = Quarter)) +
+  geom_line(aes(y = Beer, color = "Datos")) +
+  geom_line(aes(y = .fitted, color = "Fitted")) +
+  labs(x = "Año", y = "Megalitros", title = "Producción trimestral de cerveza")
+```
+
+$$
+x_{1,t} = \sin(\frac{2\pi t}{m}), x_{2,t} = \cos(\frac{2\pi t}{m}), x_{3,t} = \sin(\frac{4\pi t}{m}), x_{4,t} = \cos(\frac{4\pi t}{m})
+$$
+Necesitamos especificar cuántos términos de la serie de Fourier queremos utilizar. Esto está restringido a máximo $m / 2$.
+
+```{r}
+fourier_cerveza <- cerveza %>% 
+  model(TSLM(Beer ~ trend() + fourier(K = 2)))
+
+report(fourier_cerveza)
+```
+
+# Tiempos ganadores en el maratón de Boston
+
+```{r}
+boston_men <- boston_marathon %>% 
+  filter(Event == "Men's open division") %>% 
+  mutate(Minutes = as.numeric(Time)/60)
+boston_men %>% 
+  autoplot(Minutes)
+```
+
+```{r}
+fit_boston <- boston_men %>% 
+  model(
+    lineal = TSLM(Minutes ~ trend()),
+    exponencial = TSLM(log(Minutes) ~ trend()),
+    `Reg. por partes` = TSLM(Minutes ~ trend(knots = c(1940, 1980)))
+  )
+fc_boston <- fit_boston %>% forecast(h = 10)
+
+boston_men %>%
+  autoplot(Minutes) +
+  geom_line(aes(y = .fitted, color = .model), data = fitted(fit_boston)) +
+  autolayer(fc_boston, alpha = 0.5, level = 95) +
+  ggtitle("Maratón de Boston") + 
+  guides(color = guide_legend(title = "Modelo"))
+```
+
