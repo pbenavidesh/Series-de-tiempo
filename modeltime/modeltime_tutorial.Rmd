@@ -1,0 +1,41 @@
+---
+title: "`modeltime` tutorial"
+author: "Pablo Benavides-Herrera"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: united
+    highlight: tango
+    number_sections: TRUE
+---
+
+# Prerrequisites {-}
+
+```{r pkgs, message=FALSE}
+library(modeltime)
+library(tidyverse)
+library(lubridate)
+library(timetk)
+library(parsnip)
+library(rsample)
+library(reactable)
+
+interactive <- TRUE
+```
+
+# Collect data and split into training and test sets
+
+Fetching the data:
+
+```{r}
+m750 <- m4_monthly %>% filter(id == "M750")
+```
+
+Plotting it:
+
+```{r}
+m750 %>%
+  plot_time_series(date, value, .interactive = interactive)
+```
+
