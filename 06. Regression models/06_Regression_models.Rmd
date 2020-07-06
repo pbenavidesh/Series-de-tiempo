@@ -160,6 +160,21 @@ Así, un modelo de regresión lineal puede generar una recta, o una variedad de 
 
 
 
+$$
+H_0: \beta_0 = 0 \\
+H_1: \beta_0 \neq 0
+$$
+$$
+H_0: \beta_1 = 0 \\
+H_1: \beta_1 \neq 0
+$$
 
 
+$$
+\hat{y}_t = \hat{\beta}_0 + \hat{\beta}_1x_t + \hat{\varepsilon}_t \\
+\hat{y}_t = 0.54454 + 0.27183 x_t + \hat{\varepsilon}_t
+$$
 
+$$
+y_{consumo} = \beta_0 + \beta_1 x_{income} + \beta_2 x_{production} + \beta_3 x_{savings} + \beta_4 x_{unemployment}
+$$
