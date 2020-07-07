@@ -6,6 +6,7 @@ library(feasts)
 library(fable)
 library(tsibbledata)
 library(fpp3)
+library(patchwork)
 
 
 # Ex. 1 - US_change -------------------------------------------------------
@@ -13,8 +14,16 @@ library(fpp3)
 # The data
 us_change
 
+# Time plots
+time_plots <- us_change %>% 
+  pivot_longer(cols = -Quarter) %>% 
+  ggplot(aes(x = Quarter, y = value, color = name))+
+  geom_line() + 
+  facet_wrap(~ name, scales = "free_y") +
+  theme(legend.position = "none")
+
 # Pairs plot
-us_change %>% 
+pairs <- us_change %>% 
   as_tibble() %>% 
   select(-Quarter) %>% 
   GGally::ggpairs()
@@ -29,7 +38,7 @@ cons_fit %>%
   report()
 
 # Actual data vs. fitted values time plot
-augment(cons_fit) %>%
+cons_data_fit <- augment(cons_fit) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
@@ -38,7 +47,7 @@ augment(cons_fit) %>%
   guides(colour=guide_legend(title=NULL))
 
 # Data vs. fitted scatterplot
-augment(cons_fit) %>%
+cons_data_fit2 <- augment(cons_fit) %>%
   ggplot(aes(x=Consumption, y=.fitted)) +
   geom_point() +
   ylab("Fitted (predicted values)") +
@@ -56,7 +65,7 @@ augment(cons_fit) %>%
 
 df <- left_join(us_change, residuals(cons_fit), by = "Quarter")
 # Residual plots against predictors
-df %>% 
+cons_resid_predictors <- df %>% 
   select(-c(Consumption,.model)) %>% 
   pivot_longer(cols = c(Income:Unemployment)) %>% 
   ggplot(aes(x = value, y = .resid, color = name)) +
@@ -65,7 +74,7 @@ df %>%
   theme(legend.position = "none")
 
 # Residuals vs. fitted values
-augment(cons_fit) %>%
+cons_resid_fitted <- augment(cons_fit) %>%
   ggplot(aes(x=.fitted, y=.resid)) +
   geom_point() +
   labs(x = "Fitted", y = "Residuals")

@@ -1,0 +1,99 @@
+---
+title: "Regression models"
+author: "Pablo Benavides-Herrera"
+date: 2020-07-06
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("regression_code.R", local = knitr::knit_global())
+library(DT)
+```
+
+## US % change data {.smaller}
+
+```{r}
+datatable(us_change)
+```
+
+## Time plots
+
+```{r}
+time_plots
+```
+
+
+## Pairs plot
+
+```{r}
+pairs
+```
+
+<div class="notes">
+We can see 
+
+- the scatterplots for every pair of variables, 
+- each variable's distribution 
+- and their correlation. 
+</div>
+
+## Multiple linear regression {.smaller}
+
+```{r}
+report(cons_fit)
+```
+
+<div class="notes">
+The multiple linear regression includes all available variables, with an $R^2 = 0.7683$.
+</div>
+
+# Residuals diagnostics
+
+## Data vs. fitted values
+
+```{r}
+cons_data_fit
+```
+
+<div class="notes">
+The fit is looking good.
+</div>
+
+## 
+
+```{r}
+cons_data_fit2
+```
+
+<div class="notes">
+We see that the residuals are looking better now.
+</div>
+
+## Residuals vs. predictors
+
+```{r}
+cons_resid_predictors
+```
+
+<div class="notes">
+The residuals plotted against each predictor show a random pattern, which is a sign of a good fit.
+</div>
+
+## Residuals vs. fitted values
+
+```{r}
+cons_resid_fitted
+```
+
+<div class="notes">
+The residuals vs. the fitted values show a random pattern too. It seems that our model is a good one.
+</div>
+
+## 
+
+```{r}
+cons_fit %>% 
+  gg_tsresiduals()
+```
+
