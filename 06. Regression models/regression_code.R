@@ -34,8 +34,8 @@ cons_fit <- us_change %>%
                       Unemployment)) 
 
 # Reporting the resulting model
-cons_fit %>% 
-  report()
+# cons_fit %>% 
+#   report()
 
 # Actual data vs. fitted values time plot
 cons_data_fit <- augment(cons_fit) %>%
@@ -56,11 +56,11 @@ cons_data_fit2 <- augment(cons_fit) %>%
   geom_abline(intercept=0, slope=1)
 
 # Residual diagnostics
-cons_fit %>% 
-  gg_tsresiduals()
+# cons_fit %>% 
+#   gg_tsresiduals()
 
 # Ljung-Box tests
-augment(cons_fit) %>% 
+cons_lb <- augment(cons_fit) %>% 
   features(.resid, ljung_box, lag = 10, dof = 5)
 
 df <- left_join(us_change, residuals(cons_fit), by = "Quarter")
