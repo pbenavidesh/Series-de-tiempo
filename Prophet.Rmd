@@ -1,0 +1,235 @@
+---
+title: "Prophet and `fable`"
+subtitle: "Facebook's forecasting procedure"
+author: "Pablo Benavides-Herrera"
+date: 2020-07-05
+output: 
+  html_notebook:
+    theme: darkly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.height = 5, fig.width = 9)
+```
+
+# Prerrequisitos
+
+Para poder utilizar el prophet junto con la metodología de `tidyverts`, es necesario descargar `fable.prophet`. Al momento, esta paquetería aún no está disponible en CRAN, por lo que se debe descargar desde Github:
+
+```{r pkgs, message=FALSE, warning=FALSE}
+# install.packages("remotes")
+# remotes::install_github("mitchelloharawild/fable.prophet")
+library(tidyverse)
+library(tsibble)
+library(feasts)
+library(fable)
+library(fable.prophet)
+library(plotly)
+```
+
+# Introducción
+
+[**Prophet**](https://facebook.github.io/prophet/) es un algoritmo diseñado por Facebook para crear pronósticos automatizados.
+
+>*Prophet is a procedure for forecasting time series data based on an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. It works best with time series that have strong seasonal effects and several seasons of historical data. Prophet is robust to missing data and shifts in the trend, and typically handles outliers well.*
+
+Existe la paquetería en **R** `prophet` para crear pronósticos con dicho algoritmo. Sin embargo, para trabajar con la misma metodología del `tidyverts`, crearon la paquetería [`fable.prophet`](https://github.com/mitchelloharawild/fable.prophet) que crea una interface a `fable`.
+
+# Pasajeros en LAX
+
+## Carga y limpieza
+
+Compararemos los pasajeros nacionales e internacionales de vuelos en el aeropuerto internacional de Los Angeles (LAX).
+
+```{r}
+# Read in the data
+lax_passengers <- read.csv("https://raw.githubusercontent.com/mitchelloharawild/fable.prophet/master/data-raw/lax_passengers.csv")
+
+# Tidy and summarise the data for comparison of international and domestic passenger counts
+lax_passengers <- lax_passengers %>%
+  mutate(datetime = mdy_hms(ReportPeriod)) %>%
+  group_by(month = yearmonth(datetime), type = Domestic_International) %>%
+  summarise(passengers = sum(Passenger_Count)) %>%
+  ungroup()
+
+lax_passengers
+```
+
+Convertimos `lax_passengers` a `tsibble` para poder utilizarla con la metodología de `fable`.
+
+```{r}
+lax_passengers <- lax_passengers %>% 
+  as_tsibble(index = month, key = type)
+```
+
+## Exploración de los datos
+
+Ya que es una `tsibble`, podemos graficar las series fácilmente con `autoplot()`.
+
+```{r}
+lax_passengers %>% 
+  autoplot(passengers)
+```
+
+Las series parecen tener una tendencia por partes (*piecewise*) y estacionalidad multiplicativa (ya que aumenta la estacionalidad con el nivel de la serie).
+
+## Modelado
+
+El modelo `prophet` puede contener:
+
+* Tendencia lineal o exponencial por partes.
+* Estacionalidad aditiva o multiplicativa.
+* Efectos por días festivos.
+* Regresoras exógenas.
+
+Consultando la documentación `?prophet` podemos ver más detalle sobre cómo se puede definir el modelo.
+
+Para especificar un modelo con tendencia lineal y estacionalidad anual multiplicativa, podríamos usar:
+
+```{r, eval=FALSE}
+prophet(passengers ~ growth("linear") + season("year", type = "multiplicative"))
+```
+
+O, si quisiéramos que **R** encuentre automáticamente la especificación del modelo, simplemente no definimos el lado derecho de la fórmula:
+
+```{r, eval=FALSE}
+prophet(passengers)
+```
+
+Los modelos se ajustan de la misma manera que antes (a través de la función `model`).
+
+```{r}
+fit <- lax_passengers %>% 
+  model(
+    mdl = prophet(passengers ~ growth("linear") + season("year", type = "multiplicative")),
+  )
+fit
+```
+
+## Componentes
+
+Igual que con los modelos de descomposición vistos anteriormente, podemos utilizar `components()` para extraer los componentes de la serie.
+
+```{r}
+components(fit)
+```
+
+```{r}
+fit %>% 
+  components() %>% 
+  autoplot()
+```
+Con 
+
+```{r}
+components(fit) %>% 
+  ggplot(aes(
+    # Plot the month of the time index (month) on the x-axis
+    x = month(month, label = TRUE),
+    # Plot the annual seasonal term (year) on the y-axis
+    y = year, 
+    # Colour by the passenger type
+    colour = type,
+    # Draw separate lines for each type and year
+    group = interaction(type, year(month))
+  )) +  
+  geom_line()
+```
+
+## Pronóstico
+
+Es exactamente el mismo procedimiento que antes para generar pronósticos para estos modelos.
+
+```{r}
+fc <- fit %>% 
+  forecast(h = "3 years")
+fc
+```
+
+```{r}
+fc %>% 
+  autoplot(lax_passengers)
+```
+
+Otra manera de graficarlo:
+
+```{r}
+lax_passengers %>% 
+  autoplot(passengers) +
+  autolayer(fc) + 
+  theme(legend.position = "top")
+```
+
+El desempeño del modelo se puede revisar de igual manera con `accuracy()`:
+
+```{r}
+accuracy(fit)
+```
+
+
+
+# Cafés
+
+```{r}
+cafe <- tsibbledata::aus_retail %>% 
+  filter(Industry == "Cafes, restaurants and catering services")
+cafe
+p <- cafe %>% 
+  ggplot(aes(x = Month, y = Turnover, color = State)) +
+  geom_line()
+ggplotly(p, width = 800, height = 600)
+```
+
+
+```{r}
+fit <- cafe %>% 
+  model(
+    prophet = prophet(Turnover ~ season("year", 4, type = "multiplicative"))
+  )
+fit
+```
+
+```{r}
+components(fit)
+```
+
+```{r}
+fit %>% 
+  components() %>% 
+  ggplot(aes(x = Month, y = trend, color = State)) +
+  geom_line(size = 1)
+
+# fit %>% 
+#   components() %>% 
+#   ggplot(aes(x = Month, y = year, color = State)) +
+#   geom_line(size = 1)
+```
+
+```{r}
+fc <- fit %>% 
+  forecast(h = 24)
+fc
+```
+
+```{r}
+cafe %>% 
+  select(-Industry) %>% 
+autoplot(Turnover) +
+  autolayer(fc) + 
+  theme(legend.position = "bottom") 
+```
+
+```{r}
+accuracy(fit)
+```
+
+
+
+
+
+
+
+
+
+
