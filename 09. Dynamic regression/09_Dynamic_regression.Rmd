@@ -8,6 +8,7 @@ output:
     toc_float: yes
     theme: cerulean
     highlight: tango
+    number_sections: TRUE
   github_document:
     toc: yes
     dev: jpeg
@@ -15,7 +16,7 @@ output:
 
 ```{r pkgs, message=FALSE}
 library(easypackages)
-libraries("tidyverse","fpp3")
+libraries("tidyverse","fpp3","tsibble","feasts","fable")
 ```
 
 
@@ -102,8 +103,8 @@ Podemos obtener los estimadores de las series $eta_t$ y $\varepsilon_{t}$ con la
 
 ```{r us_change residuals plot}
 bind_rows(
-  `Regression Errors` = residuals(fit, type="regression"),
-  `ARIMA Errors` = residuals(fit, type="innovation"),
+  `Regression Errors` = as_tibble(residuals(fit, type="regression")),
+  `ARIMA Errors` = as_tibble(residuals(fit, type="innovation")),
   .id = "type"
 ) %>%
   ggplot(aes(x = Time, y = .resid)) +
@@ -142,8 +143,10 @@ Obtenemos pronósticos para los siguientes dos años (8 trimestres), asumiendo q
 ```{r us_change fcst}
 us_change_future <- new_data(us_change, 8) %>% mutate(Income = mean(us_change$Income))
 forecast(fit, new_data = us_change_future) %>%
-  autoplot(slice(us_change, (n()-80):n())) + xlab("Year") +
-  ylab("Percentage change") + ggtitle("Pronóstico de regresión con errores ARIMA")
+  autoplot(slice(us_change, (n()-80):n())) + 
+  xlab("Year") +
+  ylab("Percentage change") + 
+  ggtitle("Pronóstico de regresión con errores ARIMA")
 ```
 
 Cuando vimos los modelos ARIMA no estacionales, habíamos analizado esta misma serie. Recordando, el pronóstico resultaba:
@@ -152,7 +155,9 @@ Cuando vimos los modelos ARIMA no estacionales, habíamos analizado esta misma s
 fit_prev <- us_change %>%
   model(ARIMA(Consumption ~ PDQ(0,0,0)))
 
-fit_prev %>% forecast(h=10) %>% autoplot(slice(us_change, (n()-80):n())) + ggtitle("Pronóstico con modelo ARIMA")
+fit_prev %>% forecast(h=10) %>% 
+  autoplot(slice(us_change, (n()-80):n())) + 
+  ggtitle("Pronóstico con modelo ARIMA")
 ```
 
 La principal diferencia entre ambas es que, con nuestro nuevo modelo, logramos capturar más información y, por lo tanto, los intervalos de predicción se reducen.
@@ -255,5 +260,90 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
 forecast(fit, vic_elec_future) %>%
   autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
 ```
+
+
+# Regresión armónica dinámica
+
+Como habíamos mencionado anteriormente, utilizar series de Fourier para modelar periodos estacionales largos suele ser mejor que simplemente utilizar *dummies* estacionales.
+
+Algunos ejemplos de estacionalidades largas son:
+
+* Para datos diarios, donde pueden tener estacionalidad anual (un periodo estacional $m = 365$),
+* Datos semanales ($m = 52$),
+* Datos por cada media hora ($m = 48$)
+
+Incluso, muchas de estas series pueden presentar más de una estacionalidad (estacionalidad anual y semanal, p. ej., o estacionalidad anual y mensual).
+
+Los modelos ARIMA y ETS son buenos para periodos más cortos (mensuales, trimestrales). Para aquellos casos, sería mejor emplear una regresión armónica.
+
+Algunas de las ventajas:
+
+* Permite cualquier tamaño de estacionalidad
+* Se pueden modelar varios tipos de estacionalidad simultáneamente, al incluir términos de Fourier de distintas frecuencias.
+* La suavización del patrón estacional es controlado por $K$ (el número de pares de senos y cosenos de Fourier). *El patrón estacional es más suave con valores más pequeños de $K$*
+* La dinámica de corto plazo puede ser controlada fácilmente a través de errores ARMA.
+
+La mayor desventaja de estos modelos, en comparación a los SARIMA es que **la estacionalidad se asume fija**. Esto no es tan drástico en la práctica, salvo en series de tiempo muy largas.
+
+## Ejemplo: Gasto en comidas fuera de casa
+
+```{r}
+aus_cafe <- aus_retail %>%
+  filter(
+    Industry == "Cafes, restaurants and takeaway food services",
+    year(Month) %in% 2004:2018
+  ) %>%
+  summarise(Turnover = sum(Turnover))
+aus_cafe
+aus_cafe %>% autoplot()
+```
+
+Probemos con varios niveles de $K$ para ver las diferencias entre las series (desde $K=1$, hasta $K=6$, que éste último sería igual a utilizar dummies estacionales).
+
+```{r}
+fit <- aus_cafe %>%
+  model(
+    `K = 1` = ARIMA(log(Turnover) ~ fourier(K = 1) + PDQ(0,0,0)),
+    `K = 2` = ARIMA(log(Turnover) ~ fourier(K = 2) + PDQ(0,0,0)),
+    `K = 3` = ARIMA(log(Turnover) ~ fourier(K = 3) + PDQ(0,0,0)),
+    `K = 4` = ARIMA(log(Turnover) ~ fourier(K = 4) + PDQ(0,0,0)),
+    `K = 5` = ARIMA(log(Turnover) ~ fourier(K = 5) + PDQ(0,0,0)),
+    `K = 6` = ARIMA(log(Turnover) ~ fourier(K = 6) + PDQ(0,0,0))
+  )
+glance(fit)
+```
+
+Veamos los modelos escogidos en cada caso:
+
+```{r}
+rep_model <- function(modelo) {
+  print(strrep("- - ",18))
+  print(paste("Modelo", modelo, sep = " "))
+  fit %>% 
+    select(all_of(modelo)) %>% 
+    report()
+}
+
+names(fit) %>% 
+  map(rep_model)
+```
+
+Grafiquemos los pronósticos resultantes de cada modelo:
+
+```{r}
+p <- fit %>%
+  forecast(h = "2 years") %>%
+  autoplot(aus_cafe) +
+  facet_wrap(vars(.model), ncol = 2) +
+  guides(colour = FALSE) +
+  geom_label(
+    aes(x = yearmonth("2007 Jan"), y = 4250, label = paste0("AICc = ", format(AICc))),
+    data = glance(fit)
+  )
+p
+```
+
+
+
 
 
