@@ -143,7 +143,7 @@ Obtenemos pronósticos para los siguientes dos años (8 trimestres), asumiendo q
 ```{r us_change fcst}
 us_change_future <- new_data(us_change, 8) %>% mutate(Income = mean(us_change$Income))
 forecast(fit, new_data = us_change_future) %>%
-  autoplot(slice(us_change, (n()-80):n())) + 
+  autoplot(slice_tail(us_change, n = 80)) + 
   xlab("Year") +
   ylab("Percentage change") + 
   ggtitle("Pronóstico de regresión con errores ARIMA")
