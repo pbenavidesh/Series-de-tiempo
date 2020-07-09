@@ -7,6 +7,8 @@ output:
   html_notebook:
     theme: darkly
     highlight: tango
+    toc: TRUE
+    toc_float: TRUE
 ---
 
 ```{r setup, include=FALSE}
