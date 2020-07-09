@@ -655,12 +655,62 @@ tibble(mujer = c(1,0,1, 0),
 **Cuando se crean varaibles dummy, la cantidad de dummies a generar es una menos que el total de categorías**. Si son dos categorías, solo necesitamos una dummy. Si son tres, necesitamos 2, etc.
 
 
-##
+## Regresiones no lineales
 
 
+### Modelos exponenciales
+
+* Modelos log-log
+
+$$
+\log{y_t} = \beta_0 + \beta_1 \log{x_t}
+$$
+
+La interpretación de los coeficientes ($\beta_s$) es como elasticidades (cambios porcentuales).
 
 
+* Modelos lin-log
 
+$$
+y_t = \beta_0 + \beta_1 \log{x_t}
+$$
 
+* Modelos log-lin
 
+$$
+\log{y_t} = \beta_0 + \beta_1 x_t
+$$
+
+### Modelos de regresión lineal por partes (*piecewise*)
+
+Aquí la regresión se calcula por partes en el tiempo, para capturar distintas tendencias.
+
+```{r}
+boston_men <- boston_marathon %>% 
+  filter(Event == "Men's open division") %>% 
+  mutate(Minutes = as.numeric(Time)/60)
+
+boston_men %>% 
+  autoplot(Minutes) + 
+  ggtitle("Tiempos ganadores del maratón de Boston, categoría abierta de hombres")
+```
+
+Vamos a modelar los tiempos con una regresión por partes.
+
+```{r}
+fit_boston <- boston_men %>% 
+  model(
+    lineal = TSLM(Minutes ~ trend()),
+    exponencial = TSLM(log(Minutes) ~ trend()),
+    `Reg. por partes` = TSLM(Minutes ~ trend(knots = c(1940,1980)))
+  )
+
+fc_boston <- fit_boston %>% forecast(h = 10)
+
+boston_men %>% 
+  autoplot(Minutes) +
+  geom_line(aes(y = .fitted, color = .model), data = fitted(fit_boston)) +
+  autolayer(fc_boston, alpha = 0.5, level = 95) +
+  ggtitle("Maratón de Boston, cat. abierta de hombres")
+```
 

@@ -22,7 +22,7 @@ libraries("tidyverse","fpp3","tsibble","feasts","fable")
 
 # Introducción
 
-Los modelos de pronóstico de suavización exponencial y ARIMAs son estimdos **a través de observaciones pasadas**, pero **no permiten incluir información exógena** a la serie (otras variables).
+Los modelos de pronóstico de suavización exponencial y ARIMAs son estimados **a través de observaciones pasadas**, pero **no permiten incluir información exógena** a la serie (otras variables).
 
 Por ejemplo, para pronosticar la demanda de energía eléctrica, podemos implementar un ARIMA estacional. Sin embargo, cuánta energía se consume en los hogares se ve afectada fuertemente por la temperatura ambiental en ese momento. Con el SARIMA solo podríamos obtener la dinámica de la propia serie, pero tal vez sería bueno incluir también como predictora a la temperatura.
 
@@ -39,7 +39,7 @@ y_{t}=\beta_{0}+\beta_{1} x_{1, t}+\cdots+\beta_{k} x_{k, t}+\eta_{t} \\
 \left(1-\phi_{1} B\right)(1-B) \eta_{t}=\left(1+\theta_{1} B\right) \varepsilon_{t}
 \end{array}$$
 
-Este modelo tiene dos términos de error:  $eta_t$ (el error de la regresión) y $\varepsilon_{t}$ (el error del proceso ARIMA). Sólo $\varepsilon_{t}$ se asume que es ruido blanco.
+Este modelo tiene dos términos de error:  $\eta_t$ (el error de la regresión) y $\varepsilon_{t}$ (el error del proceso ARIMA). Sólo $\varepsilon_{t}$ se asume que es ruido blanco.
 
 **NOTA:** Cuando se quiere realizar un modelo de regresión dinámica, es necesario que **todas las variables sean estacionarias**, por lo que primero se debe verificar que se cumpla eso, o que se conviertan en estacionarias. De hecho, si una variable requiere primeras diferencias, es conveniente aplicar las primeras diferencias a todas las variables. A esto se le conoce como un *modelo en diferencias*. A un modelo que toma los datos originales se le conoce como *modelo en niveles*.
 
@@ -99,7 +99,7 @@ y_{t}=0.599+0.203 x_{t}+\eta_{t} \\
 \varepsilon_{t} \sim \mathrm{NID}(0,0.322)
 \end{array}$$
 
-Podemos obtener los estimadores de las series $eta_t$ y $\varepsilon_{t}$ con la función `residuals()`, especificando el tipo como `type = "regression"` para los errores de la regresión y `type = "innovations"` para los errores ARIMA.
+Podemos obtener los estimadores de las series $\eta_t$ y $\varepsilon_{t}$ con la función `residuals()`, especificando el tipo como `type = "regression"` para los errores de la regresión y `type = "innovations"` para los errores ARIMA.
 
 ```{r us_change residuals plot}
 bind_rows(
