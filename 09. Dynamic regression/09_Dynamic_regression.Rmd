@@ -330,7 +330,7 @@ names(fit) %>%
 
 Grafiquemos los pronósticos resultantes de cada modelo:
 
-```{r}
+```{r, fig.height=5, fig.width=8}
 p <- fit %>%
   forecast(h = "2 years") %>%
   autoplot(aus_cafe) +
