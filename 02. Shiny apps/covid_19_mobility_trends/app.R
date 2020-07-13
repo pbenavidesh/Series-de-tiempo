@@ -63,11 +63,14 @@ google <- google_df %>%
 ui <- fluidPage(theme = shinytheme("united"),
 
     # Application title
-    titlePanel("Tendencias de movilidad por COVID-19"),
+    titlePanel(tags$div(HTML('Tendencias de movilidad por COVID-19 
+                             <i class="fa fa-head-side-cough" style = "color:#069C27;"></i>')),
+               windowTitle = "Tendencias de movilidad por COVID-19"),
     
-    navbarPage(title = "Fuente de datos",
+    navbarPage(title = tags$div(HTML('Fuente de datos 
+                             <i class="fa fa-biohazard";"></i>')),
                position = "static-top",
-               tabPanel( "Apple",
+               tabPanel(icon = icon("apple"), title = "Apple",
                          sidebarLayout(
                              sidebarPanel(
                                  selectInput(inputId = "pais",
@@ -88,7 +91,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                          )
                    
                ),
-               tabPanel( "Google",
+               tabPanel(icon = icon("google"), title =  "Google",
                          sidebarLayout(
                              sidebarPanel(
                                  selectInput(inputId = "pais2",
@@ -122,7 +125,9 @@ ui <- fluidPage(theme = shinytheme("united"),
 # Server logic ------------------------------------------------------------
 
 server <- function(input, output) {
-    
+
+# Apple -------------------------------------------------------------------
+
     output$select2 <- renderUI({
         selectInput(inputId = "regiones",
                     label = "Selecciona la región",
@@ -171,6 +176,9 @@ server <- function(input, output) {
                         distinct(sub_region_1) %>% pull(),
                     selected = input$pais2)
     })
+
+# Google ------------------------------------------------------------------
+
     
     dfg <- reactive({
         google %>% 

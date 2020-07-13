@@ -25,6 +25,7 @@ library(shiny)
 library(tidyverse)
 library(fpp3)
 library(plotly)
+library(fable.prophet)
 ```
 
 
@@ -138,6 +139,50 @@ renderPlotly({
   guides(color = guide_legend(title = NULL)) +
                scale_y_continuous(labels = scales::percent)+
                ggtitle(paste("Mobility trends in ",input$regiones, ",", input$pais))
+})
+```
+
+## Modelado
+
+```{r}
+fit <- reactive({
+  df() %>% 
+    model(
+      SNAIVE = SNAIVE(change),
+      ETS = ETS(change),
+      ARIMA = ARIMA(change),
+      Prophet = prophet(change),
+      Harmonic = ARIMA(change ~ fourier() + PDQ(0,0,0)),
+      `Piecewise Regression` = TSLM(change ~ trend(knots = c("2020-03-18","2020-05-03")) + season())
+    )
+}) 
+wellPanel(
+  renderDataTable(accuracy(fit()))
+)
+renderUI({
+  checkboxGroupInput("model_select",
+                   "Choose the models to plot",
+                   choices = names(fit())[-c(1:4)],
+                   selected = names(fit())[-c(1:4)])
+})
+
+
+renderPlot({
+  fit() %>% 
+    select(input$model_select) %>% 
+    forecast(h = 14) %>% 
+    autoplot(df(), size = 1, 
+             level = if (length(input$model_select)==1) {c(80,95)} else {NULL})
+})
+
+renderPlot({
+  df() %>% 
+    autoplot(change, size = 1) +
+    autolayer(fit() %>% 
+                select(input$model_select) %>% 
+                forecast(h = 14),
+              level = if (length(input$model_select)==1) {c(80,95)} else {NULL}, size = 1 
+              )
 })
 ```
 
