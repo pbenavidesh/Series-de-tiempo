@@ -59,7 +59,9 @@ google <- google_df %>%
 
 
 # User Interface ----------------------------------------------------------
-
+# Here we define how the app is showing for the end user (if we want tabs,
+# select, slider or checkbox inputs, ...) and if we want to show plots, 
+# tables, forecasts ...
 ui <- fluidPage(theme = shinytheme("united"),
 
     # Application title
