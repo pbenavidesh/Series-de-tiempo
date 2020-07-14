@@ -118,12 +118,14 @@ inputPanel(
 
 # Filtrado reactivo de los datos
 df <- reactive({
-  apple %>% 
+  d <- apple %>% 
     filter(country == input$pais,
            transportation_type %in% c(input$transport_type),
            region == input$regiones
            
            )
+  d %>% model(ARIMA(change)) %>% 
+    interpolate(d)
 })
 # Gráfica interactiva
 renderPlotly({
@@ -152,8 +154,8 @@ fit <- reactive({
       ETS = ETS(change),
       ARIMA = ARIMA(change),
       Prophet = prophet(change),
-      Harmonic = ARIMA(change ~ fourier() + PDQ(0,0,0)),
-      `Piecewise Regression` = TSLM(change ~ trend(knots = c("2020-03-18","2020-05-03")) + season())
+      Harmonic = ARIMA(change ~ fourier(K = 2) + PDQ(0,0,0)),
+      `Piecewise Regression` = TSLM(change ~ trend(knots = c(ymd("2020-03-18"),ymd("2020-05-03"))) + season())
     )
 }) 
 wellPanel(
@@ -184,6 +186,33 @@ renderPlot({
               level = if (length(input$model_select)==1) {c(80,95)} else {NULL}, size = 1 
               )
 })
+```
+
+```{r, fig.height=12, message=TRUE, warning=TRUE}
+mex <- apple %>% 
+    filter(country == "Mexico")
+
+mex2 <- mex %>% 
+  model(ARIMA = ARIMA(change)) %>% 
+  interpolate(mex)
+
+fit2 <- mex2 %>% 
+  model(
+    # TSLM = TSLM(change ~ trend(knots = c(ymd("2020-03-18"), ymd("2020-05-03"))) + season())
+    ETS = ETS(change)
+  )
+
+fc <- fit2 %>% 
+  forecast(h = 14)
+
+fc %>% 
+  filter(region == "Mexico") %>% 
+  autoplot(mex2, size = 1)
+```
+
+```{r}
+fit2
+report(fit2)
 ```
 
 
