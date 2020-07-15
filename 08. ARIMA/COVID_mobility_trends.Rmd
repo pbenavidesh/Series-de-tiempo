@@ -178,7 +178,7 @@ renderPlot({
 })
 
 renderPlot({
-  df() %>% 
+  df() %>%  
     autoplot(change, size = 1) +
     autolayer(fit() %>% 
                 select(input$model_select) %>% 
