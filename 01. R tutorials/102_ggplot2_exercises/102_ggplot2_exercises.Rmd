@@ -125,8 +125,7 @@ mpg %>%
 Ahora cree una *gráfica de tiempo* con los datos precargados de `pasajeros`:
 
 ```{r AirPassengers}
-pasajeros <- tibble(fecha = c(tsibble::yearmonth( zoo::index(AirPassengers))),
-                    cantidad = c(zoo::coredata(AirPassengers)))
+pasajeros <- as_tsibble(AirPassengers)
 pasajeros
 ```
 
