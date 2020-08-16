@@ -1,12 +1,12 @@
 ---
 title: "Series de tiempo"
-subtitle: "Verano 2020"
+subtitle: "Otoño 2020"
 author: "Mtro. Pablo Benavides-Herrera"
 date: 2020-05-15
 output:
   ioslides_presentation:
     widescreen: TRUE
-    logo: images/iteso.gif
+    logo: ../images/iteso.gif
     incremental: FALSE
 ---
 
@@ -20,18 +20,30 @@ output:
 ## Programa del curso {.build}
 **Profesor:** Mtro. Pablo Benavides Herrera
 
-- Lic. en Ingeniería Financiera, ITESO
-- Maestría en Economía, UDG (CUCEA)
-- Estudiante de PhD en Ciencias de la Ingeniería, ITESO
+- Lic. en Ingeniería Financiera, **ITESO**
+- Maestría en Economía, **UDG (CUCEA)**
+- Estudiante de PhD en Ciencias de la Ingeniería, **ITESO**
 - Director en [Exel Pitss](www.exelpitss.com)
 
-**Horario y días de clase:**
+**Objetivos del curso**
 
-- Lunes a jueves, 07:00 a 9:00 horas
-- 25 de mayo a 16 de julio de 2020
-- Unirse a las reuniones de Microsoft Teams [aquí](   https://teams.microsoft.com/l/meetup-join/19%3aaaee151311094f2f96f6d37c9448ac4f%40thread.tacv2/1590188172669?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
+- Aprender a utilizar **R**.
+- Modelar series de tiempo para producir **pronósticos**.
+- Presentar sus resultados a través de Notebooks, presentaciones y apps.
 
-## {data-background=images/pups.gif data-background-size=cover}
+## Horario y días de clase
+
+**MAF3074A**
+
+- Lunes y jueves, 07:00 a 9:00 horas
+  * Unirse a las reuniones de Microsoft Teams [aquí](   https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTUxNDk1YTYtNDEwZC00ZmU3LTlkZTktOTIyY2ZiZTU5OTVk%40thread.v2/0?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
+
+**MAF3074B**
+
+- Martes y viernes, 07:00 a 9:00 horas
+  * Unirse a las reuniones de Microsoft Teams [aquí](https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjFlYTE3MDYtNzNkZi00ZjRkLWFhYzktOTdiNzllYzFiOGRh%40thread.v2/0?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
+
+## {data-background=../images/pups.gif data-background-size=cover}
 
 ## Datos de contacto y material del curso
 
@@ -45,27 +57,28 @@ output:
 
 ## Evaluación {.build}
 
-> - **80%** Proyectos.
+> - **40%** Exámenes.
+
+- **40%** Proyectos.
 
 - **20%** Tareas y participación en clase.
 
 <div class="centered">
-![](images/hide-the-pain.jpg){width=50%}
+![](../images/hide-the-pain.jpg){width=50%}
 </div>
 
 
 ## Prerrequisitos {.build}
 
-- Acceder a esta [liga](https://rstudio.cloud/spaces/71787/join?access_code=Sl1NumdfjmWnCX%2BnkNGh8ZE6KZ2NB9dV5rcGM5pX), para crear una cuenta en **RStudio Cloud** y unirse al espacio **STV2020**. Preferentemente, utilicen su cuenta del ITESO.
+![](../images/Rstats.png){width=15%} Instalar **R**. Pueden descargarlo del [CRAN](https://cloud.r-project.org/) (the **C**omprehensive **R** archive **N**etwork).
 
-![](images/Rstats.png){width=15%} Instalar **R**. Pueden descargarlo del [CRAN](https://cloud.r-project.org/) (the **C**omprehensive **R** archive **N**etwork).
+![](../images/RStudio.png){width=15%} Instalar **RStudio**. Se puede descargar [aquí](http://www.rstudio.com/download).
 
-![](images/RStudio.png){width=15%} Instalar **RStudio**. Se puede descargar [aquí](http://www.rstudio.com/download).
-
+- *Opcional:* Crear una cuenta en [RStudio Cloud](https://rstudio.cloud/). Sirve para utilizar R y RStudio desde cualquier navegador (en una laptop, tablet, teléfono, ...), sin necesidad de tener instalado R.
 
 # ¿Qué se puede pronosticar? 
 
-## {data-background=images/gigafactory.png data-background-size=cover}
+## {data-background=../images/gigafactory.png data-background-size=cover}
 
 <div class="notes">
 
@@ -73,7 +86,7 @@ La *demanda de insumos* de una fábrica.
 
 </div>
 
-## {data-background=images/sales.jpg data-background-size=cover}
+## {data-background=../images/sales.jpg data-background-size=cover}
 
 <div class="notes">
 
@@ -81,7 +94,7 @@ Las *ventas* de una empresa o la propagación de un virus.
 
 </div>
 
-## {data-background=images/energy_demand.jpg data-background-size=cover}
+## {data-background=../images/energy_demand.jpg data-background-size=cover}
 
 <div class="notes">
 
@@ -120,7 +133,7 @@ Dependiendo la situación y los datos disponibles.
 
 # ¿Todas las variables son igual de predecibles?
 
-## {data-background=images/eclipse.jpg data-background-size=cover}
+## {data-background=../images/eclipse.jpg data-background-size=cover}
 
 <div class="notes">
 
@@ -128,7 +141,7 @@ Un eclipse solar o lunar, la puesta de sol, la rotación y traslación de la Tie
 
 </div>
 
-## {data-background=images/bmv.jpeg data-background-size=cover}
+## {data-background=../images/bmv.jpeg data-background-size=cover}
 
 <div class="notes">
 
@@ -148,17 +161,27 @@ El precio de una acción, o el valor de un índice bursátil, el tipo de cambio 
 
 > - ¿El pronóstico que vamos a realizar puede influir en el resultado de la variable a predecir?
 
+# R y la ciencia de datos
+
 ## El análisis de series de tiempo con **R** {.columns-2}
 
 **R** nos puede ayudar a llevar a cabo de una manera bastante sencilla todo el análisis de pronóstico, desde el momento en que contamos con los datos, hasta la estimación final. 
 
-Durante el curso estaremos utilizando **R**, específicamente el `tidyverse` y la paquetería `fable`.
+Durante el curso estaremos utilizando **R**, específicamente el `tidyverse` y la paquetería `fable`. Posteriormente, revisaremos cómo implementar los mismos modelos, a través de la paquetería `modeltime`.
 
-Veamos una breve introducción [aquí](https://rpubs.com/pbenavides/r_tidyverse).
+Veamos una breve introducción [aquí](https://rpubs.com/pbenavides/r_tidyverse101).
+
+Al final del curso deberían poder generar una app como [esta](https://pbenavides.shinyapps.io/04_covid_forecasts_google/). Ver otro [ejemplo](https://pablo-benavides.shinyapps.io/data_analysis_app/).
 
 <p class="forceBreak"></p>
 
-![](images/tidyverse1.png){width=45%}
+![](../images/tidyverse1.png){width=45%}
 
 
-![](images/fable.png){width=45%}
+![](../images/fable.png){width=45%}
+
+<p align= "center">
+
+![](../images/modeltime.png){width=45%}
+
+</p>
