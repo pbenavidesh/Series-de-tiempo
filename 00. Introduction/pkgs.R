@@ -13,7 +13,7 @@ pkgs <- c("tidyverse", "lubridate", "easypackages",
           "tidymodels", "tidyquant", "learnr", "gapminder", "nycflights13",
           "timetk", "seasonal", "modeltime", "prophet", "remotes",  
           "shiny", "shinythemes", "shinydashboard", "shinyWidgets", 
-          "colourpicker", "GGally", "ggthemes", "moderndive", 
+          "colourpicker", "GGally", "ggthemes", "moderndive" 
           )
 
 # comprobar si están instaladas, de lo contrario instalarlas
@@ -22,8 +22,9 @@ for (i in seq_along(pkgs)) {
   
 }
 
-# instalar desde github esta paquetería
+# instalar desde github estas paquetería
 if (! require(fable.prophet)) remotes::install_github("mitchelloharawild/fable.prophet")
+if (! require(tsdl)) devtools::install_github("FinYang/tsdl")
 
 # comprobar si están todas las paqueterías instaladas (debe salir TRUE para 
 # cada una, como esto:)
