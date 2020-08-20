@@ -169,7 +169,7 @@ El precio de una acción, o el valor de un índice bursátil, el tipo de cambio 
 
 Durante el curso estaremos utilizando **R**, específicamente el `tidyverse` y la paquetería `fable`. Posteriormente, revisaremos cómo implementar los mismos modelos, a través de la paquetería `modeltime`.
 
-Veamos una breve introducción [aquí](https://rpubs.com/pbenavides/r_tidyverse101).
+Veamos una breve introducción [aquí](https://rpubs.com/pbenavides/r_tidyverse_101).
 
 Al final del curso deberían poder generar una app como [esta](https://pbenavides.shinyapps.io/04_covid_forecasts_google/). Ver otro [ejemplo](https://pablo-benavides.shinyapps.io/data_analysis_app/).
 
