@@ -23,7 +23,25 @@ El código se puede ejecutar de varias maneras:
 
 Se pueden agregar nuevos "chunks" tecleando *Ctrl+Alt+I* o dando clic en *Insert Chunk*.
 
-noeslomismoqueyoescribaasí a que yo escriba así.
+***
+
+Cuando se escribe código en **R** no es necesario dejar espacios entre los comandos, pero sí es recomendable:
+
+> noeslomismoqueyoescribaasí a que yo escriba así.
+
+**R** se puede utilizar como una calculadora. Las operaciones básicas se representan de la siguiente manera:
+
+|Operación      | Símbolo |
+|:-------------:|:-------:|
+|    Suma       |    +    |
+|    Resta      |    -    |
+|Multiplicación |    *    |
+|  División     |    /    |
+| Potencia      |  ^ ó ** |
+
+Cuando simplemente realizamos alguna operación, esta se va a ejecutar en la consola, pero no se va a almacenar ningún resultado. Para poder almacenar datos, tablas, etc. es necesario definir **variables**. La convención en **R** para hacerlo es escribiendo una *"flecha"*: `<-` o `->` (la más utilizada es la primera `<-`).
+
+
 
 ```{r prueba}
 3 + 4
@@ -35,7 +53,7 @@ x
 ```
 
 
-Para ver la versión renderizada del código, hay que hacer clic en *Preview*.
+Para ver la versión renderizada del código, hay que hacer clic en el botón *Preview*.
 
 **NOTA:** *Aquí no es necesario escribir un "#" al inicio de la línea para crear texto (y no código).*
 

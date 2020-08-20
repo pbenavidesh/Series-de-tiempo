@@ -39,7 +39,8 @@
 
 print("¡Hola, mundo!")
 
-# Carga de paqueterías ####
+
+# Carga de paqueterías ----------------------------------------------------
 # Una buena práctica es cargar todas las paqueterías necesarias
 # al inicio del código, junto con variables que se especifiquen
 # manualmente. Esto permite ser más claros sobre prerrequisitos
