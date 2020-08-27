@@ -345,5 +345,14 @@ p
 
 
 
+```{r}
+p <- fit %>% 
+  select(`K = 3`) %>% 
+  forecast(h = "2 years") %>%
+  autoplot(aus_cafe) +
+  facet_wrap(vars(.model), ncol = 2) +
+  guides(colour = FALSE)
+p
+```
 
 
