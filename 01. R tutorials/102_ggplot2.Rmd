@@ -15,6 +15,8 @@ output:
 
 Este es un Notebook de [R Markdown](http://rmarkdown.rstudio.com). Cuando se ejecuta código dentro del notebook, los resultados aparecen debajo del código. 
 
+Pueden ingresar a **Canvas** [aquí](https://iteso.instructure.com).
+
 El código se puede ejecutar de varias maneras:
 
 * Haciendo clic en el botón de *Run*,
@@ -44,14 +46,17 @@ Cuando simplemente realizamos alguna operación, esta se va a ejecutar en la con
 
 
 ```{r prueba}
+# esto es un comentario dentro del chunk de código
 3 + 4
 4 * 3
 x <- 3 + 5 + 8 + 7 + 13 + 21 +
   14 + 
   4
 x
-```
 
+3 ** 4
+3 ^ 4
+```
 
 Para ver la versión renderizada del código, hay que hacer clic en el botón *Preview*.
 
@@ -62,6 +67,17 @@ personas o en otros equipos.
 
 
 Para dar claridad al código, se pueden agregar encabezados de distintos niveles. Esto se logra agregando un "#" Al inicio (para el primer orden de encabezado), "##" para el segundo, "###" para el tercero, etc.
+
+# Encabezado tipo 1
+Hola
+
+## Encabezado tipo 2
+
+Hola 2
+
+### Encabezado tipo 3
+
+Hola 3
 
 Otra ventaja de incluir secciones en su código es que eso te permite navegar de manera rápida entre ellas.
 
@@ -78,6 +94,7 @@ Pueden agregar ecuaciones de $\LaTeX$:
 $$
 \sum_{i=1}^n{3x_i + 4}
 $$
+También pueden escribir ecuaciones dentro de una línea de texto con $\sum_{i=1}^n{3x_i + 4}$ solo un signo de pesos ($).
 
 **Pueden encontrar una guía muy completa sobre R Markdown [aquí](https://bookdown.org/yihui/rmarkdown/).**
 
@@ -297,6 +314,8 @@ fig1 +
   (g2 + g3) +
   plot_annotation(title = "Gráficas con ggplot2",
                   subtitle = "Otro acomodo distinto")
+
+2 * 4 + 10
 ```
 
 ## Uso de facetas {.tabset}
@@ -596,6 +615,7 @@ Utilizaremos los datos de `gapminder` para revisar varios ejemplos. Explorando l
 data(gapminder)
 gapminder
 ```
+
 Si quisiéramos filtrar la tabla para mantener sólo los países asiáticos, lo podríamos lograr con el verbo `filter()`. Opcionalmente, podríamos validar con `distinct()` si nuestro filtro logró el objetivo:
 
 ```{r gap filter continent}
@@ -606,11 +626,14 @@ gapminder %>%
 gapminder %>% 
   filter(continent == "Asia") %>% 
   distinct(continent)
+
+gapminder %>% 
+  distinct(continent)
 ```
 
 Vemos que las filas de la tabla se redujeron (a 396) y que, efectivamente, logramos el objetivo de mantener puros países de Asia.
 
-Podemos ordenar una tabla con respecto a una de sus variables con `arrange()`. Por defáult, el orden será ascendente. Si se desea en orden descendente, agreamos `desc()`. Probemos mostrando a los países que tienen la mayor población en el año 2007.
+Podemos ordenar una tabla con respecto a una de sus variables con `arrange()`. Por defáult, el orden será ascendente. Si se desea en orden descendente, agregamos `desc()`. Probemos mostrando a los países que tienen la mayor población en el año 2007.
 
 ```{r gap arranged}
 gapminder %>% 
@@ -806,7 +829,7 @@ p1 + transition_reveal(year)
 anim_save(filename = "figs/LifeExp_gganim.gif")
 ```
 
-![](figs/LifeExp_gganim.gif)
+(figs/LifeExp_gganim.gif)
 
 
 
@@ -826,7 +849,7 @@ p + transition_reveal(Day)
 
 anim_save(filename = "figs/airquality.gif")
 ```
-![](figs/airquality.gif)
+(figs/airquality.gif)
 
 
 

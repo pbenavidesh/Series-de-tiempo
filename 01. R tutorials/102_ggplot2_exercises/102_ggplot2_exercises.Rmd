@@ -1,5 +1,5 @@
 ---
-title: "`ggplot2` tutorial"
+title: "`R` y `ggplot2`"
 author: "Pablo Benavides Herrera"
 date: 2020-05-30
 tutorial:
@@ -22,8 +22,84 @@ library(plotly)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+## Quiz - `R`
 
-## Calentamiento
+*Responde las siguientes preguntas. Si no estás seguro, puedes consultar tus notas de clase, o investigarlo en internet. Se proporciona un espacio debajo donde se puede probar con código.*
+
+```{r quiz-r-basics-q}
+quiz(caption = "Veamos si quedó claro lo visto en clase. Pueden utilizar el espacio de abajo para probar con código.",
+     question("¿Cuál es el símbolo para agregar comentarios en un R Script?", 
+              answer("#", 
+                     message = "Exacto, se requiere escribir un `#` al inicio del renglón para que `R` sepa que lo que sigue no debe ejecutarlo.", 
+                     correct = TRUE),
+              answer("<", 
+                     message = "Esto marcaría un error."),
+              answer(" %",
+                     message = "Así se agregaría un comentario en `MATLAB`, no en `R`."),
+              answer("$",
+                     message = "Esto marcaría un error."),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+              ),
+     question("¿Para qué sirve agregar secciones en un R script? (el atajo del teclado es CTRL *(o CMD en Mac)* + SHIFT + R)",
+              answer("Para mostrar/ocultar partes del código.",
+                     correct = TRUE),
+              answer("Para poder desplazarse rápidamente entre las partes del código.",
+                     correct = TRUE),
+              answer("Para poder crear sub archivos de R."),
+              answer("Para poder observar una guía con el nombre de cada sección y navegar como si fuera un índice.",
+                     correct = TRUE),
+              random_answer_order = TRUE,
+              allow_retry = TRUE
+              ),
+     question("¿De qué maneras se pueden correr una o más filas de código de un R script?",
+              answer("Colocando el cursor en la fila deseada y oprimir el botón de **'RUN'**.",
+                     correct = TRUE),
+              answer("Colocando el cursor en la fila deseada y presionar **CTRL + Enter**",
+                     correct = TRUE),
+              answer("Colocando el cursor en la consola y oprimir CTRL + ALT + Enter"),
+              answer("Seleccionando todas las filas que se deseen correr y oprimir 'RUN' o CTRL + Enter.",
+                     correct = TRUE)
+              )
+     )
+```
+
+```{r quiz-r-basics-ex, exercise=TRUE, exercise.lines=10}
+
+```
+
+## Ejercicios
+
+*Complete con el código necesario para responder a cada pregunta*
+
+### Instalación y carga de paqueterías
+
+```{r install-pkgs}
+question("¿Cuál es la función que nos permite instalar paqueterías que se encuentren disponibles en el CRAN?",
+         answer("`install.packages()`",
+                correct = TRUE),
+         answer("`install.libraries()`"),
+         answer("`install_packages()`"),
+         answer("`install_libraries()`"),
+         answer("`install.package()`"),
+         answer("`install_package()`"),
+         incorrect = "Esa función no existe.",
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+         )
+```
+
+Carga la paquetería `tidyverse` en el entorno.
+
+```{r lib-tidyverse, exercise=TRUE}
+
+```
+
+```{r lib-tidyverse-solution}
+library(tidyverse)
+```
+
+## Quiz - `ggplot2`
 
 ```{r quiz-warmup-q}
 quiz(caption = "Prueba tus conocimientos sobre las gráficas en `ggplot2`. Puedes utilizar el espacio de abajo para probar con código",
