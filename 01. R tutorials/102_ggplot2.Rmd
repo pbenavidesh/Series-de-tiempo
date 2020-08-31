@@ -25,6 +25,11 @@ El código se puede ejecutar de varias maneras:
 
 Se pueden agregar nuevos "chunks" tecleando *Ctrl+Alt+I* o dando clic en *Insert Chunk*.
 
+```{r}
+3 * 7
+12 * 29
+```
+
 ***
 
 Cuando se escribe código en **R** no es necesario dejar espacios entre los comandos, pero sí es recomendable:
@@ -580,23 +585,31 @@ Filtrando los datos y añadiendo dos capas de gráficos (puntos y líneas):
 ggplot(economics %>% filter(year(date)>=2006),
        aes(x = date, y = unemploy)) + 
   geom_line(color = "red") + 
-  geom_point(size = 1, color ="green")
+  geom_point(size = 1, color ="forestgreen")
 ```
 Sería exactamente el mismo resultado si definimos el `aes()` dentro de cada uno de los `geoms`:
 
 ```{r geom_line + point aes independent}
 ggplot(economics %>% filter(year(date)>=2006)) + 
   geom_line(aes(x = date, y = unemploy), color = "red") + 
-  geom_point(aes(x = date, y = unemploy), size = 1, color ="green")
+  geom_point(aes(x = date, y = unemploy), size = 1, color ="forestgreen")
 ```
 
 Se pueden crear sus propias `tibbles` directamente en **R** con la función `tibble()`:
 
 ```{r}
-tibble(fecha = c("2020-05-27","2020-05-28","2020-05-29"),
+tibble(fecha = c("31 aug 20","1-sep-20","02/9/2020"),
        dolar = c(24,24.3,25),
        `dia caluroso` = c(1, 0, 1)) %>%
-  mutate(fecha = ymd(fecha))
+  mutate(fecha = dmy(fecha), 
+         `dia caluroso` = as.integer(`dia caluroso`),
+         `dia caluroso 2` = as.logical(`dia caluroso`))
+
+# Esto marcaría un error:
+# 2 <- 4
+# Se puede hacer esto, pero NO es recomendable
+`2` <- 4
+`2`
 ```
 
 
@@ -614,6 +627,12 @@ Utilizaremos los datos de `gapminder` para revisar varios ejemplos. Explorando l
 ```{r gapminder}
 data(gapminder)
 gapminder
+
+gapminder %>% 
+  distinct(country) %>% 
+  nrow()
+
+# levels(gapminder$country)
 ```
 
 Si quisiéramos filtrar la tabla para mantener sólo los países asiáticos, lo podríamos lograr con el verbo `filter()`. Opcionalmente, podríamos validar con `distinct()` si nuestro filtro logró el objetivo:
@@ -640,6 +659,23 @@ gapminder %>%
   filter(year == 2007) %>% 
   arrange(desc(pop))
 ```
+Para quedarnos con los años a partir de 1997.
+
+```{r}
+gapminder %>% 
+  filter(year >= 1997)
+```
+
+Pero si quisiéramos quedarnos con los años 1952, 1972, 2002, 2007, ¿cómo lo podríamos hacer?
+
+Lo podríamos lograr con la función `%in%`:
+
+```{r}
+gapminder %>% 
+  filter(year %in% c(1952, 1972, 2002, 2007),
+         country == "Mexico")
+```
+
 
 Ahora, si deseáramos obtener una subgráfica de líneas de cuantro países asiáticos (Nepal, Irak, Cambodia y China), lo podríamos hacer de la siguiente forma:
 
@@ -647,7 +683,8 @@ Ahora, si deseáramos obtener una subgráfica de líneas de cuantro países asi�
 gapminder %>% 
   filter(country %in% c("Nepal", "Iraq", "Cambodia","China")) %>% 
   ggplot(aes(x = year, y = lifeExp)) +
-  geom_line() + facet_wrap(~ country) +
+  geom_line() + 
+  facet_wrap(~ country) +
   ggtitle("Separación de los países por facetas")
 ```
 
@@ -660,7 +697,20 @@ gapminder %>%
   geom_line() +
   ylab("Esperanza de vida (años)") + xlab("") +
   ggtitle("Cambio de la esperanza de vida para algunos paises asiáticos") +
-  labs(color = "") + theme(legend.position = "bottom")
+  labs(color = "País") + theme(legend.position = "bottom")
+```
+Otra manera de especificar los nombres de ejes y el título es directamente dentro de `labs()`:
+
+```{r}
+gapminder %>% 
+  filter(country %in% c("Indonesia","India","Oman", "Taiwan")) %>% 
+  ggplot(aes(x = year, y = lifeExp, color = country)) +
+  geom_line() +
+  labs(x = "", 
+       y = "Esperanza de vida (años)", 
+       title = "Cambio de la esperanza de vida en algunos países asiáticos", 
+       color = "") + 
+  theme(legend.position = "top")
 ```
 
 Se podrían hacer más configuraciones:
@@ -687,11 +737,18 @@ gapminder %>%
   ggplot(aes(x = gdpPercap, y = lifeExp, color = continent,
              size = pop)) +
   geom_point() + 
-  scale_x_log10() + 
+  scale_x_log10() +
   ylab("Esperanza de vida (años)") +
   xlab("PIB per cápita (USD con ajuste inflacionario, escala log10)") + 
   labs(color ="", size="")
 ```
+```{r}
+gapminder %>% 
+  filter(country %in% c("Canada", "Mexico", "Brazil"),
+         year == 2007) %>% 
+  select(year, country, pop)
+```
+
 
 Pero, ¿qué pasa si queremos observar el cambio de estos factores a lo largo del tiempo? Claro, podríamos crear muchas gráficas distintas, cambiando el argumento `filter(year == "cada uno de los años")`. Pero esto, aparte de que sería laborioso, no sería práctico para analizarlo.
 

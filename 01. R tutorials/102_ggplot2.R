@@ -355,7 +355,7 @@ ggplot(data = mpg, aes(x = displ, y = hwy, color = class)) +
 
 # el nombre se escoge arbitrariamente
 g1 <- ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy))+
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
   ggtitle("La gráfica más básica")
 
 g2 <- ggplot(data = mpg) + 
@@ -375,6 +375,8 @@ g4 <- ggplot(data = mpg) +
              alpha = 0.7) + 
   ggtitle("Col, forma y tam var, alpha fija")
 
+# Pueden guardar partes de una gráfica en una variable.
+# 
 g_basica <- ggplot(data = mpg, aes(y = hwy))
 
 g_basica + geom_point(aes(x = cty))
@@ -402,6 +404,19 @@ g4 <- g_basica2 +
              alpha = 0.7) + 
   ggtitle("Col, forma y tam var, alpha fija")
 
+
+g_basica3 <- ggplot(data = mpg, aes(x = displ, y = hwy)) +
+  geom_point()
+
+g1 <- g_basica3 +
+  ggtitle("La gráfica más básica")
+
+g2 <- g_basica3 +
+  aes(color = class) +
+  ggtitle("Color variable")
+
+
+g4 + theme_dark() + scale_color_viridis_d()
 
 # El acomodo se puede guardar en una variable también:
 fig1 <- g1 /
@@ -433,6 +448,8 @@ g5 <- ggplot(data = mpg) +
                alpha = 0.7) + 
     ggtitle("Col, forma y tam var, alpha fija") 
 
+g5
+
 g5 + facet_wrap(~ cyl)
 
 g5 + facet_wrap(~ cyl, scales = "free_x")
@@ -440,6 +457,21 @@ g5 + facet_wrap(~ cyl, scales = "free_x")
 g5 + facet_wrap(~ cyl, scales = "free_y")
 
 g5 + facet_wrap(~ cyl, scales = "free")
+
+# crear facetas es un atajo a haberlo hecho manual:
+g6 <- mpg %>% 
+  filter(cyl == "4") %>% 
+  ggplot(aes(x = displ, y = hwy, 
+             color = class, shape = drv)) +
+  geom_point()
+
+g7 <- mpg %>% 
+  filter(cyl == "5") %>% 
+  ggplot(aes(x = displ, y = hwy, 
+             color = class, shape = drv)) +
+  geom_point()
+
+g6 | g7
 
 # Las facetas se pueden poner en ambos ejes también con
 # facet_grid()
@@ -450,7 +482,7 @@ ggplot(data = mpg) +
                            color = class),
              alpha = 0.5) + 
   ggtitle("Color variable, alpha fija y facetas por tracción y cilindraje") +
-  facet_grid(cyl ~ drv)
+  facet_grid(cyl ~ drv) # y = x
 
 ggplot(data = mpg, aes(x = displ, y = hwy)) + 
   geom_point( aes(color = class),
@@ -485,15 +517,27 @@ economics %>%
 
 # el atajo para escribir la "flecha" para asignar variables
 # es (ALT + -)
+
+economics %>% 
+  mutate(mes = tsibble::yearmonth(date)) %>% 
+  filter(mes >= tsibble::yearmonth("1980-01-01"))
+
+tsibble::yearmonth("1980-01-01")
+
 eco <- economics %>% 
   mutate(mes = tsibble::yearmonth(date)) %>% 
   filter(mes >= tsibble::yearmonth("1980-01-01"))
 
+ymd("20 04 21")
+ymd("1920 apr 21")
+ymd("1920/jul/21")
+dmy("1-jan-19")
+mdy("aug 4 08")
 
 economics %>% 
   filter(date >= ymd("2006-01-01")) %>% 
-  ggplot(aes(x = date, y = unemploy)) +
-  geom_line() +
+  ggplot(aes(x = date, y = unemploy)) + 
+  geom_line() + 
   geom_point(size = 1)
 
 economics %>% 
@@ -501,13 +545,8 @@ economics %>%
   ggplot(aes(x = date, y = unemploy)) +
   geom_line()
 
+# Esta gráfica no se recomienda para un gráfico de tiempo
 economics %>% 
   filter(date >= ymd("2006-01-01")) %>% 
   ggplot(aes(x = date, y = unemploy)) +
   geom_point()
-
-ggplot(economics %>% filter(date>=ymd("2006-01-01")),
-       aes(x = date, y = unemploy)) + 
-  geom_line() + 
-  geom_point(size = 1)
-
