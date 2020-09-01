@@ -41,7 +41,7 @@ Los temas que estaremos revisando son:
 
 Descubriremos y ajustaremos varios tipos de modelos para pronóstico:
 
-6. [Regresión lineal].
+6. [Regresión lineal](https://github.com/pbenavidesh/Series-de-tiempo/tree/master/06.%20Regression%20models).
 
 7. [Suavización exponencial](https://github.com/pbenavidesh/Series-de-tiempo/blob/master/07.%20Suavizaci%C3%B3n%20exponencial/07_ETS.md).
 
