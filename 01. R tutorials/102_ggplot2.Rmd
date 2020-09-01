@@ -597,13 +597,15 @@ ggplot(economics %>% filter(year(date)>=2006)) +
 
 Se pueden crear sus propias `tibbles` directamente en **R** con la función `tibble()`:
 
+
 ```{r}
 tibble(fecha = c("31 aug 20","1-sep-20","02/9/2020"),
        dolar = c(24,24.3,25),
        `dia caluroso` = c(1, 0, 1)) %>%
   mutate(fecha = dmy(fecha), 
          `dia caluroso` = as.integer(`dia caluroso`),
-         `dia caluroso 2` = as.logical(`dia caluroso`))
+         `dia caluroso 2` = as.logical(`dia caluroso`),
+         `dia caluroso 3` = as_factor(`dia caluroso`))
 
 # Esto marcaría un error:
 # 2 <- 4
@@ -668,6 +670,35 @@ gapminder %>%
 
 Pero si quisiéramos quedarnos con los años 1952, 1972, 2002, 2007, ¿cómo lo podríamos hacer?
 
+Esto no funcionaría como esperamos:
+
+```{r}
+gapminder %>% 
+  filter(year == 1952,
+         year == 1972,
+         year == 2002,
+         year == 2007)
+
+# Es lo mismo que si hiciéramos esto:
+gapminder %>% 
+  filter(year == 1952) %>% 
+  filter(year == 1972) %>% 
+  filter(year == 2002) %>% 
+  filter(year == 2007)
+```
+Esto marca error, porque después de cada coma es otra condición distinta que **R** evalúa.
+```{r}
+gapminder %>% 
+  filter(year == 1952,1972,2002,2007)
+```
+Esto no da error, pero no es el resultado que buscamos.
+```{r}
+gapminder %>% 
+  filter(year == c(1952,1972,2002,2007))
+```
+
+
+
 Lo podríamos lograr con la función `%in%`:
 
 ```{r}
@@ -677,14 +708,18 @@ gapminder %>%
 ```
 
 
-Ahora, si deseáramos obtener una subgráfica de líneas de cuantro países asiáticos (Nepal, Irak, Cambodia y China), lo podríamos hacer de la siguiente forma:
+Ahora, si deseáramos obtener una subgráfica de líneas de cuatro países asiáticos (Nepal, Irak, Cambodia y China), lo podríamos hacer de la siguiente forma:
+
+$y = 3x + 4$
+
+y ~ 3x + 4
 
 ```{r gap plot facets country}
 gapminder %>% 
   filter(country %in% c("Nepal", "Iraq", "Cambodia","China")) %>% 
   ggplot(aes(x = year, y = lifeExp)) +
-  geom_line() + 
-  facet_wrap(~ country) +
+  geom_line() +
+  facet_wrap(vars(country)) + # podría ser tmb facet_wrap(~ country)
   ggtitle("Separación de los países por facetas")
 ```
 
@@ -697,11 +732,14 @@ gapminder %>%
   geom_line() +
   ylab("Esperanza de vida (años)") + xlab("") +
   ggtitle("Cambio de la esperanza de vida para algunos paises asiáticos") +
-  labs(color = "País") + theme(legend.position = "bottom")
+  labs(color = "") + 
+  theme(legend.position = "top")
 ```
 Otra manera de especificar los nombres de ejes y el título es directamente dentro de `labs()`:
 
 ```{r}
+izq <- theme(legend.position = "left")
+
 gapminder %>% 
   filter(country %in% c("Indonesia","India","Oman", "Taiwan")) %>% 
   ggplot(aes(x = year, y = lifeExp, color = country)) +
@@ -710,6 +748,9 @@ gapminder %>%
        y = "Esperanza de vida (años)", 
        title = "Cambio de la esperanza de vida en algunos países asiáticos", 
        color = "") + 
+  theme_classic(base_size = 18, 
+                base_family = "serif",
+                base_line_size = 1) +
   theme(legend.position = "top")
 ```
 
@@ -720,7 +761,8 @@ gapminder %>%
   filter(country %in% c("Indonesia","India","Oman", "Taiwan")) %>% 
   ggplot(aes(x = year, y = lifeExp, color = country, linetype = country)) +
   geom_line() +
-  ylab("Esperanza de vida (años)") + xlab("") +
+  ylab("Esperanza de vida (años)") + 
+  xlab("") +
   ggtitle("Cambio de la esperanza de vida para algunos paises asiáticos") +
   labs(color = "", linetype ="") + 
   theme(legend.position = "bottom")
