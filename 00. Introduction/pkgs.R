@@ -7,9 +7,9 @@
 # Solo es necesario correr el documento completo.
 
 # paqueterías necesarias
-pkgs <- c("tidyverse", "lubridate", "easypackages",
+pkgs <- c("vctrs", "tidyverse", "lubridate", "easypackages",
           "tsibble", "fable", "feasts", "tsibbledata", "fpp2", "fpp3",
-          "plotly", "gganimate", "png", "patchwork",
+          "plotly", "gganimate", "png", "patchwork", "gifski",
           "tidymodels", "tidyquant", "learnr", "gapminder", "nycflights13",
           "timetk", "seasonal", "modeltime", "prophet", "remotes",  
           "shiny", "shinythemes", "shinydashboard", "shinyWidgets", 
@@ -17,10 +17,9 @@ pkgs <- c("tidyverse", "lubridate", "easypackages",
           )
 
 # comprobar si están instaladas, de lo contrario instalarlas
-for (i in seq_along(pkgs)) {
-  if (! require(pkgs[i])) install.packages(pkgs[i])
-  
-}
+library(easypackages)
+packages(pkgs)
+
 
 # instalar desde github estas paquetería
 if (! require(fable.prophet)) remotes::install_github("mitchelloharawild/fable.prophet")
