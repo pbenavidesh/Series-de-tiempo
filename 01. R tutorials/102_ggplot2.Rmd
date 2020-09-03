@@ -790,6 +790,52 @@ gapminder %>%
          year == 2007) %>% 
   select(year, country, pop)
 ```
+Si quisiéramos graficar la población total por continente, esto estaría mal:
+
+```{r}
+gapminder %>% 
+  ggplot(aes(x = year, y = pop, color = continent)) +
+  geom_line()
+```
+
+Cambiarla a una gráfica de puntos (dispersión) nos empieza a dar más claridad de por qué estaba mal: tenemos un punto por cada país.
+
+```{r}
+gapminder %>% 
+  ggplot(aes(x = year, y = pop, color = continent)) +
+  geom_point()
+```
+
+¿Cómo podríamos graficar la **población total** por continente, a lo largo del tiempo? Tendríamos que agregar la población de cada país de cada continente y graficar eso.
+
+```{r}
+gapminder %>% 
+  group_by(continent, year) %>% 
+  summarise(poblacion = sum(pop), .groups = "drop_last") %>%
+  ggplot(aes(x = year, y = poblacion, color = continent)) +
+  geom_line()
+```
+
+¿Cómo podríamos agregar la población total del mundo a esta gráfica? (*Nota: la escala no nos permitirá ver bien a cada continente*).
+
+```{r}
+#poblacion mundial total
+pob_total <- gapminder %>% 
+  group_by(year) %>% 
+  summarise(poblacion = sum(pop), .groups = "drop_last")
+
+g_pob <- gapminder %>% 
+  group_by(continent, year) %>% 
+  summarise(poblacion = sum(pop), .groups = "drop_last") %>%
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = poblacion, color = continent)) +
+  # para incluir la pob. mundial total:
+  geom_line(data = pob_total, aes(x = year, y = poblacion),
+            color = "firebrick", linetype = "dashed")
+g_pob
+```
+
+
 
 
 Pero, ¿qué pasa si queremos observar el cambio de estos factores a lo largo del tiempo? Claro, podríamos crear muchas gráficas distintas, cambiando el argumento `filter(year == "cada uno de los años")`. Pero esto, aparte de que sería laborioso, no sería práctico para analizarlo.
@@ -805,6 +851,19 @@ Lo que podemos hacer es crear una gráfica interactiva, apoyados de la paqueter�
 * Guardar el gráfico en una variable (el nombre es indiferente), y posteriormente ejecutar la función `ggplotly()` con la variable que contiene al gráfico.
 
 **NOTA:** Casi cualquier gráfico hecho con `ggplot2` se puede convertir en uno interactivo con la función `ggplotly()`.
+
+Convirtamos la gráfica anterior a interactiva, simplemente corriendo la función `ggplotly()`
+
+```{r}
+ggplotly(g_pob)
+```
+
+```{r}
+gapminder %>% 
+  filter(continent == "Oceania",
+         year == 2007)
+```
+
 
 
 ```{r plotly gap, fig.width=8, fig.height=6}
