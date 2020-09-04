@@ -112,6 +112,7 @@ install.packages("tidyverse")
 ```
 
 
+
 ```{r pkgs, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
@@ -805,13 +806,33 @@ gapminder %>%
   ggplot(aes(x = year, y = pop, color = continent)) +
   geom_point()
 ```
+Podríamos vernos tentados a querer filtrar la tabla por continente y año, para luego juntar todo y graficarlo. Algo como:
+
+```{r}
+af52 <- gapminder %>% 
+  filter(continent == "Africa",
+         year == 1952) %>% 
+  summarise(poblacion_total = sum(pop))
+af57 <- gapminder %>% 
+  filter(continent == "Africa",
+         year == 1957) %>% 
+  summarise(poblacion_total = sum(pop))
+```
+
+Pero, rápido nos damos cuenta que esto sería bastante largo y tedioso.
+
 
 ¿Cómo podríamos graficar la **población total** por continente, a lo largo del tiempo? Tendríamos que agregar la población de cada país de cada continente y graficar eso.
 
 ```{r}
-gapminder %>% 
+tabla <- gapminder %>% 
   group_by(continent, year) %>% 
-  summarise(poblacion = sum(pop), .groups = "drop_last") %>%
+  summarise(poblacion = sum(pop), .groups = "drop_last")
+tabla
+tabla %>% 
+  summarise(pob_promedio = mean(poblacion))
+
+tabla %>%
   ggplot(aes(x = year, y = poblacion, color = continent)) +
   geom_line()
 ```
@@ -833,6 +854,8 @@ g_pob <- gapminder %>%
   geom_line(data = pob_total, aes(x = year, y = poblacion),
             color = "firebrick", linetype = "dashed")
 g_pob
+# la misma gráfica, en escala logarítmica
+g_pob + scale_y_log10()
 ```
 
 
@@ -879,6 +902,22 @@ int_plot1 <- gapminder %>%
 ggplotly(int_plot1)
 ```
 
+```{r}
+prueba <- gapminder %>% 
+  filter(year == 2007) %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, color = country,
+             size = pop, label = country)) +
+  geom_point(aes(frame = continent)) + 
+  scale_x_log10() + 
+  ylab("Esperanza de vida (años)") +
+  xlab("PIB per cápita (USD con ajuste inflacionario)") + 
+  labs(color ="", size="")
+
+ggplotly(prueba)
+```
+
+
+
 ```{r plotly by facets, fig.width=8, fig.height=6}
 int_plot2 <- gapminder %>% 
   ggplot(aes(x = gdpPercap, y = lifeExp, color = country,
@@ -902,6 +941,18 @@ Otro tipo de gráfico que puede proporcionarnos mucha información es un *diagra
 * La línea interna de la caja es la mediana (el 50% de los datos),
 * el final de la caja muestra el tercer cuartil (75% de los datos) y,
 * en caso de que la gráfica muestre puntos fuera de la caja, se considerarían como *outliers*.
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  summarise(esperanza_vida = mean(lifeExp))
+
+gapminder %>% 
+  filter(year == 2007) %>% 
+  group_by(continent) %>% 
+  summarise(esperanza_vida = mean(lifeExp))
+```
+
 
 ```{r gap boxplot}
 gap_box <- gapminder %>%
