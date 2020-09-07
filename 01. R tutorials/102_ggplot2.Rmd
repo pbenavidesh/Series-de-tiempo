@@ -1016,6 +1016,22 @@ fig
 ```
 
 
+```{r}
+Gráfico2 <- gapminder %>%
+  group_by(continent, year) %>%
+  summarise(poblacion = sum(pop), .groups = "drop_last") %>%
+  ggplot(aes(x = year, y = poblacion, color = continent)) +
+  geom_point(aes(frame = year)) + 
+  ylab("Población") +
+  xlab("Año") + 
+  labs(color ="", size="")
+
+ 
+
+ggplotly(Gráfico2)
+```
+
+
 
 ## `gganimate`
 
@@ -1038,7 +1054,7 @@ p1 + transition_reveal(year)
 anim_save(filename = "figs/LifeExp_gganim.gif")
 ```
 
-(figs/LifeExp_gganim.gif)
+![](figs/LifeExp_gganim.gif)
 
 
 
@@ -1058,7 +1074,7 @@ p + transition_reveal(Day)
 
 anim_save(filename = "figs/airquality.gif")
 ```
-(figs/airquality.gif)
+![Temperatura por día, por mes](figs/airquality.gif)
 
 
 
