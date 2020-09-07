@@ -35,7 +35,7 @@ Lo primero que tenemos que hacer es pasar los años a filas. Usaremos `pivot_lon
 wb_pop_long <-  wb_pop %>% 
   pivot_longer(cols = -c(country, indicator),
                names_to = "año", values_to = "valor"
-               ) %>% 
+               ) %>%
   mutate(año = as.integer(año))
 wb_pop_long
 ```
