@@ -1,10 +1,11 @@
 ---
-title: "Importación de datos y limpieza"
+title: "Importación y limpieza de datos"
 author: "Pablo Benavides Herrera"
 date: 2020-06-01
 output: 
   html_notebook:
     theme: united
+    highlight: tango
     toc: TRUE
     toc_float: TRUE
 ---
@@ -27,6 +28,7 @@ Vamos a cargar los datos. Para que sea más fácil y reproducible su R Notebook,
 wb_pop <- read_csv("data/world_bank_pop.csv")
 wb_pop
 ```
+
 Vemos que los datos no están limpios.
 
 Lo primero que tenemos que hacer es pasar los años a filas. Usaremos `pivot_longer()` de la paquetería `tidyr`.
@@ -42,6 +44,7 @@ wb_pop_long
 
 
 Ahora queremos pasar los indicadores a columnas distintas.
+
 ```{r}
 wb_pop_long %>% 
   pivot_wider(names_from = indicator,
@@ -63,6 +66,7 @@ wb_pop_tidy <- wb_pop %>%
               values_from = valor) %>% 
   # cambio la variable country a factores
   mutate(country = as_factor(country))
+
 wb_pop_tidy
 ```
 
@@ -114,7 +118,11 @@ Vamos a graficar el crecimiento de la **población total** a lo largo del tiempo
 ```{r}
 g <- ggplot(data = wb_pop_tidy, aes(x = año, color = country))
 
-g + geom_line(aes(y = SP.POP.TOTL))
+g + geom_line(aes(y = SP.POP.TOTL)) +
+  labs(title = "Crecimiento de la población en el tiempo",
+       y = "Población total",
+       x = "",
+       color = "") 
 ```
 
 Podemos utilizar una escala logarítmica en el eje *y* para visualizar mejor los datos.
@@ -154,6 +162,47 @@ p3 / (p1 + p2) +
   plot_annotation(title = "Acomodando varias gráficas con patchwork",
                   subtitle = "Población total y evolución de la población urbana y rural")
 ```
+```{r}
+wb_pop_tidy %>% 
+  pivot_longer(cols = c(pct_rural, pct_urbana),
+               names_to = "zona", 
+               values_to = "porcentajes") %>% 
+  ggplot(aes(x = año, y = porcentajes, fill = zona)) +
+  geom_area() + facet_wrap(vars(country))
+```
+
+Si quisiéramos graficar por separado cada una de las variables, podríamos crear un código genérico y solo cambiar la variable `y`. Algo como:
+
+```{r}
+p <- wb_pop_tidy %>% 
+  ggplot(aes(x = año, color = country)) + geom_line()
+
+p + aes(y = SP.URB.TOTL)
+p + aes(y = SP.URB.GROW)
+p + aes(y = SP.POP.TOTL)
+p + aes(y = SP.POP.GROW)
+p + aes(y = pob_rural)
+p + aes(y = pct_rural)
+p + aes(y = pct_urbana)
+```
+Sin embargo, aunque pudimos *ahorrarnos* bastante código guardando la estructura básica de cada gráfica en `p`, tuvimos que repetir varias veces lo mismo y nos quedaron gráficas separadas. Si lo que necesitamos es tener todas en una misma imagen, podríamos unirlas con `patchwork`, pero sería más trabajo.
+
+En cambio, podemos hacer un *hack* y utilizar `pivot_longer()` para lograr hacer esto en un solo paso:
+
+```{r}
+wb_pop_tidy %>% 
+  # pasamos todas las columnas de variables a una sola
+  pivot_longer(cols = -c(country, año),
+               names_to = "indicador",
+               values_to = "valor") %>% 
+  # graficamos y separamos por facetas cada indicador
+  ggplot(aes(x = año, y = valor, color = country)) +
+  geom_line() + 
+  facet_wrap(~ indicador, scales = "free_y")
+```
+
+
+
 
 # Ventas de autos totales en EEUU
 
