@@ -222,7 +222,8 @@ autos
 ```
 
 ```{r}
-autos %>% tail()
+autos %>%
+  slice_tail(n = 10)
 ```
 
 
@@ -236,13 +237,6 @@ ggplotly(p)
 
 Esta gráfica nos muestra que la serie presenta una fuerte **estacionaliadad**
 
-```{r}
-p <- autos %>% 
-  ggplot(aes(x = date, y = ventas)) +
-  geom_line()
-
-ggplotly(p)
-```
 
 Agregando líneas y etiquetas para mostrar las crisis.
 
@@ -255,9 +249,10 @@ p +
              linetype = "dotted", color = "darkgreen",
              size = 1.5) + 
   annotate("label", x = c(ymd("2008-10-01"),
-                            ymd("2019-07-01")),
-             y = c(1750,1700), label = c("Inmobiliaria '08", "COVID-19"), color = "blue", size = 3)
+                            ymd("2020-03-01")),
+             y = c(600,700), label = c("Inmobiliaria '08", "COVID-19"), color = c("red", "darkgreen"), size = 3)
 ```
+
 
 
 ```{r}
@@ -266,7 +261,12 @@ p + geom_hline(yintercept = max(autos$ventas),
   geom_hline(yintercept = min(autos$ventas),
              linetype = 5, size = 1.2, color = "turquoise1") +
 geom_hline(yintercept = mean(autos$ventas), 
-           linetype = 8, size = 1, color = "orchid2")
+           linetype = 8, size = 1, color = "orchid2") +
+  annotate("label",
+           x = ymd("1982-12-01"),
+           y = max(autos$ventas), 
+           label = "Ventas máximas históricas",
+           color = "purple")
 ```
 
 
