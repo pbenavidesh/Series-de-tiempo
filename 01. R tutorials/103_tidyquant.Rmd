@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.width = 8)
+knitr::opts_chunk$set(fig.width = 8, fig.height = 5)
 ```
 <center>
 
@@ -48,7 +48,6 @@ Una de las grandes ventajas de utilizar `tidyquant`, es que se puede descargar u
 
 * Para descargar información respecto a **índices bursátiles**, podemo usar `tq_index()`, lo que nos mostrará la composición del índice en cuestión.
 
-
 ```{r tq_index}
 tq_index("SP500")
 ```
@@ -67,7 +66,7 @@ tq_index_options()
 ```{r tq_exchange}
 tq_exchange_options()
 
-tq_exchange("AMEX")
+tq_exchange("NASDAQ")
 ```
 
 ## Datos cuantitativos
@@ -108,7 +107,10 @@ sp500
 De manera similar, se pueden obtener los datos de las acciones en particular que se deseen. P. ej., si se quiere obtener el precio de Microsoft (MSFT), Apple (AAPL), Johnson & Johnson (JNJ), Visa (V), podemos hacer lo siguiente:
 
 ```{r tq_get multiple stocks}
-tq_get(c("MSFT","AAPL","JNJ","V"), get = "stock.prices", from = "2019-01-01", to = "2020-01-01")
+c("MSFT","AAPL","JNJ","V") %>% 
+  tq_get(get = "stock.prices", 
+         from = "1980-01-01", 
+         to = "2020-09-15")
 ```
 
 
@@ -117,7 +119,9 @@ tq_get(c("MSFT","AAPL","JNJ","V"), get = "stock.prices", from = "2019-01-01", to
 Los datos económicos de la reserva federal del banco de St. Louis (o FRED, para resumirlo) posee más de 765,000 series de tiempo de EEUU e internacionales, de 96 fuentes distintas, que se pueden descargar directamente desde **R**. Para esto, es necesario conocer el código de la serie (que se puede encontrar en la página web del FRED). Descarguemos, por ejemplo, las ventas mensuales totales de autos en EEUU. La serie se llama `TOTALNSA` y descargaremos datos a partir de enero de 1980.
 
 ```{r FRED data}
-car_sales <- tq_get("TOTALNSA", get = "economic.data", from = "1980-01-01")
+car_sales <- tq_get("TOTALNSA", 
+                    get = "economic.data", 
+                    from = "1980-01-01")
 car_sales
 ```
 
@@ -139,7 +143,9 @@ Podemos agregar los datos ajustados de diarios a mensuales, especificando el arg
 ```{r to.monthly}
 FANG %>%
   group_by(symbol) %>% 
-  tq_transmute(select = adjusted, mutate_fun = to.monthly, indexAt = "lastof")
+  tq_transmute(select = adjusted, 
+               mutate_fun = to.monthly, 
+               indexAt = "lastof")
 ```
 
 ```{r}
