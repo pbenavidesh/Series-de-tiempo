@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+Cargando los datos de prueba que contienen valores omitidos (`NA`s):
+
+```{r}
+datos <- read_csv("prueba_na.csv")
+datos
+```
+Vamos a agregar una columna nueva que nos indique si tenemos información sobre la variable `a` o no.
+
+```{r}
+datos %>% 
+  mutate(info_en_a = !is.na(a))
+```
+
+Si queremos quedarnos solo con las filas que tengan información en `a`, podemos juntar un `filter()` con la validación de `is.na()`.
+
+
+```{r}
+datos %>% 
+  filter(!is.na(a))
+```
+
+Para quedarnos con las filas que tengan información en `b`, independientemente de las otras:
+
+```{r}
+datos %>% 
+  filter(!is.na(b))
+```
+
+Para quitar todos los `NA`s de la tabla, podríamos irnos columna por columna:
+
+```{r}
+datos %>% 
+  filter(!is.na(a),
+         !is.na(b),
+         !is.na(c))
+```
+O, utilizar la función `drop_na()` de la paquetería `tidyr` (ya cargada al cargar `tidyverse`):
+
+```{r}
+datos %>% 
+  drop_na()
+```
+
