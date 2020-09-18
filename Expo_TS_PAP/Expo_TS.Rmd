@@ -1,0 +1,108 @@
+---
+title: "Time series analysis using `fable` & `modeltime`"
+subtitle: "Case study: Mobility trends in Mexico in the COVID-19 pandemic"
+author: "Pablo Benavides-Herrera"
+date: 2020-09-18
+output: 
+  slidy_presentation:
+    incremental: TRUE
+    highlight: tango
+    fig_width: 7
+    fig_height: 6
+    df_print: paged
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+## The data
+
+* The dataset is provided by [Google](https://www.google.com/covid19/mobility/) and consists of daily data regarding mobility in Mexico and each of its 32 states.
+
+* It provides time series showing the percentage change in visits to six different type of places, including:
+
+  * Grocery & pharmacy
+  * Parks
+  * Transit stations
+  * Retail & recreation
+  * Residential
+  * Workplaces
+  
+* Changes for each day are compared to a baseline value, which is the median for the corresponding day of the week during the period of Jan 3- Feb 6.
+
+## The data (2)
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(plotly)
+library(shiny)
+library(shinyWidgets)
+
+df <- read_csv("google_mobility.csv") %>% 
+  select(sub_region_1, date:residential_percent_change_from_baseline) %>% 
+  pivot_longer(cols = retail_and_recreation_percent_change_from_baseline:residential_percent_change_from_baseline) %>% 
+  rename(State = sub_region_1) %>% 
+  mutate(name = str_replace(name, "_percent_change_from_baseline",""),
+         State = if_else(is.na(State),"Mexico",State),
+         State = as_factor(State)) %>% 
+  pivot_wider(names_from = name, values_from = value)
+
+renderDataTable(df)
+
+df <- df %>% 
+  pivot_longer(cols = -c(State, date),
+               names_to = "Location",
+               values_to = "Percent_change") %>% 
+  mutate(Location = as_factor(Location),
+         date = dmy(date),
+         Percent_change = Percent_change/100) 
+```
+
+
+
+## Mobility trends
+
+```{r}
+checkboxGroupButtons(inputId = "loc",
+                     label = "Type of locations:",
+                     choices = levels(df$Location), 
+                     selected = "workplaces",
+                     justified = TRUE,
+                     checkIcon = list(yes = icon("ok", lib = "glyphicon"), no = icon("remove", lib = "glyphicon")))
+
+pickerInput(inputId = "state",
+            label = "choose the state(s) to plot",
+            choices = levels(df$State),
+            selected = "Mexico", 
+            multiple = TRUE,
+            options = list(`liveSearch` = TRUE,
+                           `actions-box` = TRUE)
+            )
+
+renderPlotly({
+  df %>% 
+    filter(State %in% input$state,
+           Location %in% input$loc) %>% 
+    ggplot(aes(x = date, y = Percent_change, color = State)) +
+    geom_line(size = 1) + 
+    geom_hline(yintercept = 0, 
+               color = "firebrick", 
+               linetype = "dashed") + 
+    annotate("text", x = last(df$date), y = 0.02, label = "Baseline",
+             color = "firebrick") +
+    facet_wrap(~ Location) + 
+    xlab("") + ylab("% change from baseline") +
+    scale_y_continuous(labels = scales::percent) +
+    theme(legend.position = "none")
+})
+```
+
+## Exploratory Data Analysis (EDA)
+
+```{r pressure}
+plot(pressure)
+```
+
