@@ -39,35 +39,19 @@ Parte de la variación en las series de tiempo puede deberse a efectos muy senci
 
 ```{r ajuste calendario google, warning=FALSE, results='hide', message=FALSE}
 library("easypackages")
-packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales")
+packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales", "timetk")
 
-# Código usando quantmod
-
-# getSymbols("GOOG", from = "2015-01-01")
-# 
-# transacciones_mensuales <- GOOG %>%
-#   as_tibble() %>%
-#   mutate(date = zoo::index(GOOG),
-#          year = year(date),
-#          month = month(date)) %>%
-#   unite(year_mon, year, month,sep = "-") %>%
-#   mutate(year_mon = yearmonth(year_mon)) %>%
-#   select(date, year_mon, Volumen = GOOG.Volume) %>%
-#   group_by(year_mon) %>%
-#   summarise(Monthly_volume = sum(Volumen),
-#             trading_days = n(),
-#             mean_volume = mean(Volumen)) %>%
-#   as_tsibble(index = year_mon)
-
-# Código usando tidyquant
 transacciones_mensuales <- tq_get("GOOG", get = "stock.prices",
                                   from = "2015-01-01") %>%
   summarise_by_time(date, .by = "month",
                     monthly_volume = sum(volume),
                     trading_days = n(),
                     mean_volume = mean(volume)) %>%
-  mutate(month = yearmonth(date)) %>% select(month,-date, monthly_volume:mean_volume) %>% 
+  mutate(month = yearmonth(date)) %>% 
+  select(month,-date, monthly_volume:mean_volume) %>% 
   as_tsibble(index = month)
+
+transacciones_mensuales
 
 # en vez de "summarise_by_time se pudo haber hecho esto:
 
@@ -85,12 +69,12 @@ Podemos graficar ambas con dos (o más) alternativas: cada variable por separado
 p1 <- ggplot(data = transacciones_mensuales) + 
   geom_line(aes(x = month, y = monthly_volume)) +
   ylab("Vol. total mensual") + 
-  xlab("mes")
+  xlab("")
 
 p2 <- ggplot(data = transacciones_mensuales) + 
   geom_line(aes(x = month, y = mean_volume)) +
   ylab("Vol. promedio diario") +
-  xlab("mes")
+  xlab("")
 
 p1 / p2
 # Opción 2
@@ -99,7 +83,7 @@ transacciones_mensuales %>%
   pivot_longer(cols = c(monthly_volume, mean_volume),
                names_to = "variable", values_to = "valor") %>% 
   ggplot(aes(x = month, y = valor)) +
-  geom_line() + ylab("mes") +
+  geom_line() + ylab("Transacciones") + xlab("") +
   facet_wrap(~ variable, ncol = 1, scales = "free_y")
 ```
 
@@ -119,6 +103,7 @@ glimpse(global_economy)
 
 ge <- global_economy %>% 
   filter(Country == "Mexico" | Country == "Iceland" | Country == "Australia")
+  # filter(Country %in% c("Mexico", "Iceland", "Australia"))
 
 p3 <- ggplot(ge) + aes(x = Year, y = GDP, color = Country) + 
   geom_line()
@@ -159,7 +144,7 @@ Los índices de precios son construidos, generalmente, por el gobierno, o alguna
 
 Veamos el caso de la industria de periódicos y libros impresos en Australia y su crecimiento o decrecimiento en el tiempo. Tomaremos los datos de `aus_retail` y ajustaremos la inflación con el índice de precios al consumidor, `CPI`, dentro de la tabla `global_economy`.
 
-```{r inflation adjusted printing industry}
+```{r inflation adjusted printing industry, message=TRUE, warning=TRUE}
 print_retail <- aus_retail %>%
   filter(Industry == "Newspaper and book retailing") %>%
   group_by(Industry) %>%
