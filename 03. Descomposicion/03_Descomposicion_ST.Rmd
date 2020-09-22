@@ -43,17 +43,19 @@ packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scal
 
 transacciones_mensuales <- tq_get("GOOG", get = "stock.prices",
                                   from = "2015-01-01") %>%
-  summarise_by_time(date, .by = "month",
-                    monthly_volume = sum(volume),
-                    trading_days = n(),
-                    mean_volume = mean(volume)) %>%
-  mutate(month = yearmonth(date)) %>% 
-  select(month,-date, monthly_volume:mean_volume) %>% 
+  summarise_by_time(
+    .date_var      =  date, 
+    .by            = "month",
+    monthly_volume = sum(volume),
+    trading_days   = n(),
+    mean_volume    = mean(volume)) %>%
+  mutate(month     = yearmonth(date)) %>% 
+  select(month, everything(), -date) %>% 
   as_tsibble(index = month)
 
 transacciones_mensuales
 
-# en vez de "summarise_by_time se pudo haber hecho esto:
+# en vez de "summarise_by_time" se pudo haber hecho esto:
 
 # group_by(month = floor_date(date, "month")) %>%
 #   summarise(monthly_volume = sum(volume),
@@ -87,6 +89,15 @@ transacciones_mensuales %>%
   facet_wrap(~ variable, ncol = 1, scales = "free_y")
 ```
 
+```{r}
+p <- global_economy %>% 
+  filter(Country == "Mexico") %>% 
+  pivot_longer(cols = -c(Country:Year)) %>% 
+  ggplot(aes(x = Year, y = value)) +
+  geom_line() + facet_wrap(~ name, scales = "free_y")
+
+plotly::ggplotly(p)
+```
 
 
 La serie original tomando el total de transacciones mensuales presenta mayor variación que cuando ajustamos la serie por los dias calendario (llegando al volumen promedio diario).
