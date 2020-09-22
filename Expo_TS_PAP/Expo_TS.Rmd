@@ -5,7 +5,7 @@ author: "Pablo Benavides-Herrera"
 date: 2020-09-18
 output: 
   slidy_presentation:
-    incremental: TRUE
+    incremental: FALSE
     highlight: tango
     fig_width: 7
     fig_height: 6
@@ -16,6 +16,32 @@ runtime: shiny
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
+
+```{r pkgs}
+# tidyverse
+library(tidyverse)
+library(lubridate)
+
+# plot helpers
+library(patchwork)
+library(plotly)
+
+# shiny
+library(shiny)
+library(shinyWidgets)
+
+# tidyverts
+library(tsibble)
+library(feasts)
+library(fable)
+library(fable.prophet)
+
+# modeltime
+library(tidymodels)
+library(timetk)
+library(modeltime)
+```
+
 
 ## The data
 
@@ -35,12 +61,6 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ## The data (2)
 
 ```{r}
-library(tidyverse)
-library(lubridate)
-library(plotly)
-library(shiny)
-library(shinyWidgets)
-
 df <- read_csv("google_mobility.csv") %>% 
   select(sub_region_1, date:residential_percent_change_from_baseline) %>% 
   pivot_longer(cols = retail_and_recreation_percent_change_from_baseline:residential_percent_change_from_baseline) %>% 
@@ -58,7 +78,11 @@ df <- df %>%
                values_to = "Percent_change") %>% 
   mutate(Location = as_factor(Location),
          date = dmy(date),
-         Percent_change = Percent_change/100) 
+         Percent_change = Percent_change/100,
+         weekday = wday(date, label = TRUE),
+         covid = date >= ymd("2020-03-18")) 
+
+df_ts <- df %>% as_tsibble(index = date, key = c(State, Location))
 ```
 
 
@@ -82,6 +106,7 @@ pickerInput(inputId = "state",
                            `actions-box` = TRUE)
             )
 
+
 renderPlotly({
   df %>% 
     filter(State %in% input$state,
@@ -91,8 +116,20 @@ renderPlotly({
     geom_hline(yintercept = 0, 
                color = "firebrick", 
                linetype = "dashed") + 
-    annotate("text", x = last(df$date), y = 0.02, label = "Baseline",
-             color = "firebrick") +
+    annotate("text", 
+             x = ymd("2020-03-28"), 
+             y = 0.05,
+             label = "COVID-19",
+             color = "limegreen") +
+    annotate("text", 
+             x = last(df$date), 
+             y = 0.02,
+             label = "Baseline",
+             color =  "firebrick") +
+    geom_vline(xintercept = as.numeric(ymd("2020-03-18")), 
+               linetype = "dotted", 
+               size = 0.5, 
+               color = "limegreen") +
     facet_wrap(~ Location) + 
     xlab("") + ylab("% change from baseline") +
     scale_y_continuous(labels = scales::percent) +
@@ -100,9 +137,255 @@ renderPlotly({
 })
 ```
 
+
 ## Exploratory Data Analysis (EDA)
 
-```{r pressure}
-plot(pressure)
+The data exhibit:
+
+* a strong (*weekly*) seasonal pattern, 
+
+* a structural change around March 18th due to the COVID-19 pandemic.
+
+* an upward trend towards the baseline for all the series, except the residential, which has the inverse behavior.
+
+```{r}
+dropdownButton(
+  tags$h3("Customization"),
+  selectInput(inputId = "state2",
+            label = "choose the state(s) to plot",
+            choices = levels(df$State),
+            selected = "Mexico", 
+            multiple = TRUE
+            ),
+  selectInput(inputId = "loc2",
+            label = "Type of locations:",
+            choices = levels(df$Location), 
+            selected = "workplaces", 
+            multiple = TRUE
+            ),
+  sliderTextInput(
+  inputId = "date_covid",
+  label = "Make calculations based on dates:",
+  choices = c("Everything", "Before COVID-19", "During COVID-19"),
+  grid = TRUE,
+  force_edges = TRUE,
+  animate = TRUE
+  )
+  
+  
+)
+
+
+df_eda <- reactive({
+  if (input$date_covid == "Everything") {
+    df_e <- df_ts
+  } else if (input$date_covid == "Before COVID-19"){
+    df_e <-  df_ts %>% 
+      filter(covid == FALSE)
+  } else {
+    df_e <- df_ts %>% 
+      filter(covid == TRUE) 
+  }
+  
+  df_e %>% 
+    filter(State %in% input$state2,
+           Location %in% input$loc2)
+})
+
+renderDataTable({
+  df_eda() %>% 
+    features(Percent_change, quantile, prob = seq(0,1, by = 0.25))
+})
+
+renderPlotly({
+  df_eda() %>%
+    ggplot(aes(x = weekday,
+               y = Percent_change,
+               fill = covid)) +
+    geom_boxplot() +
+    facet_wrap(~ State) +
+    scale_y_continuous(labels = scales::percent)
+})
+
+renderPlot({
+  df_eda() %>% 
+    gg_season(period = "1 week") +
+    scale_y_continuous(labels = scales::percent) +
+    xlab("") + ylab("% change from baseline") +
+    scale_color_viridis_c()
+})
+```
+
+
+## The models
+
+We will model this time series using both classical and more advanced models, such as ETS, ARIMA, Seasonal decomposition, linear regressions, facebook's prophet.
+
+```{r}
+fable_train <- df_ts %>% 
+  filter(State == "Jalisco") %>% 
+  slice_head(n = nrow(df_ts) - 15)
+
+fable_test <- df_ts %>% 
+  filter(State == "Jalisco") %>% 
+  slice_tail(n = 15)
+
+fable_models <- fable_train %>% 
+  model(
+    ETS = ETS(Percent_change),
+    ARIMA = ARIMA(Percent_change),
+    `STL + ARIMA` = decomposition_model(
+      STL(Percent_change), ARIMA(season_adjust ~ PDQ(0,0,0))),
+    LM = TSLM(Percent_change ~ trend() + season()),
+    `Piecewise Reg.` = TSLM(Percent_change ~ trend(knots = c(ymd("2020-03-18"),
+                                                             ymd("2020-05-03")))),
+    Prophet = prophet(Percent_change)
+  )
+```
+
+The models' accuracy:
+
+```{r}
+renderDataTable({
+  fable_models %>% 
+  fabletools::accuracy()
+}) 
+```
+
+```{r}
+tags$h3("Residual diagnostics")
+
+selectInput(inputId = "fable_mod",
+            label = "Choose the model", 
+            choices = names(fable_models)[-c(1:2)])
+radioButtons(inputId = "fable_series",
+             label = "Choose the TS",
+             choices = levels(df$Location))
+
+renderPlot({
+  fable_models %>% 
+  filter(Location == input$fable_series) %>% 
+    select(State, Location, input$fable_mod) %>% 
+    gg_tsresiduals()
+})
+```
+
+## Forecasting
+
+```{r}
+fable_fcst <- fable_models %>% 
+  forecast(h = 15)
+```
+
+```{r, fig.height= 12}
+renderPlot({
+  fable_fcst %>% 
+    filter(.model == "ARIMA") %>% 
+  autoplot(df_ts)
+}) 
+```
+
+
+## modeltime
+
+Using the package `modeltime` we fit an ARIMA, a Boosted ARIMA, ETS, Prophet and linear regression models.
+
+```{r}
+jalisco_work <- df %>% 
+  filter(State == "Jalisco",
+         Location == "workplaces")
+
+splits <- initial_time_split(jalisco_work, prop = 0.9)
+```
+
+
+```{r}
+model_fit_arima_no_boost <- arima_reg() %>%
+    set_engine(engine = "auto_arima") %>%
+    fit(Percent_change ~ date, data = training(splits))
+
+model_fit_arima_boosted <- arima_boost(
+    min_n = 2,
+    learn_rate = 0.015
+) %>%
+    set_engine(engine = "auto_arima_xgboost") %>%
+    fit(Percent_change ~ date + as.numeric(date) + factor(month(date, label = TRUE), ordered = F),
+        data = training(splits))
+
+model_fit_ets <- exp_smoothing() %>%
+    set_engine(engine = "ets") %>%
+    fit(Percent_change ~ date, data = training(splits))
+
+model_fit_prophet <- prophet_reg() %>%
+    set_engine(engine = "prophet") %>%
+    fit(Percent_change ~ date, data = training(splits))
+
+model_fit_lm <- linear_reg() %>%
+    set_engine("lm") %>%
+    fit(Percent_change ~ as.numeric(date) + factor(month(date, label = TRUE), ordered = FALSE),
+        data = training(splits))
+```
+
+```{r}
+# Add the fitted models to a table
+models_tbl <- modeltime_table(
+    model_fit_arima_no_boost,
+    model_fit_arima_boosted,
+    model_fit_ets,
+    model_fit_prophet,
+    model_fit_lm
+)
+renderTable({
+  models_tbl
+})
+```
+
+We calibrate the model:
+
+```{r}
+calibration_tbl <- models_tbl %>%
+    modeltime_calibrate(new_data = testing(splits))
+
+renderTable({
+  calibration_tbl
+})
+```
+
+```{r}
+renderPlot({
+  calibration_tbl %>%
+    modeltime_forecast(
+        new_data    = testing(splits),
+        actual_data = jalisco_work
+    ) %>%
+    plot_modeltime_forecast(
+      .legend_max_width = 25
+    )
+})
+```
+
+```{r}
+renderUI({
+  calibration_tbl %>%
+    modeltime_accuracy() %>%
+    table_modeltime_accuracy()
+})
+```
+
+```{r}
+calibration_tbl
+
+calibration_tbl %>%
+    modeltime_forecast(
+        new_data    = testing(splits),
+        actual_data = jalisco_work
+    ) %>%
+    plot_modeltime_forecast(
+      .legend_max_width = 25
+    )
+
+calibration_tbl %>%
+    modeltime_accuracy() %>%
+    table_modeltime_accuracy()
 ```
 

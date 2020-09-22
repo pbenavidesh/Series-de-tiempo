@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+calibration_tbl
+
+calibration_tbl %>%
+    modeltime_forecast(
+        new_data    = testing(splits),
+        actual_data = jalisco_work
+    ) %>%
+    plot_modeltime_forecast(
+      .legend_max_width = 25
+    )
+
+calibration_tbl %>%
+    modeltime_accuracy() %>%
+    table_modeltime_accuracy()
+```
+
