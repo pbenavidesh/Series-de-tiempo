@@ -161,12 +161,26 @@ print_retail <- aus_retail %>%
   group_by(Industry) %>%
   index_by(Year = year(Month)) %>%
   summarise(Turnover = sum(Turnover))
+
 aus_economy <- global_economy %>%
   filter(Code == "AUS")
-print_retail %>%
+
+print_retail %>% 
+  # unir las tablas print_retail y aus_economy con base en
+  # print_retail
   left_join(aus_economy, by = "Year") %>%
+  # calculando las ventas sin inflación
   mutate(Adjusted_turnover = Turnover / CPI) %>%
-  gather("Type", "Turnover", Turnover, Adjusted_turnover, factor_key = TRUE) %>%
+  #
+  pivot_longer(
+    cols            = c(Turnover, Adjusted_turnover),
+    names_to        = "Type",
+    values_to       = "Turnover",
+    names_transform = list(Type = as_factor) 
+  ) %>% 
+  # gather es la versión vieja de pivot_longer, por lo tanto ya
+  # no se recomienda utilizar
+  # gather("Type", "Turnover", Turnover, Adjusted_turnover, factor_key = TRUE) %>%
   ggplot(aes(x = Year, y = Turnover)) +
     geom_line() +
     facet_grid(vars(Type), scales = "free_y") +
@@ -193,13 +207,21 @@ Podemos probar aplicando una transformación logarítmica a los datos para ver s
 ```{r log jj}
 log_jj <- log(JohnsonJohnson)
 
-autoplot(log_jj)+
+autoplot(log_jj) +
   ggtitle("Logaritmo de las ventas trim. de J&J")
 ```
 
 
 
 Otro tipo de transformaciones matemáticas son las **transformaciones de potencia**. P. ej., sacar la raíz cuadrada o cúbica de los datos, etc. Estas transformaciones se pueden escribir como $w_t = y_t^p$.
+
+```{r}
+potencia_jj <- JohnsonJohnson^(1/3)
+
+autoplot(potencia_jj) +
+  ggtitle("Logaritmo de las ventas trim. de J&J")
+```
+
 
 Una familia de transformaciones matemáticas que incluye, tanto logaritmos, como potencias son las **transformaciones Box-Cox**, que dependen de un parámetro, $\lambda$ y se definen de la siguiente manera:
 
@@ -249,7 +271,7 @@ p5a
 ```
 
 
-La característica de `guerrero` nos ayuda a seleccionar un valor de $\lambda$. En este caso, escogió un `$\lambda = 0.12$`
+La característica de `guerrero` nos ayuda a seleccionar un valor de $\lambda$. En este caso, escogió un $\lambda = 0.12$
 
 ```{r box cox guerrero feature}
 (lambda <- aus_production %>%
@@ -257,7 +279,6 @@ La característica de `guerrero` nos ayuda a seleccionar un valor de $\lambda$. 
   pull(lambda_guerrero))
 
 aus_production %>% autoplot(box_cox(Gas, lambda))
-
 ```
 
 
@@ -281,7 +302,7 @@ La aditiva es mejor cuando la magnitud de la fluctuación estacional no cambia c
 
 Una alternativa para no utilizar la descomposición multiplicativa es transformar los datos para evitar la fluctuación en la variación y posteriormente aplicar la aditiva. De hecho, si se aplica una transformación logarítmica a los datos, es equivalente a utilizar una descomposición multiplicativa, porque:
 
-$$y_{t}=S_{t} \times T_{t} \times R_{t} \quad \text { es equivalente a } \quad \log y_{t}=\log S_{t}+\log T_{t}+\log R_{t-}$$
+$$y_{t}=S_{t} \times T_{t} \times R_{t} \quad \text { es equivalente a } \quad \log y_{t}=\log S_{t}+\log T_{t}+\log R_{t}$$
 Veamos el ejemplo del empleo en el sector de las ventas al menudeo en EEUU desde 1990.
 
 
