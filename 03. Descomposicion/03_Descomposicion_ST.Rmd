@@ -162,8 +162,11 @@ print_retail <- aus_retail %>%
   index_by(Year = year(Month)) %>%
   summarise(Turnover = sum(Turnover))
 
+autoplot(print_retail)
+
 aus_economy <- global_economy %>%
   filter(Code == "AUS")
+  # filter(Country == "Australia")
 
 print_retail %>% 
   # unir las tablas print_retail y aus_economy con base en
@@ -188,6 +191,8 @@ print_retail %>%
     ggtitle("Turnover for the Australian print media industry")
 ```
 
+
+
 Al ver los datos ajustados, nos percatamos de que la venta de estos productos impresos ha decaído mucho más de lo que los datos sin ajustar sugieren.
 
 ### Transformaciones matemáticas
@@ -205,9 +210,7 @@ autoplot(JohnsonJohnson)+
 Podemos probar aplicando una transformación logarítmica a los datos para ver si logramos hacer que la variación sea uniforme a lo largo del tiempo, y ver si podemos hacer que parezca tener una tendencia lineal.
 
 ```{r log jj}
-log_jj <- log(JohnsonJohnson)
-
-autoplot(log_jj) +
+autoplot(log(JohnsonJohnson)) +
   ggtitle("Logaritmo de las ventas trim. de J&J")
 ```
 
@@ -216,9 +219,7 @@ autoplot(log_jj) +
 Otro tipo de transformaciones matemáticas son las **transformaciones de potencia**. P. ej., sacar la raíz cuadrada o cúbica de los datos, etc. Estas transformaciones se pueden escribir como $w_t = y_t^p$.
 
 ```{r}
-potencia_jj <- JohnsonJohnson^(1/3)
-
-autoplot(potencia_jj) +
+autoplot(JohnsonJohnson^(1/3)) +
   ggtitle("Logaritmo de las ventas trim. de J&J")
 ```
 
@@ -232,7 +233,7 @@ $$w_{t}=\left\{\begin{array}{ll}
 
 Aquí, el logaritmo siempre es un logaritmo natural. Si $\lambda = 0$, se utiliza un logaritmo natural, de lo contrario se utiliza una potencia, con un escalado simple.
 
-Si $\lambda = 1$ entonces $w_t = y_t-1$, lo que significaría que los datos solo se desplazarían hacia abajo, sin cambiar la forma de la serie de tiempo. Para cualquier otro valor de $\lambda$, la serie cambiara de forma.
+Si $\lambda = 1$ entonces $w_t = y_t-1$, lo que significaría que los datos solo se desplazarían hacia abajo, sin cambiar la forma de la serie de tiempo. Para cualquier otro valor de $\lambda$, la serie cambiará de forma.
 
 *¿Cómo escoger el valor de $\lambda$ a utilizar?*
 
@@ -246,7 +247,7 @@ p5a <- aus_production %>% autoplot(Gas)+
 
 p5 <- aus_production %>% autoplot(box_cox(Gas,lambda = -0.5)) + ggtitle("Box-Cox, lambda = -0.5")
 
-p6 <- aus_production %>% autoplot(box_cox(Gas,lambda = 0)) + ggtitle("Box-Cox, lambda = 0")
+p6 <- aus_production %>% autoplot(box_cox(Gas,lambda = 0)) + ggtitle("Box-Cox, lambda = 0 (log)")
 
 p7 <- aus_production %>% autoplot(box_cox(Gas,lambda = 0.1)) + ggtitle("Box-Cox, lambda = 0.1")
 
@@ -310,6 +311,7 @@ Veamos el ejemplo del empleo en el sector de las ventas al menudeo en EEUU desde
 us_retail_employment <- us_employment %>%
   filter(year(Month) >= 1990, Title == "Retail Trade") %>%
   select(-Series_ID)
+
 us_retail_employment %>%
   autoplot(Employed) +
   xlab("Year") + ylab("Persons (thousands)") +
@@ -320,6 +322,7 @@ Vamos a llevar a cabo un tipo de descomposición llamado **STL** (que analizarem
 ```{r STL decomp tbl}
 dcmp <- us_retail_employment %>%
   model(STL(Employed))
+
 components(dcmp)
 ```
 
