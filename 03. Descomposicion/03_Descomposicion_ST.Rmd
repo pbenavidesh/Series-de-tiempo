@@ -380,11 +380,13 @@ $$
 en donde $m = 2k +1$. Entonces, el estimado de de la tendencia en el periodo $t$, $\hat{T}_t$, se obtiene al promediar los valores de la serie de tiempo dentro de los $k$ periodos alrededor de $t$. A esto se le llama una media móvil de orden $m$; $m$-**MA**.
 
 ```{r mex exports plot}
-global_economy %>%
+p <- global_economy %>%
   filter(Country == "Mexico") %>%
   autoplot(Exports) +
   xlab("Year") + ylab("% of GDP") +
   ggtitle("Total Mexican exports")
+
+plotly::ggplotly(p)
 ```
 En la gráfica tenemos las exportaciones de México desde 1960 a 2017, como porcentaje del PIB. Podemos calcular una media móvil de orden 5; esto es, obtener el promedio de 5 periodos, para cada momento, $t$, con el centro de la "ventana" en $t$. Así, de acuerdo a la ecuación presentada, $k = 2$ y $m = 2k +1 = 5$.
 
@@ -409,6 +411,13 @@ gg <- mex_exports %>%
   
 gg + geom_line(aes(y = `5-MA`), color='red') +
   ggtitle("Total Mexican exports & 5-MA")
+
+# Se logra lo mismo con autoplot() y autolayer()
+mex_exports %>% 
+  autoplot(Exports) + 
+  autolayer(mex_exports, `5-MA`, color = "red") +
+  xlab("Year") + ylab("Exports (% of GDP)") +
+  ggtitle("Total Mexican exports & 5-MA")
 ```
 
 Se puede ver que la tendencia es mucho más suave que los datos originales, captura el movimiento principal de la serie, pero deja de lado las fluctuaciones intermedias o menores.
@@ -420,8 +429,11 @@ mex_exports <- mex_exports %>%
   mutate(
     `1-MA` = slide_dbl(Exports, mean, .size = 1, .align = "center"),
     `3-MA` = slide_dbl(Exports, mean, .size = 3, .align = "center"),
+    `7-MA` = slide_dbl(Exports, mean, .size = 7, .align = "center"),
     `9-MA` = slide_dbl(Exports, mean, .size = 9, .align = "center"),
+    `11-MA` = slide_dbl(Exports, mean, .size = 11, .align = "center"),
     `15-MA` = slide_dbl(Exports, mean, .size = 15, .align = "center"),
+    `17-MA` = slide_dbl(Exports, mean, .size = 17, .align = "center"),
     `21-MA` = slide_dbl(Exports, mean, .size = 21, .align = "center")
   )
 
@@ -451,6 +463,19 @@ g21 <- gg +
 
 (g1 | g3 | g5) /
   (g9 | g15 | g21)
+
+# Graficando las 6 series de una misma vez utilizando facetas
+mex_exports %>% 
+  pivot_longer(
+    cols      = `5-MA`:`21-MA`,
+    names_to  = "Orden",
+    values_to = "Media móvil"
+  ) %>% 
+  ggplot(aes(x = Year, y = Exports)) + 
+  geom_line() + 
+  geom_line(aes(y = `Media móvil`), color = "red") +
+  xlab("Year") + ylab("Exports (% of GDP)") +
+  facet_wrap(~ Orden)
 ```
 
 Como se puede observar, un modelo **1-MA** realmente no llevaría a cabo ninguna suavización, y un modelo **21-MA**, en este caso, se convertiría prácticamente en una línea recta.
@@ -603,6 +628,20 @@ Las desventajas de este método son que no controla de manera automática la var
 ```{r STL decomp}
 us_retail_employment %>%
   model(STL(Employed ~ trend(window=7) + season(window='periodic'),
+    robust = TRUE)) %>%
+  components() %>%
+  autoplot()
+
+# modificando la tendencia
+us_retail_employment %>%
+  model(STL(Employed ~ trend(window=15) + season(window='periodic'),
+    robust = TRUE)) %>%
+  components() %>%
+  autoplot()
+
+# modificando la estacionalidad
+us_retail_employment %>%
+  model(STL(Employed ~ trend(window=7) + season(window=21),
     robust = TRUE)) %>%
   components() %>%
   autoplot()
