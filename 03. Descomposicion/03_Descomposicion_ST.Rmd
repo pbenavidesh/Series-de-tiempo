@@ -37,7 +37,7 @@ Ahora, lo que buscamos es analizar datos lo más sencillos posibles, por lo que 
 
 Parte de la variación en las series de tiempo puede deberse a efectos muy sencillos que tienen que ver con el calendario. Algunos ejemplos de esto pueden ser variaciones en datos mensuales, debido a la cantidad de días hábiles en cada mes. Tomemos el caso del volumen de transacciones de Alphabet Inc., holding de Google, entre otras.
 
-```{r ajuste calendario google, warning=FALSE, results='hide', message=FALSE}
+```{r ajuste calendario google, message=FALSE, warning=FALSE, results='hide'}
 library("easypackages")
 packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales", "timetk")
 
@@ -319,7 +319,7 @@ us_retail_employment %>%
 ```
 Vamos a llevar a cabo un tipo de descomposición llamado **STL** (que analizaremos con mayor detalle posteriormente).
 
-```{r STL decomp tbl}
+```{r STL decomp tbl, paged.print=FALSE}
 dcmp <- us_retail_employment %>%
   model(Descomposicion = STL(Employed))
 
@@ -496,7 +496,7 @@ Como se puede observar, un modelo **1-MA** realmente no llevaría a cabo ninguna
 
 A una suavización de media móvil se le puede aplicar una nueva suavización de media móvil. Por ejemplo, considerando la producción de  cerveza, podemos obtener una media móvil de orden 4 y a eso sacarle la media móvil de orden 2:
 
-```{r MA of MA}
+```{r MA of MA, paged.print=TRUE}
 beer <- aus_production %>%
   filter(year(Quarter) >= 1992) %>%
   select(Quarter, Beer)
