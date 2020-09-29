@@ -321,7 +321,7 @@ Vamos a llevar a cabo un tipo de descomposición llamado **STL** (que analizarem
 
 ```{r STL decomp tbl}
 dcmp <- us_retail_employment %>%
-  model(STL(Employed))
+  model(Descomposicion = STL(Employed))
 
 components(dcmp)
 ```
@@ -399,6 +399,7 @@ mex_exports <- global_economy %>%
     `5-MA` = slide_dbl(Exports, mean, .size = 5, .align = "center")
   )
 
+mex_exports
 ```
 
 Para ver cómo se presenta esta media móvil gráficamente, podemos hacer lo siguiente:
@@ -451,18 +452,28 @@ g3 <- gg +
 g5 <- gg +
  geom_line(aes(y = `5-MA`), color='red') +
   ggtitle("5-MA")
+g7 <- gg +
+ geom_line(aes(y = `7-MA`), color='red') +
+  ggtitle("7-MA")
 g9 <- gg +
  geom_line(aes(y = `9-MA`), color='red') +
   ggtitle("9-MA")
+g11 <- gg +
+ geom_line(aes(y = `11-MA`), color='red') +
+  ggtitle("11-MA")
 g15 <- gg +
  geom_line(aes(y = `15-MA`), color='red') +
   ggtitle("15-MA")
+g17 <- gg +
+ geom_line(aes(y = `17-MA`), color='red') +
+  ggtitle("17-MA")
 g21 <- gg +
  geom_line(aes(y = `21-MA`), color='red') +
   ggtitle("21-MA")
 
 (g1 | g3 | g5) /
-  (g9 | g15 | g21)
+  (g7 | g9 | g11) /
+  (g15 | g17 | g21)
 
 # Graficando las 6 series de una misma vez utilizando facetas
 mex_exports %>% 
@@ -474,8 +485,9 @@ mex_exports %>%
   ggplot(aes(x = Year, y = Exports)) + 
   geom_line() + 
   geom_line(aes(y = `Media móvil`), color = "red") +
-  xlab("Year") + ylab("Exports (% of GDP)") +
-  facet_wrap(~ Orden)
+  xlab("Año") + ylab("Exportaciones (% of PIB)") +
+  facet_wrap(~ Orden) +
+  theme_minimal()
 ```
 
 Como se puede observar, un modelo **1-MA** realmente no llevaría a cabo ninguna suavización, y un modelo **21-MA**, en este caso, se convertiría prácticamente en una línea recta.
@@ -491,7 +503,7 @@ beer <- aus_production %>%
 
 beer_ma <- beer %>%
   mutate(
-    `4-MA` = slide_dbl(Beer, mean, .size = 4, .align = "center-left"),
+    `4-MA` = slide_dbl(Beer, mean, .size = 4, .align = "center-right"),
     `2x4-MA` = slide_dbl(`4-MA`, mean, .size = 2, .align = "center-right")
   )
 
@@ -653,7 +665,7 @@ Estos parámetros controlan qué tan rápido cambian los componentes de tendenci
 
 # Tarea
 
-1. Tomando el PIB de cada país, `GDP`, contenido en la tabla `global_economy`, grafique el PIB per cápita a lo largo del tiempo. ¿Cómo ha sido la evolución de la economía de los países en el tiempo? ¿Cuál país tiene el mayor PIB per cápita?
+1. Tomando el PIB de cada país, `GDP`, contenido en la tabla `global_economy`, grafique el PIB per cápita a lo largo del tiempo. ¿Cómo ha sido la evolución de la economía de los países en el tiempo? ¿Cuál país tiene el mayor PIB per cápita? (*Les recomiendo quitar la leyenda del gráfico, incluyendo `theme(legend.position = "none")`*)
 
 2. Grafique las siguientes series de tiempo y transfórmelas y/o ajústelas si lo considera necesario. ¿Qué efecto tuvo la transformación?
   
