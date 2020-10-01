@@ -131,6 +131,7 @@ ggplot(ge) + aes(x = Year, y = Population, color = Country) +
   geom_line()
 ```
 
+
 Ahora, si ajustamos los datos del PIB para tomar en cuenta la población, obtendríamos el **PIB per cápita**.
 
 ```{r countries gdp per capita}
