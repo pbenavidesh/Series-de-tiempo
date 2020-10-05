@@ -22,26 +22,30 @@ En el pasado, ya hemos revisado varias características de las series de tiempo.
 
 Algunas de las más sencillas son la media, mínimo, máximo, ... y las podemos calcular utilizando la función `features()`. Tomemos de ejemplo los datos del turismo en Australia, `tourism`.
 
-```{r stat features1, message=FALSE, warning=FALSE}
+```{r stat features1, message=FALSE, warning=FALSE, paged.print=FALSE}
 library("easypackages")
 packages("tidyverse","lubridate", "patchwork", "fpp2","fpp3","scales","DT")
 glimpse(tourism)
-tourism %>% features(Trips, list(mean =mean))
+tourism %>% features(Trips, list(Promedio = mean))
 ```
 
 ***
 La paquetería `DT` nos permite crear `datatables` o tablas interactivas.
 
 ```{r}
-tourism %>% features(Trips, list(mean =mean)) %>% datatable(filter = "top")
+tourism %>% 
+  features(Trips, list(mean =mean)) %>% 
+  datatable(filter = "top")
 ```
 
 Si tenemos variables categóricas (`factors`), podemos filtrar seleccionando cada nivel.
 
+
 ```{r}
 tourism %>% 
-  mutate_if(is.character,as_factor) %>% 
-  features(Trips, list(mean =mean)) %>% datatable(filter = "top")
+  mutate_if(is.character, as_factor) %>% 
+  features(Trips, list(Promedio = mean)) %>% 
+  datatable(filter = "top")
 ```
 
 ***
@@ -49,15 +53,18 @@ tourism %>%
 Calculamos la característica de la media y se muestra en la columna `V1`. Si queremos calcular varias características y nombrarlas, lo podemos hacer así:
 
 ```{r stat features2}
-tourism %>% features(Trips, list(media = mean, 
-                                 min = min,
-                                 max = max)) %>% arrange(media)
+tourism %>% features(Trips, list(media    = mean,
+                                 desv_std = sd,
+                                 min      = min,
+                                 max      = max)) %>% 
+  arrange(media)
 ```
 
 Como hemos visto anteriormente, existen 5 estadísticas básicas que se deben analizar: el mínimo, primer cuartil, mediana, tercer cuartil y máximo. La función `quantile()` nos ayuda a calcularlas de manera sencilla:
 
 ```{r Quartile features}
-tourism %>% features(Trips, quantile, prob=seq(0,1,by=0.25))
+tourism %>% 
+  features(Trips, quantile, prob=seq(0, 1, by=0.25))
 ```
 
 ### Características de la función de autocorrelación, ACF
@@ -94,7 +101,19 @@ Esto es útil cuando se quiere discernir cuáles series de tiempo tienen la mayo
 Podemos obtener todas estas características con la función `feat_stl()`.
 
 ```{r STL features}
+tourism %>% 
+  filter(Region  == "Adelaide",
+         Purpose %in% c("Business", "Holiday")) %>% 
+  autoplot() %>% 
+  plotly::ggplotly()
 tourism %>%
   features(Trips, feat_stl)
 ```
+
+```{r}
+tourism %>% 
+  features(Trips, list(Promedio = mean))
+```
+
+
 
