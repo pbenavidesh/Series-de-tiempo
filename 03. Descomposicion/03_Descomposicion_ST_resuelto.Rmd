@@ -39,7 +39,7 @@ Parte de la variación en las series de tiempo puede deberse a efectos muy senci
 
 ```{r ajuste calendario google, message=FALSE, warning=FALSE, results='hide'}
 library("easypackages")
-packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales", "timetk")
+packages("tidyverse", "tidyquant", "lubridate", "patchwork", "fpp2","fpp3","scales", "timetk", "plotly")
 
 transacciones_mensuales <- tq_get("GOOG", get = "stock.prices",
                                   from = "2015-01-01") %>%
@@ -680,7 +680,8 @@ ej1 <- ge %>%
   geom_line() + 
   theme(legend.position = "none")
 
-# ej1        + scale_y_log10()
+ej1
+ej1 + scale_y_log10()
 ggplotly(ej1)
 ```
 
@@ -703,14 +704,13 @@ ej1a + theme(legend.position = "right") #por default hace esto
 ```{r}
 max_gdp <- ge %>% 
   filter(Year == 2016) %>% 
-  slice_max(PIB_Per_Capita, n = 10)
+  slice_max(PIB_Per_Capita, n = 1)
 
 top_paises <- max_gdp %>%  
-  distinct(Country) %>% 
   pull(Country)
 
 ge %>% 
-  filter(Country %in% top_paises) %>% 
+  # filter(Country %in% top_paises) %>% 
   ggplot(aes(x     = Year,
              y     = PIB_Per_Capita, 
              label = Country,
@@ -718,13 +718,10 @@ ge %>%
   geom_line() +
   geom_label(
     data = max_gdp,
-    aes(x     = Year,
-             y     = PIB_Per_Capita, 
-             label = Country,
-             color = Country),
     check_overlap = TRUE
-  )# +
-  # scale_y_log10()
+  ) +
+  theme(legend.position = "none") +
+  scale_y_log10()
 ```
 
 
@@ -734,14 +731,15 @@ ge %>%
     i) PIB de EEUU, de `global_economy`.
 
 ```{r US_gdp}
-global_economy %>% 
+ej2 <- global_economy %>% 
   filter(Country %in% c("United States", "Mexico")) %>% 
   mutate(
     `PIB per Cápita` = GDP / Population,
     `PIB per Cápita deflactado` = `PIB per Cápita` / CPI
   ) %>% 
-  autoplot(`PIB per Cápita`) +
+  autoplot(`PIB per Cápita`, linetype = 6) +
   scale_y_log10()
+ggplotly(ej2)
 ```
 
 > Se puede ajustar por población para obtener el PIB per Cápita y ajustar la inflación para ver el crecimiento de la economía en términos reales.
@@ -751,13 +749,14 @@ global_economy %>%
     iii) Demanda de electricidad en el estado de Victoria (Australia), de `vic_elec`.
 
 ```{r}
+vic_elec
 vic_elec %>% 
   autoplot(Demand, color = "orange") %>% 
   ggplotly()
-
-vic_elec %>% 
-  model(STL(Demand)) %>% 
-  components() %>% 
+  
+vic_elec %>%
+  model(STL(Demand)) %>%
+  components() %>%
   autoplot()
 ```
 > Al realizar la descomposición de la serie vemos que presenta varios tipos de estacionalidad:
@@ -769,12 +768,15 @@ vic_elec %>%
 3. ¿Es útil realizar una transformación de Box-Cox a los datos `canadian_gas`? ¿Por qué sí o por qué no?
 
 ```{r}
+canadian_gas
 canadian_gas %>% 
   autoplot()
 
 lambda <- canadian_gas %>% 
   features(Volume, guerrero) %>% 
   pull(lambda_guerrero)
+
+lambda
 
 canadian_gas %>% 
   autoplot(box_cox(Volume, lambda = lambda))
@@ -787,12 +789,12 @@ canadian_gas %>%
 ```{r}
 plastico <- fma::plastics
 plastico
-str(plastico)
+glimpse(plastico)
 class(plastico)
 ```
 > La tabla es un objeto `ts`, por lo que necesitamos convertirlo a un objeto `tsibble`.
 
-```{r}
+```{r paged.print=FALSE}
 plastico <- plastico %>% 
   as_tsibble()
 plastico
@@ -812,7 +814,7 @@ plastico %>%
 
 ```{r}
 plastico_dcmp <- plastico %>% 
-  model(classical_decomposition(value)) %>% 
+  model(Descomposicion = classical_decomposition(value, type = "multiplicative")) %>% 
   components() 
 
 plastico_dcmp
@@ -838,12 +840,55 @@ plastico %>%
 > Voy a cambiar la observación 20
 
 ```{r}
+obs <- 20
 plastico2 <- plastico
-
-plastico2$value[20] <- plastico2$value[20] + 500
-plastico2$value[20]
+plastico2$value[obs]
+plastico2$value[obs] <- plastico2$value[obs] + 500
+plastico2$value[obs]
 plastico2
+
+plastico2 %>% 
+  autoplot()
+```
+
+```{r}
+plastic2_dcmp <- plastico2 %>% 
+  model(dcmp = classical_decomposition(value, type = "multiplicative")) %>% 
+  components()
+
+plastic2_dcmp %>% 
+  autoplot()
+
+plastico2 %>% 
+  autoplot(value, color = "gray") +
+  autolayer(plastic2_dcmp, season_adjust, color = "firebrick")
 ```
 
 
     vi) ¿Hace alguna diferencia que el outlier se encuentre cerca del final de la serie o más alrededor del centro?
+
+```{r}
+obs <- 5
+plastico2 <- plastico
+plastico2$value[obs]
+plastico2$value[obs] <- plastico2$value[obs] + 1000
+plastico2$value[obs]
+plastico2
+
+plastico2 %>% 
+  autoplot()
+```
+
+```{r}
+plastic2_dcmp <- plastico2 %>% 
+  model(dcmp = classical_decomposition(value, type = "multiplicative")) %>% 
+  components()
+
+plastic2_dcmp %>% 
+  autoplot()
+
+plastico2 %>% 
+  autoplot(value, color = "gray") +
+  autolayer(plastic2_dcmp, season_adjust, color = "firebrick")
+```
+
