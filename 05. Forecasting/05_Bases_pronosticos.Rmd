@@ -107,7 +107,6 @@ fcst %>%
     ggtitle("PIB de Suecia") + ylab("$US billions")
 ```
 
-
 # Métodos sencillos de pronóstico { .tabset}
 
 Utilizaremos de *benchmark* a lo largo del curso estos métodos básicos de pronóstico. En ocasiones, a pesar de su sencillez, pueden llegar a ser muy útiles.
@@ -116,6 +115,13 @@ Utilizaremos los datos de producción de ladrillos para esta sección.
 
 ```{r bricks}
 bricks <- aus_production %>% filter_index("1970" ~ "2004")
+bricks
+bricks %>% autoplot(Bricks)
+```
+
+```{r}
+tidyquant::tq_get("AAPL") %>% 
+  timetk::plot_time_series(.date_var = date,.value = log(close), .smooth = FALSE)
 ```
 
 ## Método del promedio (media)
@@ -126,7 +132,7 @@ $$
 \hat{y}_{T+h | T}=\bar{y}=\left(y_{1}+\cdots+y_{T}\right) / T
 $$
 
-```{r, warning=FALSE}
+```{r warning=FALSE, paged.print=FALSE}
 bricks %>% model(MEAN(Bricks))
 ```
 
@@ -139,8 +145,9 @@ $$
 $$
 Dado que un pronóstico ingenuo es óptimo cuando se tienen datos que siguen una *caminata aleatoria*, a estos pronósticos se les conoce como **pronósticos de caminata aleatoria**.
 
-```{r}
-bricks %>% model(NAIVE(Bricks))
+```{r paged.print=FALSE}
+bricks %>% model(NAIVE(Bricks),
+                 RW(Bricks)) # hace exactamente lo mismo que NAIVE()
 ```
 ## Método ingenuo estacional (seasonal Naïve)
 
@@ -149,7 +156,7 @@ Un método similar es el ingenuo estacional. Lo que cambia con el anterior es qu
 $$
 \hat{y}_{T+h | T}=y_{T+h-m(k+1)}
 $$
-```{r, message=FALSE}
+```{r message=FALSE, paged.print=FALSE}
 bricks %>% model(SNAIVE(Bricks))
 ```
 
@@ -161,8 +168,10 @@ $$
 \hat{y}_{T+h | T}=y_{T}+\frac{h}{T-1} \sum_{t=2}^{T}\left(y_{t}-y_{t-1}\right)=y_{T}+h\left(\frac{y_{T}-y_{1}}{T-1}\right)
 $$
 
-```{r}
-bricks %>% model(RW(Bricks ~ drift()))
+```{r paged.print=FALSE}
+bricks %>% model(
+  RW(Bricks ~ drift())
+)
 ```
 
 Esto es lo mismo que trazar una línea recta que conecte el primer y último punto en los datos históricos y continuar la recta hacia adelante.
@@ -176,10 +185,10 @@ train <- aus_production %>% filter_index("1992 Q1" ~ "2006 Q4")
 # Fit the models
 beer_fit <- train %>%
   model(
-    Mean = MEAN(Beer),
-    `Naïve` = NAIVE(Beer),
+    Mean             = MEAN(Beer),
+    `Naïve`          = NAIVE(Beer),
     `Seasonal naïve` = SNAIVE(Beer),
-    Drift = RW(Beer ~ drift())
+    Drift            = RW(Beer ~ drift())
   )
 # Generate forecasts for 14 quarters
 beer_fc <- beer_fit %>% forecast(h=14)
@@ -198,6 +207,7 @@ beer_fc %>%
            y = 550, label = c("Train set", "Test set"),
            color = c("black","blue"))
 ```
+
 ```{r}
 beer_fc %>%
   filter(.model == "Seasonal naïve") %>% 
@@ -261,9 +271,15 @@ $$
 
 En **R**, podemos obtener los valores ajustados y los residuales con la función `augment()`. Recordando, habíamos ajustado tres modelos distintos, que guardamos en la variable `beer_fit`.
 
+```{r}
+?augment
+```
+
+
 ```{r augment}
 augment(beer_fit)
 ```
+
 Es muy importante analizar los residuos para determinar si nuestros modelos están bien ajustados. Si logramos detectar patrones en los residuales, puede ser indicio de que el modelo puede mejorarse.
 
 # Diagnóstico de residuales
@@ -296,7 +312,14 @@ google_2015 %>% autoplot(Close) +
 Aplicaremos solo el método Naïve para pronosticar el precio futuro de la acción de Google.
 
 ```{r residuales google}
-aug <- google_2015 %>% model(NAIVE(Close)) %>% augment()
+aug <- google_2015 %>% 
+  model(NAIVE(Close)) %>% 
+  augment()
+
+aug
+
+aug %>% pull(.resid) %>% mean(na.rm = TRUE) 
+
 aug %>% autoplot(.resid) + xlab("Día") + ylab("") +
   ggtitle("Residuales del método naïve")
 ```
