@@ -119,10 +119,7 @@ bricks
 bricks %>% autoplot(Bricks)
 ```
 
-```{r}
-tidyquant::tq_get("AAPL") %>% 
-  timetk::plot_time_series(.date_var = date,.value = log(close), .smooth = FALSE)
-```
+
 
 ## Método del promedio (media)
 
@@ -149,6 +146,12 @@ Dado que un pronóstico ingenuo es óptimo cuando se tienen datos que siguen una
 bricks %>% model(NAIVE(Bricks),
                  RW(Bricks)) # hace exactamente lo mismo que NAIVE()
 ```
+
+```{r}
+tidyquant::tq_get("AAPL") %>% 
+  timetk::plot_time_series(.date_var = date,.value = close, .smooth = FALSE)
+```
+
 ## Método ingenuo estacional (seasonal Naïve)
 
 Un método similar es el ingenuo estacional. Lo que cambia con el anterior es que se agrega un componente para lidiar con datos altamente estacionales.
