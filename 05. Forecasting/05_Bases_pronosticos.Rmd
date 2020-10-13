@@ -23,7 +23,7 @@ Las paqueterías a usar en este documento:
 
 ```{r, message=FALSE}
 library("easypackages")
-packages("tidyverse","fpp3", "tsibble", "feasts","fable")
+packages("tidyverse","fpp3", "tsibble", "feasts","fable", "patchwork")
 ```
 
 
@@ -163,6 +163,22 @@ $$
 bricks %>% model(SNAIVE(Bricks))
 ```
 
+
+
+```{r}
+vic_elec %>% 
+  autoplot(Demand) %>% 
+  plotly::ggplotly()
+```
+
+```{r}
+vic_elec %>% 
+  model(SNAIVE(Demand)) %>% 
+  forecast(h = "1 day") %>% 
+  autoplot(vic_elec %>% filter_index("2014-12-30" ~ .))
+```
+
+
 ## Método del drift (deriva)
 
 Este método es una variación del método ingenuo, que permite que el pronóstico aumente o disminuya en el tiempo. El aumento del cambio es el cambio promedio en los datos históricos.
@@ -194,13 +210,11 @@ beer_fit <- train %>%
     Drift            = RW(Beer ~ drift())
   )
 # Generate forecasts for 14 quarters
-beer_fc <- beer_fit %>% forecast(h=14)
+beer_fc <- beer_fit %>% forecast(h= 14)
 
 # Plot forecasts against actual values
 beer_fc %>%
-  autoplot(train, level = NULL) +
-  autolayer(filter_index(aus_production, "2007 Q1" ~ .), 
-            color = "black") +
+  autoplot(filter_index(aus_production, "1992 Q1" ~ .), level = NULL) +
   ggtitle("Forecasts for quarterly beer production") +
   xlab("Year") + ylab("Megalitres") +
   guides(colour=guide_legend(title="Forecast")) +
@@ -214,9 +228,7 @@ beer_fc %>%
 ```{r}
 beer_fc %>%
   filter(.model == "Seasonal naïve") %>% 
-  autoplot(train) +
-  autolayer(filter_index(aus_production, "2007 Q1" ~ .), 
-            color = "black") +
+  autoplot(filter_index(aus_production, "1992 Q1" ~ .)) +
   ggtitle("Seasonal naïve forecast for quarterly beer production") +
   xlab("Year") + ylab("Megalitres") +
   guides(colour=guide_legend(title="Forecast")) +
@@ -260,6 +272,28 @@ google_fc %>%
     xlab("Day") + ylab("Closing Price (US$)") +
     guides(colour=guide_legend(title="Forecast"))
 ```
+
+```{r, fig.height=9, fig.width=7}
+p1 <- google_fc %>%
+  filter(.model == "Drift") %>% 
+  autoplot(google_2015) +
+    autolayer(google_jan_2016, Close, color='black') +
+    ggtitle("Google stock (daily ending 31 Dec 2015)") +
+    xlab("Day") + ylab("Closing Price (US$)") +
+    guides(colour=guide_legend(title="Forecast"))
+
+p2 <- google_fc %>%
+  filter(.model == "Naïve") %>% 
+  autoplot(google_2015) +
+    autolayer(google_jan_2016, Close, color='black') +
+    ggtitle("Google stock (daily ending 31 Dec 2015)") +
+    xlab("Day") + ylab("Closing Price (US$)") +
+    guides(colour=guide_legend(title="Forecast"))
+
+p1 / p2
+```
+
+
 
 # Valores ajustados *(fitted)* y residuales
 
