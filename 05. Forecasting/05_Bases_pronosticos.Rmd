@@ -372,8 +372,23 @@ aug %>%
 Del histograma, podemos ver que los residuales parecen distribuirse como una normal, pero con una cola más grande.
 
 ```{r acf resids}
+aug %>% ACF(.resid)
+
 aug %>% ACF(.resid) %>% autoplot() + ggtitle("ACF of residuals")
 ```
+
+```{r}
+aus_production %>% 
+  filter_index("1992" ~ .) %>%
+  model(SNAIVE(Beer)) %>% 
+  gg_tsresiduals()
+
+aus_production %>% 
+  filter_index("1992" ~ .) %>%
+  gg_tsdisplay(Beer)
+```
+
+
 
 La función de autocorrelación muestra que los residuos no están autocorrelacionados.
 
@@ -389,6 +404,12 @@ google_2015 %>%
 ```
 Como vimos antes, el método Naïve es óptimo para este tipo de series. ¿Qué hubiera sucedido si ajustáramos otro modelo? Probemos con el método de la media:
 ```{r gg_tsresiduals mean, warning=FALSE}
+google_2015 %>% 
+  model(MEAN(Close)) %>% 
+  augment() %>% 
+  pull(.resid) %>% 
+  mean(na.rm = TRUE)
+
 google_2015 %>% 
   model(MEAN(Close)) %>% 
   gg_tsresiduals() + 
@@ -427,18 +448,23 @@ Q^{*}=T(T+2) \sum_{k=1}^{h}(T-k)^{-1} r_{k}^{2}
 $$
 En este caso es igual: valores grandes de $Q^{*}$ son indicios de que las autocorrelaciones no provienen de ruido blanco.
 
+> Entonces, la hipótesis nula de estas pruebas es que la serie en cuestión **no está autocorrelacionada**. En otras palabras, la $H_0$ dice que **la serie es ruido blanco**. Si $\alpha$ es el nivel de significancia (el nivel máximo de error que estamos dispuestos a aceptar) y si el ¨*p-value* $< \alpha$, entonces **rechazamos $H_0$**, de lo contrario, no rechazamos la $H_0$.
+
 Las pruebas para el modelo ingenuo:
 
-```{r}
+```{r paged.print=FALSE}
 # lag=h and fitdf=K
 aug %>% features(.resid, box_pierce, lag=10, dof=0)
 
 aug %>% features(.resid, ljung_box, lag=10, dof=0)
 
 ```
+
+Estas pruebas nos indican que los residuos del modelo Naïve sí son ruido blanco (no están autocorrelacionados).
+
 Para el modelo de la media:
 
-```{r}
+```{r paged.print=FALSE}
 google_2015 %>% 
   model(MEAN(Close)) %>% augment() %>% 
   features(.resid, box_pierce, lag = 10, dof = 0)
@@ -487,26 +513,11 @@ Si $\hat{\sigma}$ es la desviación estándar de los residuos y $\hat{\sigma}_{h
 
 Utilizando la paquetería `fable`, es muy sencillo obtener pronósticos y sus bandas.
 
-```{r, eval=FALSE}
+```{r eval=FALSE, paged.print=FALSE}
 google_2015 %>%
   model(NAIVE(Close)) %>%
   forecast(h = 10) %>%
   hilo()
-
-#> # A tsibble: 10 x 6 [1]
-#> # Key:       Symbol, .model [1]
-#>    Symbol .model         day Close            `80%`            `95%`
-#>    <chr>  <chr>        <dbl> <dbl>           <hilo>           <hilo>
-#>  1 GOOG   NAIVE(Close)   505  759. [744.5, 773.2]80 [736.9, 780.8]95
-#>  2 GOOG   NAIVE(Close)   506  759. [738.6, 779.2]80 [727.9, 789.9]95
-#>  3 GOOG   NAIVE(Close)   507  759. [734.0, 783.7]80 [720.9, 796.9]95
-#>  4 GOOG   NAIVE(Close)   508  759. [730.2, 787.6]80 [715.0, 802.7]95
-#>  5 GOOG   NAIVE(Close)   509  759. [726.8, 790.9]80 [709.8, 807.9]95
-#>  6 GOOG   NAIVE(Close)   510  759. [723.8, 794.0]80 [705.2, 812.6]95
-#>  7 GOOG   NAIVE(Close)   511  759. [720.9, 796.8]80 [700.9, 816.9]95
-#>  8 GOOG   NAIVE(Close)   512  759. [718.3, 799.4]80 [696.8, 820.9]95
-#>  9 GOOG   NAIVE(Close)   513  759. [715.9, 801.9]80 [693.1, 824.7]95
-#> 10 GOOG   NAIVE(Close)   514  759. [713.5, 804.2]80 [689.5, 828.2]95
 ```
 
 Esto mismo se puede graficar, como lo hemos hecho anteriormente:
