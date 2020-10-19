@@ -583,6 +583,64 @@ Graficando:
 fc %>% autoplot(google_2015) +
   ggtitle("Google closing stock price")
 ```
+## Tarea predicción de producción de ladrillos
+
+```{r}
+aus_production %>% 
+  autoplot(Bricks)
+
+aus_production %>% 
+  autoplot(box_cox(Bricks, lambda = 0.4))
+
+aus_production %>% 
+  select(Quarter, Bricks) %>% 
+  drop_na() %>% 
+  slice_tail(n = 8)
+
+# Los datos de entrenamiento
+bricks_train <- aus_production %>% 
+  filter_index(. ~ "2003 Q2")# %>% 
+  # mutate(log_bricks = log(Bricks)) # no deberían hacer la transformación antes del modelo
+
+# Estimación de modelos
+bricks_fit <- bricks_train %>% 
+  model(
+    Media                = MEAN(log(Bricks)),
+    Ingenuo              = NAIVE(log(Bricks)),
+    `Ingenuo estacional` = SNAIVE(log(Bricks)),
+    Deriva               = RW(log(Bricks) ~ drift())
+  )
+
+bricks_aug <- augment(bricks_fit)
+bricks_aug
+
+graf_residuos <- function(modelo = "Media"){
+  bricks_fit %>% 
+    select(modelo) %>% 
+    gg_tsresiduals() +
+    ggtitle(paste("Diagnóstico de residuales para el modelo", modelo))
+}
+
+graf_residuos("Media")
+graf_residuos("Ingenuo")
+graf_residuos("Ingenuo estacional")
+graf_residuos("Deriva")
+
+bricks_fc <- bricks_fit %>% 
+  forecast(h = "2 years")
+
+bricks_fc %>% 
+  autoplot(aus_production %>% select(Quarter, Bricks) %>% drop_na(), level = NULL)
+
+bricks_fc %>%
+  autoplot(aus_production %>% select(Quarter, Bricks) %>%  drop_na() %>% filter_index("1995 Q1" ~ .),
+           level = NULL)
+
+bricks_fc %>%
+  filter(.model == "Ingenuo estacional") %>%
+  autoplot(aus_production %>% select(Quarter, Bricks) %>%  drop_na() %>% filter_index("1995 Q1" ~ .))
+```
+
 
 # Tarea
 
@@ -640,8 +698,11 @@ eggs <- as_tsibble(fma::eggs)
 fit <- eggs %>% model(RW(log(value) ~ drift()))
 fc <- fit %>% forecast(h=50) %>%
   mutate(Forecast = "Bias adjusted")
-fc_biased <- fit %>% forecast(h=50, bias_adjust = FALSE) %>%
+
+fc_biased <- fit %>% 
+  forecast(h=50, point_forecast = list(.median = median)) %>%
   mutate(Forecast = "Simple back transformation")
+
 eggs %>% autoplot(value) +
   autolayer(fc_biased, level = 80) +
   autolayer(fc, colour = "red", level = NULL)
@@ -668,10 +729,17 @@ Así, el pronóstico se realiza en dos pasos: un pronóstico para el componente 
 ```{r}
 us_retail_employment <- us_employment %>%
   filter(year(Month) >= 1990, Title == "Retail Trade")
+
+us_retail_employment %>% 
+autoplot(Employed)
+
 dcmp <- us_retail_employment %>%
   model(STL(Employed ~ trend(window = 7), robust=TRUE)) %>%
   components() %>%
   select(-.model)
+
+dcmp
+
 dcmp %>%
   model(NAIVE(season_adjust)) %>%
   forecast() %>%
@@ -686,7 +754,8 @@ A esta serie, podemos agregarle nuevamente la estacionalidad con la función `de
 us_retail_employment %>%
   model(stlf = decomposition_model(
              STL(Employed ~ trend(window = 7), robust = TRUE),
-             NAIVE(season_adjust)
+             NAIVE(season_adjust),
+             SNAIVE(season_year)
   )) %>%
   forecast() %>%
   autoplot(us_retail_employment)
