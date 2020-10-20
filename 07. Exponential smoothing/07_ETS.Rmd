@@ -66,15 +66,21 @@ En **R**, la función para este modelo es `ETS()`. La optimización para encontr
 ```{r SES}
 # Estimar los parámetros
 fit <- algeria_economy %>%
-  model(ETS(Exports ~ error("A"), opt_crit = "mse"))
+  model(SES   = ETS(Exports ~ error("A") + trend("N") + season("N"), opt_crit = "mse"),
+        NAIVE = NAIVE(Exports))
 
 fc <- fit %>%
   forecast(h = 5)
 
 fc %>%
-  autoplot(algeria_economy) +
-  geom_line(aes(y = .fitted, colour = "Fitted"), data = augment(fit)) +
+  autoplot(algeria_economy %>% filter_index("2000"~.), level = NULL) +
+  # geom_line(aes(y = .fitted, colour = "Fitted"), data = augment(fit)) +
   ylab("Exports (% of GDP)") + xlab("Year")
+```
+```{r}
+fit %>% 
+  select(SES) %>% 
+  report()
 ```
 
 ## Métodos con tendencia
@@ -91,10 +97,17 @@ aus_economy <- global_economy %>%
   mutate(Pop = Population / 1e6)
 
 fit <- aus_economy %>%
-  model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
+  model(AAN   = ETS(Pop ~ error("A") + trend("A") + season("N")),
+        Drift = RW(Pop ~ drift()))
 
 fc <- fit %>% forecast(h = 10)
 
+fc %>% 
+  autoplot(aus_economy %>% filter_index("2000"~.), level = NULL)
+
+fit %>% 
+  select(AAN) %>% 
+  report()
 ```
 
 ### Métodos de tendencia amortiguada (damped trend)
@@ -109,13 +122,19 @@ Comparemos los dos métodos:
 aus_economy %>%
   model(
     `Holt` = ETS(Pop ~ error("A") + trend("A")),
-    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad", phi = 0.9))
+    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad", phi = 0.95))
   ) %>%
   forecast(h = 15) %>%
   autoplot(aus_economy, level = NULL) +
   ggtitle("Forecasts from Holt's method") + xlab("Year") +
   ylab("Population of Australia (millions)") +
   guides(colour = guide_legend(title = "Forecast"))
+
+aus_economy %>%
+  model(
+    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad", phi = 0.95))
+  ) %>% 
+  report()
 ```
 
 Un ejemplo con el uso de internet:
