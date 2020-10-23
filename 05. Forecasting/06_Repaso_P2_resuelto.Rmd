@@ -20,7 +20,7 @@ train <- <dataframe> %>%
 
 se sustituiría por algo como:
 
-```{r filter example, eval=FALSE}
+```{r filter example,eval=FALSE}
 train <- df %>% 
   filter(Year <= 2019)
 ```
@@ -408,36 +408,188 @@ accuracy(beer_fc, recent_production)
 
 #### * Población australiana (`global_economy`)
 
-*Tip: filtre la tabla para quedarse solo con Australia*
+```{r aus_pop plot}
+aus_pop <- global_economy %>% 
+  filter(Country == "Australia") 
 
-```{r}
+aus_pop %>% 
+  ggplot(aes(x = Year, y = Population))+
+  geom_line() + ggtitle("Población australiana")
+```
+Como la población parece aumentar de manera bastante lineal, probamos con el método del **drift**.
 
+```{r aus_pop drift fcst}
+# Separar los datos en entrenamiento y prueba
+aus_pop_train <- aus_pop %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+aus_pop_model <- aus_pop_train %>% 
+  model(RW(Population ~ drift()))
+
+# Obtener residuales y valores ajustados
+aus_pop_aug <- aus_pop_model %>% augment()
+
+aus_pop_aug
+
+# Gráfica 
+aus_pop_train %>% 
+  ggplot(aes(x = Year, y = Population))+
+  geom_line()+
+  geom_line(aes(y = aus_pop_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+
+```
+El pronóstico:
+
+```{r aus_pop fcst}
+aus_pop_fc <- aus_pop_model %>% 
+  forecast(h = length(aus_pop$Year)-length(aus_pop_train$Year))
+aus_pop_fc
+
+aus_pop_fc %>% 
+  autoplot(aus_pop) + ggtitle("Pronóstico de la pob. australiana con el método del drift")
 ```
 
 
 
-#### * Producción de tabaco (Tobacco de `aus_production`)
+#### * Producción de ladrillos (Bricks de `aus_production`)
 
-```{r}
+```{r bricks model}
+bricks <- aus_production %>% 
+  select(Quarter, Bricks) %>% 
+  na.omit() %>%  # para quitar los NAs que tiene la serie al final
+  as_tsibble()
+  
 
+# Gráfica de los datos
+
+ggplot(bricks, aes(x = Quarter, y = Bricks)) +
+  geom_line()
+
+# Separar los datos en entrenamiento y prueba
+bricks_train <- bricks %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+bricks_model <- bricks_train %>% 
+  model(seasonal_naive = SNAIVE(Bricks))
+
+# Obtener residuales y valores ajustados
+bricks_aug <- bricks_model %>% augment()
+
+bricks_aug
+
+# Gráfica 
+bricks_train %>% 
+  ggplot(aes(x = Quarter, y = Bricks))+
+  geom_line()+
+  geom_line(aes(y = bricks_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+```
+
+El pronóstico:
+
+```{r bricks fcst}
+bricks_fc <- bricks_model %>% 
+  forecast(h = length(bricks$Quarter)-length(bricks_train$Quarter))
+bricks_fc
+
+bricks_fc %>% 
+  autoplot(bricks) + ggtitle("Pronóstico de producción de ladrillos con Seasonal Naïve")
 ```
 
 
 #### * Corderos de New South Wales (NSW en `aus_livestock`)
 
-*Tip: filtre la tabla para quedarse solo con el estado solicitado (`New South Wales`) y con los corderos (`Lambs`)*
+```{r lamb model}
+lamb <- aus_livestock %>% 
+  filter(Animal == "Lambs",
+         State == "New South Wales") %>% 
+  select(Month, Count) 
+  
+  
 
-```{r}
+# Gráfica de los datos
 
+ggplot(lamb, aes(x = Month, y = Count)) +
+  geom_line()
+
+# Separar los datos en entrenamiento y prueba
+lamb_train <- lamb %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+lamb_model <- lamb_train %>% 
+  model(seasonal_naive = SNAIVE(Count))
+
+# Obtener residuales y valores ajustados
+lamb_aug <- lamb_model %>% augment()
+
+lamb_aug
+
+# Gráfica 
+lamb_train %>% 
+  ggplot(aes(x = Month, y = Count))+
+  geom_line()+
+  geom_line(aes(y = lamb_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+```
+
+El pronóstico:
+
+```{r lamb fcst}
+lamb_fc <- lamb_model %>% 
+  forecast(h = length(lamb$Month)-length(lamb_train$Month))
+lamb_fc
+
+lamb_fc %>% 
+  autoplot(lamb) + ggtitle("Pronóstico de producción de ladrillos con Seasonal Naïve")
 ```
 
 
-#### * Riqueza de los hogares en EEUU (`hh_budget`)
 
-*Tip: filtre la tabla para quedarse solo con el país de EEUU (`USA`)*
+#### * Riqueza de los hogares (`hh_budget`)
 
-```{r}
+```{r wealth model}
+usa_riq <- hh_budget %>% 
+  filter(Country == "USA") %>% 
+  select(Year, Wealth)
 
+# Gráfica de los datos
+
+ggplot(usa_riq, aes(x = Year, y = Wealth)) +
+  geom_line()
+
+# Separar los datos en entrenamiento y prueba
+usa_riq_train <- usa_riq %>% 
+  slice(1:trunc(n()*.8,0))
+
+# Ajuste del modelo
+usa_riq_model <- usa_riq_train %>% 
+  model(naive = RW(Wealth))
+
+# Obtener residuales y valores ajustados
+usa_riq_aug <- usa_riq_model %>% augment()
+
+usa_riq_aug
+
+# Gráfica 
+usa_riq_train %>% 
+  ggplot(aes(x = Year, y = Wealth))+
+  geom_line()+
+  geom_line(aes(y = usa_riq_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
+```
+El pronóstico:
+
+```{r wealth fcst}
+usa_riq_fc <- usa_riq_model %>% 
+  forecast(h = length(usa_riq$Year)-length(usa_riq_train$Year))
+usa_riq_fc
+
+usa_riq_fc %>% 
+  autoplot(usa_riq) + ggtitle("Pronóstico de la riqueza en EEUU con Naïve")
 ```
 
 
@@ -452,7 +604,9 @@ fb_stock <- gafa_stock %>%
   mutate(day = row_number()) %>%
   update_tsibble(index = day, regular = TRUE)
 
-
+fb_stock %>% 
+  ggplot(aes(x = Date, y = Close))+ 
+  geom_line()
 ```
 
 
@@ -460,48 +614,119 @@ fb_stock <- gafa_stock %>%
   b. Producir pronósticos con el método del drift y grafíquelos.
 ```{r fb model}
 # Separar los datos en entrenamiento y prueba
+fb_train <- fb_stock %>% 
+  slice(1:trunc(n()*.8,0))
 
-  
 # Ajustar el modelo
-
+fb_model <- fb_train %>% 
+  model(RW(Close ~ drift()))
 
 # Obtener residuales y valores ajustados
-
+fb_aug <- fb_model %>% augment()
 
 # Gráfica del ajuste
-
+fb_train %>% 
+  ggplot(aes(x = Date, y = Close))+
+  geom_line()+
+  geom_line(aes(y = fb_aug$.fitted),color = "firebrick")+
+  ggtitle("Ajuste del modelo vs. datos históricos (entrenamiento)")
 
 # El pronóstico
+fb_fc <- fb_model %>% 
+  forecast(h = length(fb_stock$Date)-length(fb_train$Date))
 
 
-# Gráfica del pronóstico
-
+fb_fc %>% 
+  autoplot(fb_stock) + ggtitle("Pronóstico del precio de Facebook con drift")
 ```
 
   c. Pruebe que el pronóstico es idéntico a extender una línea recta entre la primera y última observación de los datos de entrenamiento.
 
-```{r}
+La ecuación de una recta cualquiera está dada por $ y = m x + b$, siendo $m$ la pendiente y $b$ el intercepto u ordenada al origen. Si tomamos el punto inicial $(x_1,y_1)$ de la serie y el final de los datos de entrenamiento $(x_2,y_2)$, podemos calcular la pendiente utilizando $m = \frac{y_2-y_1}{x_2-x_1}$. Posteriormente, sustituimos en la ecuación de la recta, sustituyendo el valor de cualquiera de los puntos para obtener el valor del intercepto, $b = y - m x$.
+
+```{r line from first and last observation}
+x1 <- 1
+y1 <- head(fb_train$Close,1)
+
+x2 <- length(fb_train$Date)
+y2 <- tail(fb_train$Close,1)
+
+m <- (y2-y1)/(x2-x1)
+
+b <- y1 - m * x1
+
+fb_fc %>% 
+  autoplot(fb_stock) + ggtitle("Comprobación") + 
+  geom_abline(slope = m, intercept = b, linetype = "dashed",
+              color = "red")
 
 ```
-
 
   d. Utilice otro método de benchmark (referencia) para realizar el pronóstico. ¿Cuál cree que sea mejor? ¿Por qué?
 
-```{r}
+```{r fb other benchmark model}
 
+# Ajustar el modelo
+fb_model2 <- fb_train %>% 
+  model(RW(Close))
+
+# Obtener residuales y valores ajustados
+fb_aug2 <- fb_model2 %>% augment()
+
+# El pronóstico
+fb_fc2 <- fb_model2 %>% 
+  forecast(h = length(fb_stock$Date)-length(fb_train$Date))
+
+
+fb_fc2 %>% 
+  autoplot(fb_stock) + ggtitle("Pronóstico del precio de Facebook con drift")
 ```
 
+Se utilizó el método Naïve para comparar, ya que se dice que éste es el modelo óptimo para series que siguen una caminata aleatoria.
 
+Ante la caída del precio de Facebook, parece que se ajusta de mejor manera este segundo modelo, los datos reales se mantienen más cerca de la estimación puntual, así como dentro de los intervalos de predicción. Sin embargo, en el tiempo atrás, el modelo de drift parece que se hubiera ajustado mejor.
 
 
 ### Problema 3 
 *Genere pronósticos para todas los animales del estado de Victoria en `aus_livestock` utilizando `SNAIVE()`. Grafique los pronósticos resultantes junto con los datos históricos. ¿Este método es una referencia adecuada para los datos?*
 
-```{r}
+```{r victorian animals, fig.height=6, fig.width=10}
+victoria <- aus_livestock %>% 
+  filter(State == "Victoria") %>% 
+  select(-c(State))
 
+victoria %>% 
+  ggplot(aes(x = Month, y = Count, color = Animal)) + 
+  geom_line()
 ```
 
+Los pronósticos:
 
+```{r victorian animals fcst, fig.height= 18}
+victoria_train <- victoria %>% 
+  filter(Month <"2016-01-01")
+
+# Ajuste del modelo SNAIVE
+victoria_model <- victoria_train %>% 
+  model(snaive = SNAIVE(Count))
+
+# Obtener residuales y valores ajustados
+victoria_aug <- victoria_model %>% augment()
+
+# El pronóstico
+
+victoria_fc <- victoria_model %>% 
+  forecast(h = 36) # pronóstico de 3 años
+
+# Gráfica de los pronósticos
+victoria_fc %>% 
+  autoplot(victoria) + ggtitle("Pronóstico de la producción de animales en Victoria")
+```
+Para revisar la precisión del modelo en cada animal:
+
+```{r victorian animals accuracy}
+accuracy(victoria_fc, victoria)
+```
 
 ### Problema 4 
 *Calcule los residuos del pronóstico naïve estacional aplicados a la producción trimestral de cerveza australiana a partir de 1992. El siguiente código puede serles útil. ¿Qué puede concluir al respecto?*
@@ -522,12 +747,7 @@ fit %>% forecast() %>% autoplot(recent_production)
 ```
 
 ### Problema 5 
-*Repita el ejercicio anterior utilizando las exportaciones mexicanas de `global_economy` y la serie de tiempo de cemento (Cement) de `aus_production`. Utilice cualquiera entre `NAIVE()` o `SNAIVE()` dependiendo cuál sea más conveniente en cada caso.*
-
-```{r}
-
-```
-
+*Repita el ejercicio anterior utilizando las exportaciones mexicanas de `global_economy` y la serie de tiempo de ladrillos (Bricks) de `aus_production`. Utilice cualquiera entre `NAIVE()` o `SNAIVE()` dependiendo cuál sea más conveniente en cada caso.*
 
 ### Problema 6 
 *Explique si los siguientes enunciados son verdaderos o falsos y por qué:*
@@ -538,7 +758,3 @@ fit %>% forecast() %>% autoplot(recent_production)
   d. Si el modelo no pronostica bien, debería hacerlo más complicado.
   e. Siempre hay que escoger el modelo con la mejor precisión en el pronóstico, medido a través del conjunto de prueba (pronóstico).
     
-
-### Extra
-
-*Prueben comparando sus modelos de cada ejercicio contra alguna variante de los modelos de suavización exponencial y comentar los resultados.*
