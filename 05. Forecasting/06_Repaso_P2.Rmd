@@ -51,7 +51,7 @@ Si se determina que cumple con esas características, los pasos para llevar a ca
 
 ```{r carga paqueterías, message=FALSE}
 library(easypackages)
-packages("tidyverse","fpp3")
+packages("tidyverse", "fpp3", "tsibble", "feasts", "fable")
 ```
 
 
@@ -107,8 +107,19 @@ train <- <dataframe> %>%
   filter_index(. ~ <fecha final>)
 ```
 
+### Objetos `tsibble`
 
+Para trabajar con las paqueterías del `tidyverts` (`fable`, `tsibble`, `feasts`), es necesario que su tabla de datos sea una `tsibble`. Otras estructuras de datos, como las `tibble`, `ts`, `xts`, `data.frame`, se pueden convertir a `tsibble` con la función `as_tsibble()`:
 
+```{r pseudo - tsibble, eval=FALSE}
+df_tsibble <- <dataframe> %>% 
+  as_tsibble(index = <variable de tiempo>,
+             key   = <variable que distingue cada serie de tiempo>)
+```
+
+El argumento `index` **siempre** se debe especificar, y el argumento `key` se debe especificar cuando su tabla contenga **más de una serie de tiempo** (cuando son varios países, ciudades, tiendas, variables, etc.).
+
+**NOTA:** Los datos deben estar en formato *long*. Para lograr que estén así, se puede utilizar la función `pivot_longer()`.
 
 ## 2. Análisis exploratorio y gráfica de los datos (visualización)
 
@@ -200,6 +211,15 @@ Si se quieren analizar los patrones de dos variables simultáneamente, se podrí
            geom_line(aes(y = <variable2>), color = <color2>)
   
 ```
+
+Cuando trabajamos con tablas de datos de tipo `tsibble` también se puede utilizar la función `autoplot()`.
+
+```{r pseudo - autoplot time, eval=FALSE}
+<dataframe> %>% 
+  autoplot(<variable a graficar>)
+  
+```
+
 
 ### Gráficos estacionales
 
@@ -320,7 +340,14 @@ mex_aug %>% features(.resid, ljung_box, lag=10, dof=0)
 ```
 
 Si el p-value $< \alpha$, se rechaza la $H_0$ de la prueba ($H_0:$ *"Los residuos no están autocorrelacionados; los residuos son ruido blanco "*), por lo que, un modelo bien ajustado tendrá residuos que son ruido blanco y su prueba de Ljung-Box tendrá un p-value alto (mayor a $\alpha$).
- 
+
+Para revisar las métricas de error de los residuos se puede utilizar la función `accuracy()` y pasarle la tabla de modelos (`mable`) como argumento:
+
+```{r pseudo residual accuracy, eval=FALSE}
+<modelos> %>% 
+  accuracy()
+```
+
 ## 6. Producir pronósticos
 
 Generamos los pronósticos con la función `forecast()`. En ella debemos especificar algunos argumentos:
