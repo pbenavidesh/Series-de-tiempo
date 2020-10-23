@@ -1,14 +1,14 @@
 ---
 title: "Suavización exponencial"
 output:
-  github_document:
-    toc: yes
-    dev: jpeg
   html_notebook:
     toc: yes
     toc_float: yes
     theme: cerulean
     highlight: tango
+  github_document:
+    toc: yes
+    dev: jpeg
 date: '2020-04-13'
 ---
 
@@ -96,6 +96,9 @@ aus_economy <- global_economy %>%
   filter(Code == "AUS") %>%
   mutate(Pop = Population / 1e6)
 
+aus_economy %>% 
+  autoplot(Pop)
+
 fit <- aus_economy %>%
   model(AAN   = ETS(Pop ~ error("A") + trend("A") + season("N")),
         Drift = RW(Pop ~ drift()))
@@ -104,6 +107,9 @@ fc <- fit %>% forecast(h = 10)
 
 fc %>% 
   autoplot(aus_economy %>% filter_index("2000"~.), level = NULL)
+
+fit %>% 
+  glance()
 
 fit %>% 
   select(AAN) %>% 
@@ -122,7 +128,7 @@ Comparemos los dos métodos:
 aus_economy %>%
   model(
     `Holt` = ETS(Pop ~ error("A") + trend("A")),
-    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad", phi = 0.95))
+    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad"))
   ) %>%
   forecast(h = 15) %>%
   autoplot(aus_economy, level = NULL) +
@@ -132,9 +138,33 @@ aus_economy %>%
 
 aus_economy %>%
   model(
-    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad", phi = 0.95))
+    `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad"))
   ) %>% 
   report()
+```
+```{r}
+pop_fit <- aus_economy %>%
+  model(
+    `Damped Holt mse` = ETS(Pop ~ error("A") + trend("Ad"), opt_crit = "mse"),
+    `Damped Holt lik` = ETS(Pop ~ error("A") + trend("Ad"), opt_crit = "lik")
+  )
+
+pop_fit %>% 
+  select(`Damped Holt mse`) %>% 
+  report()
+
+pop_fit %>% 
+  select(`Damped Holt lik`) %>% 
+  report()
+
+pop_fit %>% tidy()
+
+pop_fit %>% 
+  forecast(h = 15) %>% 
+  autoplot(aus_economy %>% filter_index("2005"~.), level = NULL) +
+  ggtitle("Forecasts from Holt's method") + xlab("Year") +
+  ylab("Population of Australia (millions)") +
+  guides(colour = guide_legend(title = "Forecast"))
 ```
 
 Un ejemplo con el uso de internet:
@@ -184,11 +214,16 @@ aus_holidays <- tourism %>%
   filter(Purpose == "Holiday") %>%
   summarise(Trips = sum(Trips))
 
+aus_holidays %>% 
+  autoplot()
+
 fit <- aus_holidays %>%
   model(
     additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
     multiplicative = ETS(Trips ~ error("M") + trend("A") + season("M"))
   )
+
+fit %>% tidy()
 
 fc <- fit %>% forecast(h = "3 years")
 
@@ -221,6 +256,36 @@ sth_cross_ped %>%
   forecast(h = "2 weeks") %>%
   autoplot(sth_cross_ped)
 ```
+
+### Selección automática del modelo ETS
+
+Con `fable` para varios modelos podemos dejar que `R` escoja los parámetros del modelo de manera automática. Para lograrlo, simplemente **no especificamos** el lado derecho de la ecuación del modelo.
+
+```{r}
+ets_automatico <- sth_cross_ped %>%
+  model(hw = ETS(Count)) 
+ets_automatico %>% 
+  report()
+
+ets_automatico %>%
+  forecast(h = "2 weeks") %>%
+  autoplot(sth_cross_ped)
+
+sth_cross_ped %>%
+  model(`ETS automático` = ETS(Count),
+        `HW`             = ETS(Count ~ error("M") + trend("Ad") + season("M"))
+        ) %>% 
+  forecast(h = "2 weeks") %>% 
+  autoplot(sth_cross_ped, level = NULL)
+
+sth_cross_ped %>%
+  model(`ETS automático` = ETS(Count),
+        `HW`             = ETS(Count ~ error("M") + trend("Ad") + season("M"))
+        ) %>%
+  accuracy()
+```
+
+
 
 ## Variedad de métodos de suavización exponencial
 
@@ -284,7 +349,7 @@ accuracy(beer_fc, recent_production)
 
 Compararemos entonces el Seasonal Naïve con el modelo Holt-Winters amortiguado:
 
-```{r beer fcst - holt winters v snaive}
+```{r beer fcst - holt winters v snaive, fig.width=7, fig.height=8}
 # Entrenamiento de los modelos
 beer_fit <- beer_train %>%
   model(
@@ -319,9 +384,12 @@ El mejor pronóstico es obtenido con el modelo Holt-Winters amortiguado, ya que 
 
 Compararemos nuevamente el modelo Seasonal Naïve contra algunas variantes de la suavización exponencial, utilizando la serie del emplelo en el sector minorista de EEUU, `us_retail_employment`.
 
-```{r SNAIVE v ETS}
+```{r SNAIVE v ETS, fig.width=7, fig.height=8}
 us_retail_employment <- us_employment %>%
   filter(year(Month) >= 1990, Title == "Retail Trade")
+
+us_retail_employment %>% 
+  autoplot(Employed)
 
 us_retail_train <- us_retail_employment %>% 
   filter(year(Month) <=2017)
@@ -359,13 +427,18 @@ Probaremos aplicando un modelo de descomposición STL para modelar la serie en d
 1. Para el componente estacional.
 2. Para la serie desestacionalizada, usamos una suaviación exponencial simple.
 
-```{r SNAIVE v decomp + ETS}
+```{r SNAIVE v decomp + ETS, fig.width=7, fig.height=8}
 us_retail_fit <- us_retail_train %>%
   model(
     `Seasonal naïve` = SNAIVE(Employed),
+    `ETS automático` = ETS(Employed),
     `Descomposición + SE` = decomposition_model(
       STL(Employed ~ trend(), robust = TRUE),
     ETS(season_adjust ~ error("A") + trend("N") + season("N"))
+    ),
+    `Descomposición + SE auto` = decomposition_model(
+      STL(Employed ~ trend(), robust = TRUE),
+    ETS(season_adjust)
     )
   )
   
@@ -396,13 +469,13 @@ Este modelo resulta tener una mejoría contra los modelos anteriores, sin embarg
 
 Ahora tomamos una serie que no tenga un patrón estacional marcado. Intentaremos pronosticar el PIB de Suecia mediante suavización exponencial y utilizareos de referencia el modelo de Drift.
 
-```{r sweden - drift v ETS}
+```{r sweden - drift v ETS, fig.width=7, fig.height=8}
 suecia <- global_economy %>%
   filter(Country == "Sweden")
 
-# suecia %>%   
-#   autoplot(GDP) +
-#     ggtitle("PIB de Suecia") + ylab("$US billions")
+suecia %>%
+  autoplot(GDP) +
+    ggtitle("PIB de Suecia") + ylab("$US billions")
 
 suecia_train <- suecia %>% 
   filter(Year <=2007)
