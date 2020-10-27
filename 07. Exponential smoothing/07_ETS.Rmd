@@ -225,6 +225,7 @@ fit <- aus_holidays %>%
 
 fit %>% tidy()
 
+
 fc <- fit %>% forecast(h = "3 years")
 
 fc %>%
