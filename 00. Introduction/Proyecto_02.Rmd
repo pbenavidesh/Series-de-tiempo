@@ -1,5 +1,5 @@
 ---
-title: "Proyecto 2"
+title: "Proyecto Parcial 2"
 subtitle: "Series de tiempo"
 author: "Pablo Benavides-Herrera"
 date: 2020-06-25
@@ -18,11 +18,13 @@ knitr::opts_chunk$set(echo = FALSE)
 
 - Fecha de entrega:
   
-  - Lunes, 29 de junio, 23:59 horas
+  - MAF3074A: lunes, 2 de noviembre, 23:59 horas
+  - MAF3074B: martes, 3 de noviembre, 23:59 horas
   
 - Fecha de presentación:
 
-  - Miércoles, 1 de julio, 07:00 horas
+  - MAF3074A: jueves, 5 de noviembre, 07:00 horas
+  - MAF3074B: viernes, 6 de noviembre, 07:00 horas
 
 - Formatos aceptados:
 
@@ -79,6 +81,7 @@ Cada criterio se califica con una escala de 1 (peor) a 5 (mejor). Todos tienen l
   - *¿Se está leyendo directamente la presentación o el material visual se utiliza de referencia y apoyo para continuar con la presentación?*
   
 **3. Comentarios a presentación de terceros**
+
   - Estudiar, analizar y reproducir el proyecto del grupo que les tocó y responder las siguientes preguntas:
   - *¿El trabajo se pudo reproducir sin necesidad de alterar el código?*
   - *¿Está completo en cuanto a los requisitos solicitados?*
