@@ -11,6 +11,7 @@ library(feasts)
 library(fable)
 library(tsibbledata)
 library(fpp3)
+library(patchwork)
 
 # data --------------------------------------------------------------------
 
@@ -65,6 +66,7 @@ medicamentos %>%
 
 aus_total_retail <- aus_retail %>%
   summarise(Turnover = sum(Turnover))
+
 autoplot(aus_total_retail) + ggtitle("Serie en niveles")
 
 aus_total_retail %>% 
@@ -98,7 +100,7 @@ aus_total_retail %>%
 
 mex <- global_economy %>% 
   filter(Country == "Mexico") 
-library(patchwork)
+
 
 p1 <- mex %>% 
   autoplot(GDP) + ggtitle("Serie en niveles")
@@ -145,12 +147,16 @@ google_2015 %>% PACF(Close) %>% autoplot()
 us_change %>% autoplot(Consumption) +
   labs(x = "Year", y = "Quarterly percentage change", title = "US consumption")
 
+us_change %>% 
+  features(Consumption, unitroot_kpss)
 
 us_change %>% PACF(Consumption) %>% autoplot()
+# La PACF sugiere un modelo ARIMA(p = 3,d = 0,q = 0)
 
 
 fit <- us_change %>%
   model(ARIMA(Consumption ~ pdq(3,0,0) + PDQ(0,0,0)))
+
 report(fit)
 
 
@@ -158,8 +164,55 @@ us_change %>% ACF(Consumption) %>% autoplot()
 
 fit <- us_change %>%
   model(ARIMA(Consumption ~ pdq(0,0,3) + PDQ(0,0,0)))
+
 report(fit)
 
+fit2 <- us_change %>%
+  model(ARIMA(Consumption ~ PDQ(0,0,0)))
+
+report(fit2)
+
+fit3 <- us_change %>%
+  model(ARIMA(Consumption ~ pdq(1,0,0) + PDQ(0,0,0)))
+
+report(fit3)
+
+fit4 <- us_change %>%
+  model(ARIMA(Consumption ~ PDQ(0,0,0),
+              stepwise = FALSE, approximation = FALSE))
+report(fit4)
+
+
+# Box-Jenkins -------------------------------------------------------------
+
+elec_equip <- as_tsibble(fpp2::elecequip)
+
+elec_dcmp <- elec_equip %>%
+  model(STL(value ~ season(window="periodic"))) %>%
+  components() %>%
+  select(-.model) %>%
+  as_tsibble()
+elec_dcmp %>%
+  autoplot(season_adjust)
+
+fit <- elec_dcmp %>%
+  model(
+    arima310 = ARIMA(season_adjust ~ pdq(3,1,0) + PDQ(0,0,0)),
+    arima410 = ARIMA(season_adjust ~ pdq(4,1,0) + PDQ(0,0,0)),
+    arima210 = ARIMA(season_adjust ~ pdq(2,1,0) + PDQ(0,0,0)),
+    arima311 = ARIMA(season_adjust ~ pdq(3,1,1) + PDQ(0,0,0))
+    
+  )
+
+glance(fit) %>% 
+  arrange(AICc)
+
+glance(fit) %>% arrange(AICc) %>% pull(AICc)
+
+fit %>% select(arima311) %>% report()
+
+
+# agregar tiempo ----------------------------------------------------------
 
 medicamentos %>% 
   autoplot(`Sales ($million)`)
