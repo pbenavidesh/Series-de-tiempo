@@ -212,6 +212,137 @@ glance(fit) %>% arrange(AICc) %>% pull(AICc)
 fit %>% select(arima311) %>% report()
 
 
+# elec_equip --------------------------------------------------------------
+
+elec_equip %>% 
+  autoplot()
+
+# eu_retail ---------------------------------------------------------------
+
+eu_retail <- as_tsibble(fpp2::euretail)
+eu_retail %>% autoplot(value) + ylab("Retail index") + xlab("Year")
+
+# Comprobar si la serie en niveles es estacionaria
+eu_retail %>%  
+  features(value, unitroot_kpss) # KPSS indica que no es estacionaria
+
+# Verificar el orden de diferenciación estacional
+eu_retail %>%  
+  features(value, unitroot_nsdiffs) # indica que D = 1
+
+# Verificar el orden de diferenciación (no estacional)
+eu_retail %>%  
+  features(value %>% difference(4), unitroot_ndiffs) # indica que d = 1
+
+eu_retail %>% gg_tsdisplay(value %>% difference(4) %>% difference(),
+                           plot_type='partial')
+
+# ARIMA(0,1,1)(0,1,1)[4]
+fit <- eu_retail %>%
+  model(arima = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)))
+
+fit %>% gg_tsresiduals()
+
+fit %>% 
+  augment() %>% 
+  features(.resid, ljung_box, lag = 8, dof = 2)
+
+# ARIMA(1,1,0)(1,1,0)[4]
+fit <- eu_retail %>%
+  model(arima = ARIMA(value ~ pdq(1,1,0) + PDQ(1,1,0)))
+
+fit %>% gg_tsresiduals()
+
+fit %>% 
+  augment() %>% 
+  features(.resid, ljung_box, lag = 8, dof = 2)
+
+# Probando varios órdenes distintos
+fit <- eu_retail %>% 
+  model(
+    arima011_011 = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)),
+    arima110_110 = ARIMA(value ~ pdq(1,1,0) + PDQ(1,1,0)),
+    arima012_011 = ARIMA(value ~ pdq(0,1,2) + PDQ(0,1,1)),
+    arima111_111 = ARIMA(value ~ pdq(1,1,1) + PDQ(1,1,1)),
+    auto_arima   = ARIMA(value ~ pdq(d = 1) + PDQ(D = 1)),
+    auto_arima2  = ARIMA(value ~ pdq(1:3,1,1:2) + PDQ(0:2,1,1:4))
+  )
+
+fit %>% select(arima011_011) %>% report()
+
+glance(fit) %>% 
+  arrange(AICc)
+
+fit %>% select(auto_arima) %>% report()
+
+fit %>% select(auto_arima) %>% 
+  gg_tsresiduals()
+
+fit %>% select(auto_arima) %>% 
+  forecast(h = "3 years") %>% 
+  autoplot(eu_retail)
+
+fit %>%
+  forecast(h = "3 years") %>% 
+  autoplot(eu_retail %>% filter_index("2008 Q1" ~ .), level = NULL, 
+           size = 1)
+
+
+# arima medicamentos ------------------------------------------------------
+
+fit <- medicamentos %>% 
+  model(
+    arima300_210 = ARIMA(`Sales ($million)` ~ pdq(3,0,0) + PDQ(2,1,0)),
+    arima301_210 = ARIMA(`Sales ($million)` ~ pdq(3,0,1) + PDQ(2,1,0))
+  )
+
+fit %>% glance() %>% arrange(AICc)
+
+fit %>% select(arima301_210) %>%  report()
+
+
+fit %>% gg_tsresiduals()
+
+fit %>% augment() %>% 
+  features(.resid, ljung_box, lag = 24, dof = 5)
+
+medicamentos %>% 
+  gg_tsdisplay(`Sales ($million)` %>% log() %>% 
+                 difference(12), 
+               plot_type = "partial")
+
+medicamentos %>% 
+  gg_tsdisplay(`Sales ($million)` %>% log() %>% 
+                 difference(12) %>% difference(), 
+               plot_type = "partial", lag_max = 36)
+
+# comparando entre modelos
+
+fit <- medicamentos %>% 
+  filter(year(Month) < 2005) %>% 
+  model(
+    ETS    = ETS(log(`Sales ($million)`)),
+    ARIMA  = ARIMA(log(`Sales ($million)`) ~ pdq(0:2,1,0:2) + 
+                     PDQ(0:2,1,1:3)),
+    SNAIVE = SNAIVE(log(`Sales ($million)`))
+  )
+
+tidy(fit) %>% view()
+
+fit %>% select(ETS) %>% report()
+
+fit %>% select(ARIMA) %>% report()
+
+fit %>% accuracy()
+
+fc <- fit %>% forecast(h = 42)
+
+fc %>% accuracy(medicamentos)
+
+fc %>% 
+  autoplot(medicamentos %>% filter_index("2004 Jan" ~ .), level = NULL,
+           size = 1)
+
 # agregar tiempo ----------------------------------------------------------
 
 medicamentos %>% 
