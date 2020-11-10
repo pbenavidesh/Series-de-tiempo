@@ -343,6 +343,14 @@ fc %>%
   autoplot(medicamentos %>% filter_index("2004 Jan" ~ .), level = NULL,
            size = 1)
 
+resultados <- tibble(
+  modelo = c("ARIMA(3,0,0)(2,1,0)[12]", "ARIMA(3,0,1)(2,1,0)[12]"),
+  AICc   = c(-438.32, -436.6),
+  MAPE   = c(7.35, 7.13)
+)
+
+resultados
+
 # agregar tiempo ----------------------------------------------------------
 
 medicamentos %>% 
