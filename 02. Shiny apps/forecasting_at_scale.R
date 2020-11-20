@@ -14,7 +14,6 @@ library(fpp3)
 empleo <- us_employment %>% 
   as_tsibble(key = Title) %>% 
   select(-Series_ID) %>% 
-  filter_index("2001 Jan" ~ .) %>% 
   drop_na()
 
 # plot --------------------------------------------------------------------
@@ -42,3 +41,11 @@ fc <- fit %>% forecast(h = "2 years")
 fc %>% 
   filter(Title %in% c("Construction", "Retail Trade", "Manufacturing", "Nondurable Goods")) %>% 
   autoplot(empleo %>% filter_index("2018 Jan" ~ .), level = NULL)
+
+p <- fc %>% 
+  ggplot(aes(x = Month, y = .mean, color = Title)) +
+  geom_line(size = 1) + facet_wrap(~ .model) + 
+  geom_line(data = empleo, aes(y = Employed)) +
+  theme(legend.position = "none")
+
+plotly::ggplotly(p)
