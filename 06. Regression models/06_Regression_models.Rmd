@@ -16,7 +16,7 @@ Se requieren cargar las siguientes paqueterías para seguir los ejemplos.
 
 ```{r, message=FALSE}
 library(easypackages)
-libraries("tidyverse","fpp3","plotly")
+libraries("tidyverse","fpp3","plotly", "patchwork")
 ```
 
 
@@ -206,9 +206,26 @@ us_change %>%
   theme(legend.position = "none")
 ```
 
+Graficando nuestra variable de pronóstico (Consumo) vs. cada una de las variables predictoras:
+
+```{r}
+us_change %>% 
+  pivot_longer(cols = -c(Quarter, Consumption)) %>% 
+  ggplot(aes(x = Quarter, y = value, color = name)) +
+  geom_line() +
+  geom_line(aes(y = Consumption), color = "black") +
+  facet_wrap(~ name, scales = "free_y") +
+  theme(legend.position = "none")
+```
+
+
 ### Regresión lineal simple
 
 Realizamos un primer modelo, donde utilizaremos de variable predictora al ingreso disponible, para pronosticar el consumo.
+
+$$
+y_{t,Consumo} = \beta_0 + \beta_{1}x_{t,Ingreso} + \varepsilon_t
+$$
 
 ```{r}
 fit1 <- us_change %>% 
@@ -217,9 +234,13 @@ fit1 <- us_change %>%
 fit1 %>%  report()
 ```
 
+Prueba de significancia individual para cada uno de los parámetros ($\beta_i$)
+
 $$ 
 H_0: \beta_i = 0
 $$
+
+Prueba de significancia conjunta (para revisar si nuestro modelo sirve o no)
 
 $$
 H_0: \beta_1 = \beta_2 = \beta_3 = \ldots = 0
@@ -261,12 +282,16 @@ Es evidente que este modelo se puede mejorar. Probemos incluyendo las otras pred
 
 ## Regresión lineal múltiple
 
+Podríamos proponer ahora un modelo en donde el consumo sea una función del ingreso, la producción, los ahorros y el desempleo:
+
+$$
+y_{t,Consumo} = \beta_0 + \beta_{1}x_{t,Ingreso} + \beta_2x_{t,Producción} + \beta_3x_{t,Ahorros} + \beta_4x_{t,Desempleo} + \varepsilon_t
+$$
+
 ```{r}
 fit2 <- us_change %>% 
   model(
-    reg_lin_multiple = TSLM(Consumption ~ Income + 
-                              Production + 
-                              Savings + Unemployment)
+    reg_lin_multiple = TSLM(Consumption ~ Income + Production + Savings + Unemployment)
   )
 report(fit2)
 ```
@@ -412,7 +437,7 @@ Con estos pronósticos se utiliza información real disponible de las predictora
 
 ### Pronósticos basados en escenarios
 
-```{r}
+```{r paged.print=FALSE}
 fit_escenarios <- us_change %>% 
   model(lineal = TSLM(Consumption ~ Income + Savings + Unemployment))
 # Necesitamos agregar nuevos datos de las predictoras
@@ -427,18 +452,30 @@ pesimista_futuro <- new_data(us_change,4) %>%
          Unemployment = 0)
 
 fc_optimista <- forecast(fit_escenarios, new_data = optimista_futuro) %>% 
-  mutate(Escenario = "Optimista") %>% 
-  as_fable(response = "Consumo", key = c("Escenario",".model"))
+  mutate(Escenario = "Optimista") #%>% # REVISAR 
+  # as_fable(response = "Consumo", distribution = Consumption, key = c("Escenario",".model"))
 
 fc_pesimista <- forecast(fit_escenarios, new_data = pesimista_futuro) %>% 
-  mutate(Escenario = "Pesimista") %>% 
-  as_fable(response = "Consumo", key = c("Escenario",".model"))
+  mutate(Escenario = "Pesimista") # %>% # REVISAR 
+  # as_fable(response = "Consumo", distribution = Consumption, key = c("Escenario",".model"))
 
-bind_rows(fc_optimista,fc_pesimista)
+# bind_rows(fc_optimista,fc_pesimista)
 
-us_change %>% 
+# us_change %>% 
+#   autoplot(Consumption) +
+#   autolayer(bind_rows(fc_optimista,fc_pesimista))
+
+p1 <- us_change %>% 
   autoplot(Consumption) +
-  autolayer(bind_rows(fc_optimista,fc_pesimista))
+  autolayer(fc_optimista) +
+  ggtitle("Escenario optimista")
+  
+p2 <- us_change %>% 
+  autoplot(Consumption) +
+  autolayer(fc_pesimista) +
+  ggtitle("Escenario pesimista")
+
+p1 / p2
 ```
 
 Vamos a generar un pronóstico *ex-ante* del consumo. Para esto, necesitamos primero producir pronósticos de las predictoras:
