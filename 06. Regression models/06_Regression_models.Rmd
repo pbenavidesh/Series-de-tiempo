@@ -619,8 +619,10 @@ Capturan el efecto de un solo periodo.
 ```{r}
 cerveza <- recent_production %>% 
   select(Quarter, Beer) %>% 
-  mutate(q2_94 = if_else(Quarter == yearquarter("1994 Q2"),1,0),
-         q4_92 = if_else(Quarter == yearquarter("1992 Q4"),1,0))
+  mutate(
+    q2_94 = if_else(Quarter == yearquarter("1994 Q2"),1,0),
+    q4_04 = if_else(Quarter == yearquarter("2004 Q4"),1,0)
+  )
 cerveza
 ```
 
@@ -628,7 +630,7 @@ Ajustamos un modelo, corrigiendo por ese periodo outlier (1994 Q2).
 
 ```{r}
 fit_beer <- cerveza %>% 
-  model(TSLM(Beer ~ trend() + season() + q2_94))
+  model(TSLM(Beer ~ trend() + season() + q2_94 + q4_04))
 
 report(fit_beer)
 ```
@@ -684,7 +686,7 @@ cerveza %>%
 
 
 ```{r}
-tibble(mujer = c(1,0,1, 0),
+tibble(mujer = c(1,0,1, 1),
        hombre = c(0,1,0, 0),
        nombre = c("Andrea","Juan","Sofía","Fer"))
 ```
