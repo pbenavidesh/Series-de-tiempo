@@ -1,0 +1,34 @@
+---
+title: "Untitled"
+author: "Pablo Benavides-Herrera"
+date: "5/7/2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("03_Descomposicion_ST.Rmd", local = knitr::knit_global())
+```
+
+## R Markdown
+
+Esta es una prueba.
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+aus_production %>% autoplot(box_cox(Gas, lambda))
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
