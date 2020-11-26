@@ -1,0 +1,790 @@
+Country,.model,Year,GDP,.mean
+Afghanistan,Modelo_tendencia,2018,"N(1.6e+10, 1.3e+19)",16205101654.255938
+Afghanistan,Modelo_tendencia,2019,"N(1.7e+10, 1.3e+19)",16511878140.694044
+Afghanistan,Modelo_tendencia,2020,"N(1.7e+10, 1.3e+19)",16818654627.132154
+Albania,Modelo_tendencia,2018,"N(1.4e+10, 3.9e+18)",13733734164.32227
+Albania,Modelo_tendencia,2019,"N(1.4e+10, 3.9e+18)",14166852711.21352
+Albania,Modelo_tendencia,2020,"N(1.5e+10, 3.9e+18)",14599971258.104767
+Algeria,Modelo_tendencia,2018,"N(1.6e+11, 9.4e+20)",157895153441.4954
+Algeria,Modelo_tendencia,2019,"N(1.6e+11, 9.4e+20)",161100952126.20236
+Algeria,Modelo_tendencia,2020,"N(1.6e+11, 9.4e+20)",164306750810.90933
+American Samoa,Modelo_tendencia,2018,"N(6.8e+08, 1.7e+15)",682475000
+American Samoa,Modelo_tendencia,2019,"N(6.9e+08, 1.8e+15)",694097058.8235294
+American Samoa,Modelo_tendencia,2020,"N(7.1e+08, 1.9e+15)",705719117.6470588
+Andorra,Modelo_tendencia,2018,"N(3.6e+09, 3e+17)",3574706607.2463427
+Andorra,Modelo_tendencia,2019,"N(3.7e+09, 3e+17)",3659345399.0520086
+Andorra,Modelo_tendencia,2020,"N(3.7e+09, 3.1e+17)",3743984190.8576756
+Angola,Modelo_tendencia,2018,"N(1.1e+11, 7.4e+20)",107445054263.56573
+Angola,Modelo_tendencia,2019,"N(1.1e+11, 7.5e+20)",110960410831.29773
+Angola,Modelo_tendencia,2020,"N(1.1e+11, 7.5e+20)",114475767399.0297
+Antigua and Barbuda,Modelo_tendencia,2018,"N(1.5e+09, 6.2e+15)",1481497145.569556
+Antigua and Barbuda,Modelo_tendencia,2019,"N(1.5e+09, 6.3e+15)",1517924210.6887329
+Antigua and Barbuda,Modelo_tendencia,2020,"N(1.6e+09, 6.3e+15)",1554351275.8079093
+Arab World,Modelo_tendencia,2018,"N(2.2e+12, 2e+23)",2231483262952.689
+Arab World,Modelo_tendencia,2019,"N(2.3e+12, 2e+23)",2285621106260.654
+Arab World,Modelo_tendencia,2020,"N(2.3e+12, 2e+23)",2339758949568.619
+Argentina,Modelo_tendencia,2018,"N(4.6e+11, 7.3e+21)",464202034016.4435
+Argentina,Modelo_tendencia,2019,"N(4.7e+11, 7.3e+21)",473699831847.208
+Argentina,Modelo_tendencia,2020,"N(4.8e+11, 7.3e+21)",483197629677.9724
+Armenia,Modelo_tendencia,2018,"N(1.2e+10, 3.4e+18)",12328902912.560698
+Armenia,Modelo_tendencia,2019,"N(1.3e+10, 3.4e+18)",12796072561.442152
+Armenia,Modelo_tendencia,2020,"N(1.3e+10, 3.5e+18)",13263242210.323606
+Aruba,Modelo_tendencia,2018,"N(3.1e+09, 4e+16)",3130172197.936037
+Aruba,Modelo_tendencia,2019,"N(3.2e+09, 4e+16)",3209891663.685624
+Aruba,Modelo_tendencia,2020,"N(3.3e+09, 4.1e+16)",3289611129.435212
+Australia,Modelo_tendencia,2018,"N(1.1e+12, 5.2e+22)",1114476958239.542
+Australia,Modelo_tendencia,2019,"N(1.1e+12, 5.2e+22)",1138106705666.3965
+Australia,Modelo_tendencia,2020,"N(1.2e+12, 5.2e+22)",1161736453093.251
+Austria,Modelo_tendencia,2018,"N(4.2e+11, 1.9e+21)",415451774882.252
+Austria,Modelo_tendencia,2019,"N(4.2e+11, 1.9e+21)",423805705628.5791
+Austria,Modelo_tendencia,2020,"N(4.3e+11, 1.9e+21)",432159636374.9062
+Azerbaijan,Modelo_tendencia,2018,"N(6.3e+10, 2.4e+20)",62675941118.643005
+Azerbaijan,Modelo_tendencia,2019,"N(6.5e+10, 2.5e+20)",65244732470.9415
+Azerbaijan,Modelo_tendencia,2020,"N(6.8e+10, 2.5e+20)",67813523823.23999
+"Bahamas, The",Modelo_tendencia,2018,"N(1.1e+10, 2e+18)",11382118128.573895
+"Bahamas, The",Modelo_tendencia,2019,"N(1.2e+10, 2.1e+18)",11617320946.998888
+"Bahamas, The",Modelo_tendencia,2020,"N(1.2e+10, 2.1e+18)",11852523765.42388
+Bahrain,Modelo_tendencia,2018,"N(3.1e+10, 2.3e+19)",31010817234.096817
+Bahrain,Modelo_tendencia,2019,"N(3.2e+10, 2.3e+19)",31929778664.055153
+Bahrain,Modelo_tendencia,2020,"N(3.3e+10, 2.3e+19)",32848740094.01348
+Bangladesh,Modelo_tendencia,2018,"N(1.3e+11, 1.1e+21)",131818069957.4256
+Bangladesh,Modelo_tendencia,2019,"N(1.3e+11, 1.1e+21)",134618411513.07245
+Bangladesh,Modelo_tendencia,2020,"N(1.4e+11, 1.1e+21)",137418753068.7193
+Barbados,Modelo_tendencia,2018,"N(5.2e+09, 7e+16)",5212110112.930054
+Barbados,Modelo_tendencia,2019,"N(5.3e+09, 7.1e+16)",5329197726.824799
+Barbados,Modelo_tendencia,2020,"N(5.4e+09, 7.1e+16)",5446285340.719543
+Belarus,Modelo_tendencia,2018,"N(6.8e+10, 1.7e+20)",67675118552.4785
+Belarus,Modelo_tendencia,2019,"N(7e+10, 1.7e+20)",69972999991.64676
+Belarus,Modelo_tendencia,2020,"N(7.2e+10, 1.7e+20)",72270881430.81503
+Belgium,Modelo_tendencia,2018,"N(5e+11, 2.8e+21)",500143540153.6736
+Belgium,Modelo_tendencia,2019,"N(5.1e+11, 2.8e+21)",510005631991.52734
+Belgium,Modelo_tendencia,2020,"N(5.2e+11, 2.8e+21)",519867723829.3812
+Belize,Modelo_tendencia,2018,"N(1.5e+09, 4.2e+16)",1529631605.130515
+Belize,Modelo_tendencia,2019,"N(1.6e+09, 4.2e+16)",1561725263.0281286
+Belize,Modelo_tendencia,2020,"N(1.6e+09, 4.2e+16)",1593818920.9257421
+Benin,Modelo_tendencia,2018,"N(7.2e+09, 1.9e+18)",7164497010.989474
+Benin,Modelo_tendencia,2019,"N(7.3e+09, 1.9e+18)",7314677879.411691
+Benin,Modelo_tendencia,2020,"N(7.5e+09, 1.9e+18)",7464858747.833907
+Bermuda,Modelo_tendencia,2018,"N(5.8e+09, 5.9e+17)",5772139412.055412
+Bermuda,Modelo_tendencia,2019,"N(5.9e+09, 5.9e+17)",5891893477.820215
+Bermuda,Modelo_tendencia,2020,"N(6e+09, 5.9e+17)",6011647543.585017
+Bhutan,Modelo_tendencia,2018,"N(1.9e+09, 1.1e+17)",1885209680.5020463
+Bhutan,Modelo_tendencia,2019,"N(1.9e+09, 1.1e+17)",1942686575.2628667
+Bhutan,Modelo_tendencia,2020,"N(2e+09, 1.1e+17)",2000163470.0236871
+Bolivia,Modelo_tendencia,2018,"N(2.2e+10, 3.1e+19)",22491077309.187363
+Bolivia,Modelo_tendencia,2019,"N(2.3e+10, 3.1e+19)",22964462972.71567
+Bolivia,Modelo_tendencia,2020,"N(2.3e+10, 3.1e+19)",23437848636.243984
+Bosnia and Herzegovina,Modelo_tendencia,2018,"N(2.2e+10, 5.7e+18)",22124712324.4432
+Bosnia and Herzegovina,Modelo_tendencia,2019,"N(2.3e+10, 5.9e+18)",22985326479.20562
+Bosnia and Herzegovina,Modelo_tendencia,2020,"N(2.4e+10, 6e+18)",23845940633.96804
+Botswana,Modelo_tendencia,2018,"N(1.3e+10, 4.9e+18)",13129939474.418453
+Botswana,Modelo_tendencia,2019,"N(1.3e+10, 5e+18)",13416336855.354382
+Botswana,Modelo_tendencia,2020,"N(1.4e+10, 5e+18)",13702734236.29031
+Brazil,Modelo_tendencia,2018,"N(1.8e+12, 1.6e+23)",1786800647578.1943
+Brazil,Modelo_tendencia,2019,"N(1.8e+12, 1.6e+23)",1825044247873.1274
+Brazil,Modelo_tendencia,2020,"N(1.9e+12, 1.6e+23)",1863287848168.0605
+British Virgin Islands,Modelo_tendencia,2018,"NA",NA
+British Virgin Islands,Modelo_tendencia,2019,"NA",NA
+British Virgin Islands,Modelo_tendencia,2020,"NA",NA
+Brunei Darussalam,Modelo_tendencia,2018,"N(1.4e+10, 6.7e+18)",13918141805.911629
+Brunei Darussalam,Modelo_tendencia,2019,"N(1.4e+10, 6.8e+18)",14221252071.727097
+Brunei Darussalam,Modelo_tendencia,2020,"N(1.5e+10, 6.8e+18)",14524362337.542564
+Bulgaria,Modelo_tendencia,2018,"N(5.1e+10, 1.4e+20)",51493672724.812485
+Bulgaria,Modelo_tendencia,2019,"N(5.3e+10, 1.4e+20)",52691137662.43286
+Bulgaria,Modelo_tendencia,2020,"N(5.4e+10, 1.4e+20)",53888602600.05324
+Burkina Faso,Modelo_tendencia,2018,"N(8.9e+09, 3.6e+18)",8893065573.009253
+Burkina Faso,Modelo_tendencia,2019,"N(9.1e+09, 3.6e+18)",9077484099.889614
+Burkina Faso,Modelo_tendencia,2020,"N(9.3e+09, 3.6e+18)",9261902626.769976
+Burundi,Modelo_tendencia,2018,"N(2.2e+09, 1.7e+17)",2173062559.968306
+Burundi,Modelo_tendencia,2019,"N(2.2e+09, 1.7e+17)",2212223658.7385182
+Burundi,Modelo_tendencia,2020,"N(2.3e+09, 1.7e+17)",2251384757.508731
+Cabo Verde,Modelo_tendencia,2018,"N(1.9e+09, 5.8e+16)",1863065863.7710264
+Cabo Verde,Modelo_tendencia,2019,"N(1.9e+09, 5.8e+16)",1916983491.711612
+Cabo Verde,Modelo_tendencia,2020,"N(2e+09, 5.9e+16)",1970901119.6521971
+Cambodia,Modelo_tendencia,2018,"N(1.3e+10, 1.4e+19)",12635226082.612679
+Cambodia,Modelo_tendencia,2019,"N(1.3e+10, 1.4e+19)",12888568778.35587
+Cambodia,Modelo_tendencia,2020,"N(1.3e+10, 1.4e+19)",13141911474.099056
+Cameroon,Modelo_tendencia,2018,"N(2.8e+10, 1.6e+19)",28023795901.034313
+Cameroon,Modelo_tendencia,2019,"N(2.9e+10, 1.6e+19)",28583655174.602097
+Cameroon,Modelo_tendencia,2020,"N(2.9e+10, 1.7e+19)",29143514448.169884
+Canada,Modelo_tendencia,2018,"N(1.6e+12, 4.5e+22)",1568074796765.2224
+Canada,Modelo_tendencia,2019,"N(1.6e+12, 4.5e+22)",1599715899854.5122
+Canada,Modelo_tendencia,2020,"N(1.6e+12, 4.5e+22)",1631357002943.802
+Caribbean small states,Modelo_tendencia,2018,"N(6.5e+10, 7.8e+19)",64635581851.11694
+Caribbean small states,Modelo_tendencia,2019,"N(6.6e+10, 7.8e+19)",65943280623.97586
+Caribbean small states,Modelo_tendencia,2020,"N(6.7e+10, 7.8e+19)",67250979396.83476
+Cayman Islands,Modelo_tendencia,2018,"N(1.4e+10, NaN)",13901251555.311615
+Cayman Islands,Modelo_tendencia,2019,"N(1.5e+10, NaN)",14792426856.573616
+Cayman Islands,Modelo_tendencia,2020,"N(1.6e+10, NaN)",15683602157.835617
+Central African Republic,Modelo_tendencia,2018,"N(1.9e+09, 6e+16)",1934857366.3636575
+Central African Republic,Modelo_tendencia,2019,"N(2e+09, 6e+16)",1968600058.5364456
+Central African Republic,Modelo_tendencia,2020,"N(2e+09, 6e+16)",2002342750.7092338
+Central Europe and the Baltics,Modelo_tendencia,2018,"N(1.6e+12, 3.1e+22)",1630002202644.498
+Central Europe and the Baltics,Modelo_tendencia,2019,"N(1.7e+12, 3.1e+22)",1685085299538.0957
+Central Europe and the Baltics,Modelo_tendencia,2020,"N(1.7e+12, 3.2e+22)",1740168396431.6934
+Chad,Modelo_tendencia,2018,"N(8.9e+09, 6.5e+18)",8900744529.45708
+Chad,Modelo_tendencia,2019,"N(9.1e+09, 6.6e+18)",9093850794.666565
+Chad,Modelo_tendencia,2020,"N(9.3e+09, 6.6e+18)",9286957059.876047
+Channel Islands,Modelo_tendencia,2018,"N(1.7e+10, 2e+18)",16535995442.571142
+Channel Islands,Modelo_tendencia,2019,"N(1.7e+10, 2.2e+18)",17103165235.007063
+Channel Islands,Modelo_tendencia,2020,"N(1.8e+10, 2.4e+18)",17670335027.442986
+Chile,Modelo_tendencia,2018,"N(2e+11, 2e+21)",204135688954.65012
+Chile,Modelo_tendencia,2019,"N(2.1e+11, 2e+21)",208541854574.96762
+Chile,Modelo_tendencia,2020,"N(2.1e+11, 2e+21)",212948020195.28513
+China,Modelo_tendencia,2018,"N(6.3e+12, 5.3e+24)",6347500525036.9
+China,Modelo_tendencia,2019,"N(6.5e+12, 5.3e+24)",6495873889522.936
+China,Modelo_tendencia,2020,"N(6.6e+12, 5.3e+24)",6644247254008.971
+Colombia,Modelo_tendencia,2018,"N(2.6e+11, 3.5e+21)",261690233333.55475
+Colombia,Modelo_tendencia,2019,"N(2.7e+11, 3.5e+21)",267350408973.99573
+Colombia,Modelo_tendencia,2020,"N(2.7e+11, 3.5e+21)",273010584614.4367
+Comoros,Modelo_tendencia,2018,"N(1.1e+09, 1.5e+16)",1059421019.6313126
+Comoros,Modelo_tendencia,2019,"N(1.1e+09, 1.6e+16)",1085336522.1594546
+Comoros,Modelo_tendencia,2020,"N(1.1e+09, 1.6e+16)",1111252024.6875966
+"Congo, Dem. Rep.",Modelo_tendencia,2018,"N(2.4e+10, 4.5e+19)",23947733969.738873
+"Congo, Dem. Rep.",Modelo_tendencia,2019,"N(2.4e+10, 4.5e+19)",24348341379.017582
+"Congo, Dem. Rep.",Modelo_tendencia,2020,"N(2.5e+10, 4.5e+19)",24748948788.29629
+"Congo, Rep.",Modelo_tendencia,2018,"N(9.6e+09, 6e+18)",9607931239.369421
+"Congo, Rep.",Modelo_tendencia,2019,"N(9.8e+09, 6e+18)",9811778134.279085
+"Congo, Rep.",Modelo_tendencia,2020,"N(1e+10, 6e+18)",10015625029.18875
+Costa Rica,Modelo_tendencia,2018,"N(3.8e+10, 7.8e+19)",38382331396.02594
+Costa Rica,Modelo_tendencia,2019,"N(3.9e+10, 7.8e+19)",39226856179.569534
+Costa Rica,Modelo_tendencia,2020,"N(4e+10, 7.9e+19)",40071380963.113144
+Cote d'Ivoire,Modelo_tendencia,2018,"N(2.8e+10, 1.9e+19)",27909937788.610786
+Cote d'Ivoire,Modelo_tendencia,2019,"N(2.8e+10, 1.9e+19)",28461452473.431946
+Cote d'Ivoire,Modelo_tendencia,2020,"N(2.9e+10, 1.9e+19)",29012967158.25311
+Croatia,Modelo_tendencia,2018,"N(6.8e+10, 1e+20)",68273325771.69451
+Croatia,Modelo_tendencia,2019,"N(7e+10, 1.1e+20)",70314818099.116
+Croatia,Modelo_tendencia,2020,"N(7.2e+10, 1.1e+20)",72356310426.53748
+Cuba,Modelo_tendencia,2018,"N(7.4e+10, 1.2e+20)",73505127573.2526
+Cuba,Modelo_tendencia,2019,"N(7.5e+10, 1.2e+20)",75058137009.75044
+Cuba,Modelo_tendencia,2020,"N(7.7e+10, 1.2e+20)",76611146446.24829
+Curacao,Modelo_tendencia,2018,"NA",NA
+Curacao,Modelo_tendencia,2019,"NA",NA
+Curacao,Modelo_tendencia,2020,"NA",NA
+Cyprus,Modelo_tendencia,2018,"N(2.6e+10, 1.1e+19)",26157739384.79709
+Cyprus,Modelo_tendencia,2019,"N(2.7e+10, 1.1e+19)",26836063518.855682
+Cyprus,Modelo_tendencia,2020,"N(2.8e+10, 1.1e+19)",27514387652.91427
+Czech Republic,Modelo_tendencia,2018,"N(2.5e+11, 8.4e+20)",246343666920.71613
+Czech Republic,Modelo_tendencia,2019,"N(2.5e+11, 8.5e+20)",254654435159.42578
+Czech Republic,Modelo_tendencia,2020,"N(2.6e+11, 8.7e+20)",262965203398.13544
+Denmark,Modelo_tendencia,2018,"N(3.3e+11, 1.2e+21)",334661010496.41644
+Denmark,Modelo_tendencia,2019,"N(3.4e+11, 1.2e+21)",341291569830.667
+Denmark,Modelo_tendencia,2020,"N(3.5e+11, 1.2e+21)",347922129164.9176
+Djibouti,Modelo_tendencia,2018,"N(1.5e+09, 3.8e+16)",1502799112.2024362
+Djibouti,Modelo_tendencia,2019,"N(1.5e+09, 3.8e+16)",1545435266.7172134
+Djibouti,Modelo_tendencia,2020,"N(1.6e+09, 3.9e+16)",1588071421.231991
+Dominica,Modelo_tendencia,2018,"N(5.7e+08, 3.9e+14)",570494533.3821137
+Dominica,Modelo_tendencia,2019,"N(5.8e+08, 3.9e+14)",583698005.2724221
+Dominica,Modelo_tendencia,2020,"N(6e+08, 3.9e+14)",596901477.1627305
+Dominican Republic,Modelo_tendencia,2018,"N(5.4e+10, 1.1e+20)",53585018539.7505
+Dominican Republic,Modelo_tendencia,2019,"N(5.5e+10, 1.2e+20)",54744487166.76456
+Dominican Republic,Modelo_tendencia,2020,"N(5.6e+10, 1.2e+20)",55903955793.778625
+Early-demographic dividend,Modelo_tendencia,2018,"N(8.2e+12, 2.7e+24)",8179854923389.432
+Early-demographic dividend,Modelo_tendencia,2019,"N(8.4e+12, 2.7e+24)",8354226014098.412
+Early-demographic dividend,Modelo_tendencia,2020,"N(8.5e+12, 2.7e+24)",8528597104807.391
+East Asia & Pacific,Modelo_tendencia,2018,"N(1.8e+13, 9.1e+24)",17766588312146.297
+East Asia & Pacific,Modelo_tendencia,2019,"N(1.8e+13, 9.2e+24)",18146114505257.055
+East Asia & Pacific,Modelo_tendencia,2020,"N(1.9e+13, 9.2e+24)",18525640698367.82
+East Asia & Pacific (excluding high income),Modelo_tendencia,2018,"N(8e+12, 7.2e+24)",8024346359624.781
+East Asia & Pacific (excluding high income),Modelo_tendencia,2019,"N(8.2e+12, 7.2e+24)",8209503277250.834
+East Asia & Pacific (excluding high income),Modelo_tendencia,2020,"N(8.4e+12, 7.3e+24)",8394660194876.889
+East Asia & Pacific (IDA & IBRD countries),Modelo_tendencia,2018,"N(8e+12, 7.2e+24)",8008731277394.551
+East Asia & Pacific (IDA & IBRD countries),Modelo_tendencia,2019,"N(8.2e+12, 7.2e+24)",8193529146606.174
+East Asia & Pacific (IDA & IBRD countries),Modelo_tendencia,2020,"N(8.4e+12, 7.2e+24)",8378327015817.799
+Ecuador,Modelo_tendencia,2018,"N(7.3e+10, 2.5e+20)",72810268191.19987
+Ecuador,Modelo_tendencia,2019,"N(7.4e+10, 2.5e+20)",74330851563.14133
+Ecuador,Modelo_tendencia,2020,"N(7.6e+10, 2.5e+20)",75851434935.08276
+"Egypt, Arab Rep.",Modelo_tendencia,2018,"N(2.2e+11, 2.5e+21)",224425730191.95013
+"Egypt, Arab Rep.",Modelo_tendencia,2019,"N(2.3e+11, 2.5e+21)",229636978480.59424
+"Egypt, Arab Rep.",Modelo_tendencia,2020,"N(2.3e+11, 2.5e+21)",234848226769.23828
+El Salvador,Modelo_tendencia,2018,"N(2.1e+10, 5.5e+18)",21311091909.646313
+El Salvador,Modelo_tendencia,2019,"N(2.2e+10, 5.6e+18)",21773552452.977707
+El Salvador,Modelo_tendencia,2020,"N(2.2e+10, 5.6e+18)",22236012996.309105
+Equatorial Guinea,Modelo_tendencia,2018,"N(1.3e+10, 2.6e+19)",12998985822.789444
+Equatorial Guinea,Modelo_tendencia,2019,"N(1.3e+10, 2.6e+19)",13315428440.08239
+Equatorial Guinea,Modelo_tendencia,2020,"N(1.4e+10, 2.6e+19)",13631871057.37534
+Eritrea,Modelo_tendencia,2012,"N(1.9e+09, 9.4e+16)",1942748083.954134
+Eritrea,Modelo_tendencia,2013,"N(2e+09, 9.7e+16)",2029553900.5844107
+Eritrea,Modelo_tendencia,2014,"N(2.1e+09, 9.9e+16)",2116359717.2146873
+Estonia,Modelo_tendencia,2018,"N(2.9e+10, 9e+18)",29330417340.552956
+Estonia,Modelo_tendencia,2019,"N(3e+10, 9.1e+18)",30497002567.882484
+Estonia,Modelo_tendencia,2020,"N(3.2e+10, 9.3e+18)",31663587795.212013
+Eswatini,Modelo_tendencia,2018,"N(3.9e+09, 4.3e+17)",3908701857.957382
+Eswatini,Modelo_tendencia,2019,"N(4e+09, 4.3e+17)",3991582895.7945175
+Eswatini,Modelo_tendencia,2020,"N(4.1e+09, 4.3e+17)",4074463933.631652
+Ethiopia,Modelo_tendencia,2018,"N(4.7e+10, 1.9e+20)",47084238817.48627
+Ethiopia,Modelo_tendencia,2019,"N(4.8e+10, 2e+20)",48491790468.96471
+Ethiopia,Modelo_tendencia,2020,"N(5e+10, 2e+20)",49899342120.443146
+Euro area,Modelo_tendencia,2018,"N(1.3e+13, 1.8e+24)",13257645316645.248
+Euro area,Modelo_tendencia,2019,"N(1.4e+13, 1.8e+24)",13519771605552.506
+Euro area,Modelo_tendencia,2020,"N(1.4e+13, 1.8e+24)",13781897894459.764
+Europe & Central Asia,Modelo_tendencia,2018,"N(2.2e+13, 6.3e+24)",21716324188213.49
+Europe & Central Asia,Modelo_tendencia,2019,"N(2.2e+13, 6.3e+24)",22152471058148.844
+Europe & Central Asia,Modelo_tendencia,2020,"N(2.3e+13, 6.3e+24)",22588617928084.2
+Europe & Central Asia (excluding high income),Modelo_tendencia,2018,"N(3.8e+12, 4.9e+23)",3832909619431.957
+Europe & Central Asia (excluding high income),Modelo_tendencia,2019,"N(4e+12, 5e+23)",3963798596004.6934
+Europe & Central Asia (excluding high income),Modelo_tendencia,2020,"N(4.1e+12, 5.1e+23)",4094687572577.4287
+Europe & Central Asia (IDA & IBRD countries),Modelo_tendencia,2018,"N(4.5e+12, 5.8e+23)",4485190770932.377
+Europe & Central Asia (IDA & IBRD countries),Modelo_tendencia,2019,"N(4.6e+12, 5.8e+23)",4637510501767.965
+Europe & Central Asia (IDA & IBRD countries),Modelo_tendencia,2020,"N(4.8e+12, 5.9e+23)",4789830232603.553
+European Union,Modelo_tendencia,2018,"N(1.8e+13, 3.4e+24)",17987212398165.57
+European Union,Modelo_tendencia,2019,"N(1.8e+13, 3.4e+24)",18345359805558.945
+European Union,Modelo_tendencia,2020,"N(1.9e+13, 3.5e+24)",18703507212952.32
+Faroe Islands,Modelo_tendencia,2018,"N(3.2e+09, 4e+16)",3150803374.257337
+Faroe Islands,Modelo_tendencia,2019,"N(3.3e+09, 4.1e+16)",3257807097.818661
+Faroe Islands,Modelo_tendencia,2020,"N(3.4e+09, 4.3e+16)",3364810821.3799863
+Fiji,Modelo_tendencia,2018,"N(3.9e+09, 2.2e+17)",3915931572.525688
+Fiji,Modelo_tendencia,2019,"N(4e+09, 2.2e+17)",3992402190.402355
+Fiji,Modelo_tendencia,2020,"N(4.1e+09, 2.2e+17)",4068872808.279022
+Finland,Modelo_tendencia,2018,"N(2.6e+11, 7.9e+20)",261472228742.07516
+Finland,Modelo_tendencia,2019,"N(2.7e+11, 7.9e+20)",266651525059.45108
+Finland,Modelo_tendencia,2020,"N(2.7e+11, 7.9e+20)",271830821376.827
+Fragile and conflict affected situations,Modelo_tendencia,2018,"N(9.7e+11, 7.6e+21)",966617588025.5876
+Fragile and conflict affected situations,Modelo_tendencia,2019,"N(1e+12, 7.8e+21)",1012511817597.551
+Fragile and conflict affected situations,Modelo_tendencia,2020,"N(1.1e+12, 8.1e+21)",1058406047169.5149
+France,Modelo_tendencia,2018,"N(2.8e+12, 7.2e+22)",2773532178832.914
+France,Modelo_tendencia,2019,"N(2.8e+12, 7.2e+22)",2827669158395.319
+France,Modelo_tendencia,2020,"N(2.9e+12, 7.2e+22)",2881806137957.7236
+French Polynesia,Modelo_tendencia,2018,"N(6.3e+09, 1.8e+17)",6333492854.984
+French Polynesia,Modelo_tendencia,2019,"N(6.5e+09, 1.8e+17)",6460663178.006105
+French Polynesia,Modelo_tendencia,2020,"N(6.6e+09, 1.9e+17)",6587833501.02821
+Gabon,Modelo_tendencia,2018,"N(1.4e+10, 6.1e+18)",13996960466.021244
+Gabon,Modelo_tendencia,2019,"N(1.4e+10, 6.2e+18)",14281560452.628155
+Gabon,Modelo_tendencia,2020,"N(1.5e+10, 6.2e+18)",14566160439.235065
+"Gambia, The",Modelo_tendencia,2018,"N(1.2e+09, 2.9e+16)",1209634336.7441955
+"Gambia, The",Modelo_tendencia,2019,"N(1.2e+09, 2.9e+16)",1235254473.906261
+"Gambia, The",Modelo_tendencia,2020,"N(1.3e+09, 2.9e+16)",1260874611.0683265
+Georgia,Modelo_tendencia,2018,"N(1.6e+10, 8.8e+18)",15657542596.866564
+Georgia,Modelo_tendencia,2019,"N(1.6e+10, 8.9e+18)",16187049488.681505
+Georgia,Modelo_tendencia,2020,"N(1.7e+10, 9e+18)",16716556380.496447
+Germany,Modelo_tendencia,2018,"N(4e+12, 8.6e+22)",3955681324752.964
+Germany,Modelo_tendencia,2019,"N(4e+12, 8.7e+22)",4037937171599.793
+Germany,Modelo_tendencia,2020,"N(4.1e+12, 8.7e+22)",4120193018446.622
+Ghana,Modelo_tendencia,2018,"N(3.4e+10, 1.3e+20)",33715366435.646774
+Ghana,Modelo_tendencia,2019,"N(3.4e+10, 1.3e+20)",34451980582.834404
+Ghana,Modelo_tendencia,2020,"N(3.5e+10, 1.3e+20)",35188594730.022026
+Gibraltar,Modelo_tendencia,2018,"NA",NA
+Gibraltar,Modelo_tendencia,2019,"NA",NA
+Gibraltar,Modelo_tendencia,2020,"NA",NA
+Greece,Modelo_tendencia,2018,"N(2.7e+11, 1.9e+21)",271031750569.34103
+Greece,Modelo_tendencia,2019,"N(2.8e+11, 1.9e+21)",276426348664.6061
+Greece,Modelo_tendencia,2020,"N(2.8e+11, 1.9e+21)",281820946759.8711
+Greenland,Modelo_tendencia,2018,"N(2.7e+09, 7.2e+16)",2700889180.8637667
+Greenland,Modelo_tendencia,2019,"N(2.8e+09, 7.3e+16)",2762139387.0919557
+Greenland,Modelo_tendencia,2020,"N(2.8e+09, 7.3e+16)",2823389593.320144
+Grenada,Modelo_tendencia,2018,"N(9.9e+08, 3.8e+15)",992642750.9512194
+Grenada,Modelo_tendencia,2019,"N(1e+09, 3.8e+15)",1017462340.2093173
+Grenada,Modelo_tendencia,2020,"N(1e+09, 3.8e+15)",1042281929.4674152
+Guam,Modelo_tendencia,2018,"N(6.2e+09, 1.1e+16)",6160525000
+Guam,Modelo_tendencia,2019,"N(6.3e+09, 1.2e+16)",6324652941.17647
+Guam,Modelo_tendencia,2020,"N(6.5e+09, 1.2e+16)",6488780882.3529415
+Guatemala,Modelo_tendencia,2018,"N(4.6e+10, 9.5e+19)",46493517280.72772
+Guatemala,Modelo_tendencia,2019,"N(4.7e+10, 9.5e+19)",47481418168.01967
+Guatemala,Modelo_tendencia,2020,"N(4.8e+10, 9.6e+19)",48469319055.31163
+Guinea,Modelo_tendencia,2018,"N(8.6e+09, 1.4e+18)",8586144410.587519
+Guinea,Modelo_tendencia,2019,"N(8.8e+09, 1.4e+18)",8818241703.536964
+Guinea,Modelo_tendencia,2020,"N(9.1e+09, 1.4e+18)",9050338996.48641
+Guinea-Bissau,Modelo_tendencia,2018,"N(9.7e+08, 3e+16)",967288224.5334696
+Guinea-Bissau,Modelo_tendencia,2019,"N(9.9e+08, 3e+16)",990312136.9844531
+Guinea-Bissau,Modelo_tendencia,2020,"N(1e+09, 3e+16)",1013336049.4354368
+Guyana,Modelo_tendencia,2018,"N(2.2e+09, 3.6e+17)",2215180396.230722
+Guyana,Modelo_tendencia,2019,"N(2.3e+09, 3.6e+17)",2259775267.952528
+Guyana,Modelo_tendencia,2020,"N(2.3e+09, 3.7e+17)",2304370139.6743345
+Haiti,Modelo_tendencia,2018,"N(7.2e+09, 1.1e+18)",7162830421.329348
+Haiti,Modelo_tendencia,2019,"N(7.3e+09, 1.1e+18)",7306726800.478735
+Haiti,Modelo_tendencia,2020,"N(7.5e+09, 1.1e+18)",7450623179.628122
+Heavily indebted poor countries (HIPC),Modelo_tendencia,2018,"N(4.8e+11, 1.2e+22)",480423710982.5775
+Heavily indebted poor countries (HIPC),Modelo_tendencia,2019,"N(4.9e+11, 1.2e+22)",490313272821.2312
+Heavily indebted poor countries (HIPC),Modelo_tendencia,2020,"N(5e+11, 1.2e+22)",500202834659.8849
+High income,Modelo_tendencia,2018,"N(4.9e+13, 1.9e+25)",49374076672909.54
+High income,Modelo_tendencia,2019,"N(5e+13, 1.9e+25)",50360700337866.97
+High income,Modelo_tendencia,2020,"N(5.1e+13, 1.9e+25)",51347324002824.41
+Honduras,Modelo_tendencia,2018,"N(1.6e+10, 7.7e+18)",16473928307.517502
+Honduras,Modelo_tendencia,2019,"N(1.7e+10, 7.8e+18)",16810459855.430443
+Honduras,Modelo_tendencia,2020,"N(1.7e+10, 7.8e+18)",17146991403.34338
+"Hong Kong SAR, China",Modelo_tendencia,2018,"N(2.7e+11, 1.1e+21)",273840863527.88663
+"Hong Kong SAR, China",Modelo_tendencia,2019,"N(2.8e+11, 1.1e+21)",279603040703.72363
+"Hong Kong SAR, China",Modelo_tendencia,2020,"N(2.9e+11, 1.1e+21)",285365217879.56055
+Hungary,Modelo_tendencia,2018,"N(1.6e+11, 3.7e+20)",160892877315.60046
+Hungary,Modelo_tendencia,2019,"N(1.7e+11, 3.7e+20)",165843419959.68506
+Hungary,Modelo_tendencia,2020,"N(1.7e+11, 3.8e+20)",170793962603.76965
+IBRD only,Modelo_tendencia,2018,"N(1.9e+13, 2.3e+25)",19114033606605.83
+IBRD only,Modelo_tendencia,2019,"N(2e+13, 2.3e+25)",19534310888982.46
+IBRD only,Modelo_tendencia,2020,"N(2e+13, 2.3e+25)",19954588171359.086
+Iceland,Modelo_tendencia,2018,"N(1.7e+10, 6.1e+18)",17452585718.434265
+Iceland,Modelo_tendencia,2019,"N(1.8e+10, 6.1e+18)",17808133026.04373
+Iceland,Modelo_tendencia,2020,"N(1.8e+10, 6.1e+18)",18163680333.6532
+IDA & IBRD total,Modelo_tendencia,2018,"N(2.1e+13, 2.7e+25)",20563714538039.97
+IDA & IBRD total,Modelo_tendencia,2019,"N(2.1e+13, 2.7e+25)",21014533287791.457
+IDA & IBRD total,Modelo_tendencia,2020,"N(2.1e+13, 2.7e+25)",21465352037542.94
+IDA blend,Modelo_tendencia,2018,"N(7e+11, 3e+22)",696838395284.7378
+IDA blend,Modelo_tendencia,2019,"N(7.1e+11, 3e+22)",711666676518.5818
+IDA blend,Modelo_tendencia,2020,"N(7.3e+11, 3e+22)",726494957752.4257
+IDA only,Modelo_tendencia,2018,"N(7.5e+11, 3.3e+22)",752342340252.7606
+IDA only,Modelo_tendencia,2019,"N(7.7e+11, 3.3e+22)",768030087214.6493
+IDA only,Modelo_tendencia,2020,"N(7.8e+11, 3.3e+22)",783717834176.538
+IDA total,Modelo_tendencia,2018,"N(1.5e+12, 1.2e+23)",1455967398393.4365
+IDA total,Modelo_tendencia,2019,"N(1.5e+12, 1.2e+23)",1486633359902.4663
+IDA total,Modelo_tendencia,2020,"N(1.5e+12, 1.3e+23)",1517299321411.496
+India,Modelo_tendencia,2018,"N(1.5e+12, 1.5e+23)",1524037835221.6733
+India,Modelo_tendencia,2019,"N(1.6e+12, 1.5e+23)",1557196000032.0937
+India,Modelo_tendencia,2020,"N(1.6e+12, 1.5e+23)",1590354164842.5142
+Indonesia,Modelo_tendencia,2018,"N(7.1e+11, 3e+22)",705687853517.478
+Indonesia,Modelo_tendencia,2019,"N(7.2e+11, 3e+22)",723001234610.5607
+Indonesia,Modelo_tendencia,2020,"N(7.4e+11, 3e+22)",740314615703.6434
+"Iran, Islamic Rep.",Modelo_tendencia,2018,"N(4e+11, 8.2e+21)",396791559958.621
+"Iran, Islamic Rep.",Modelo_tendencia,2019,"N(4e+11, 8.2e+21)",404783498765.841
+"Iran, Islamic Rep.",Modelo_tendencia,2020,"N(4.1e+11, 8.3e+21)",412775437573.06104
+Iraq,Modelo_tendencia,2018,"N(1.7e+11, 1.5e+21)",174694324092.94736
+Iraq,Modelo_tendencia,2019,"N(1.8e+11, 1.5e+21)",178176015099.93167
+Iraq,Modelo_tendencia,2020,"N(1.8e+11, 1.5e+21)",181657706106.916
+Ireland,Modelo_tendencia,2018,"N(2.5e+11, 2.1e+21)",247130187930.00037
+Ireland,Modelo_tendencia,2019,"N(2.5e+11, 2.1e+21)",252524888827.4239
+Ireland,Modelo_tendencia,2020,"N(2.6e+11, 2.2e+21)",257919589724.8474
+Isle of Man,Modelo_tendencia,2018,"N(8.3e+09, 4.5e+17)",8252012066.852041
+Isle of Man,Modelo_tendencia,2019,"N(8.6e+09, 4.6e+17)",8602302884.243048
+Isle of Man,Modelo_tendencia,2020,"N(9e+09, 4.7e+17)",8952593701.634058
+Israel,Modelo_tendencia,2018,"N(2.5e+11, 1.7e+21)",248501254444.3761
+Israel,Modelo_tendencia,2019,"N(2.5e+11, 1.8e+21)",253826574212.07336
+Israel,Modelo_tendencia,2020,"N(2.6e+11, 1.8e+21)",259151893979.77057
+Italy,Modelo_tendencia,2018,"N(2.2e+12, 5.1e+22)",2234222142741.0894
+Italy,Modelo_tendencia,2019,"N(2.3e+12, 5.1e+22)",2277947048280.776
+Italy,Modelo_tendencia,2020,"N(2.3e+12, 5.1e+22)",2321671953820.4624
+Jamaica,Modelo_tendencia,2018,"N(1.4e+10, 2.4e+18)",14022183755.195032
+Jamaica,Modelo_tendencia,2019,"N(1.4e+10, 2.4e+18)",14293263421.654387
+Jamaica,Modelo_tendencia,2020,"N(1.5e+10, 2.4e+18)",14564343088.113743
+Japan,Modelo_tendencia,2018,"N(6.2e+12, 5.2e+23)",6198390548109.255
+Japan,Modelo_tendencia,2019,"N(6.3e+12, 5.2e+23)",6316812294793.676
+Japan,Modelo_tendencia,2020,"N(6.4e+12, 5.2e+23)",6435234041478.097
+Jordan,Modelo_tendencia,2018,"N(2.7e+10, 3.8e+19)",27353295511.969265
+Jordan,Modelo_tendencia,2019,"N(2.8e+10, 3.8e+19)",27986497703.00977
+Jordan,Modelo_tendencia,2020,"N(2.9e+10, 3.8e+19)",28619699894.050274
+Kazakhstan,Modelo_tendencia,2018,"N(2e+11, 1.6e+21)",198402430607.69534
+Kazakhstan,Modelo_tendencia,2019,"N(2.1e+11, 1.7e+21)",206306950842.91934
+Kazakhstan,Modelo_tendencia,2020,"N(2.1e+11, 1.7e+21)",214211471078.14328
+Kenya,Modelo_tendencia,2018,"N(4.3e+10, 1.4e+20)",43191825311.62435
+Kenya,Modelo_tendencia,2019,"N(4.4e+10, 1.4e+20)",44132058995.58364
+Kenya,Modelo_tendencia,2020,"N(4.5e+10, 1.4e+20)",45072292679.54293
+Kiribati,Modelo_tendencia,2018,"N(1.6e+08, 7.6e+14)",161045477.08545807
+Kiribati,Modelo_tendencia,2019,"N(1.6e+08, 7.7e+14)",164401573.55594867
+Kiribati,Modelo_tendencia,2020,"N(1.7e+08, 7.7e+14)",167757670.02643928
+"Korea, Dem. People's Rep.",Modelo_tendencia,2018,"NA",NA
+"Korea, Dem. People's Rep.",Modelo_tendencia,2019,"NA",NA
+"Korea, Dem. People's Rep.",Modelo_tendencia,2020,"NA",NA
+"Korea, Rep.",Modelo_tendencia,2018,"N(1.2e+12, 3.7e+22)",1187853757847.202
+"Korea, Rep.",Modelo_tendencia,2019,"N(1.2e+12, 3.7e+22)",1213781116990.6643
+"Korea, Rep.",Modelo_tendencia,2020,"N(1.2e+12, 3.7e+22)",1239708476134.1265
+Kosovo,Modelo_tendencia,2018,"N(8.2e+09, 3.6e+17)",8231539329.26133
+Kosovo,Modelo_tendencia,2019,"N(8.6e+09, 3.7e+17)",8568623383.935692
+Kosovo,Modelo_tendencia,2020,"N(8.9e+09, 3.8e+17)",8905707438.610054
+Kuwait,Modelo_tendencia,2018,"N(1.2e+11, 8.4e+20)",121050043953.16199
+Kuwait,Modelo_tendencia,2019,"N(1.2e+11, 8.5e+20)",123797863422.36716
+Kuwait,Modelo_tendencia,2020,"N(1.3e+11, 8.5e+20)",126545682891.57233
+Kyrgyz Republic,Modelo_tendencia,2018,"N(6.9e+09, 1.6e+18)",6936116891.718202
+Kyrgyz Republic,Modelo_tendencia,2019,"N(7.2e+09, 1.7e+18)",7167090023.903525
+Kyrgyz Republic,Modelo_tendencia,2020,"N(7.4e+09, 1.7e+18)",7398063156.088849
+Lao PDR,Modelo_tendencia,2018,"N(1.1e+10, 8.7e+18)",11433471138.25132
+Lao PDR,Modelo_tendencia,2019,"N(1.2e+10, 8.8e+18)",11831389186.274452
+Lao PDR,Modelo_tendencia,2020,"N(1.2e+10, 8.9e+18)",12229307234.29758
+Late-demographic dividend,Modelo_tendencia,2018,"N(1.3e+13, 1.3e+25)",13106698881357.436
+Late-demographic dividend,Modelo_tendencia,2019,"N(1.3e+13, 1.3e+25)",13399229931838.182
+Late-demographic dividend,Modelo_tendencia,2020,"N(1.4e+13, 1.3e+25)",13691760982318.928
+Latin America & Caribbean,Modelo_tendencia,2018,"N(4.9e+12, 7.9e+23)",4942639029226.983
+Latin America & Caribbean,Modelo_tendencia,2019,"N(5e+12, 8e+23)",5046835651276.359
+Latin America & Caribbean,Modelo_tendencia,2020,"N(5.2e+12, 8e+23)",5151032273325.735
+Latin America & Caribbean (excluding high income),Modelo_tendencia,2018,"N(4e+12, 5.6e+23)",4040600162270.0566
+Latin America & Caribbean (excluding high income),Modelo_tendencia,2019,"N(4.1e+12, 5.6e+23)",4126252378230.784
+Latin America & Caribbean (excluding high income),Modelo_tendencia,2020,"N(4.2e+12, 5.6e+23)",4211904594191.5117
+Latin America & the Caribbean (IDA & IBRD countries),Modelo_tendencia,2018,"N(4.7e+12, 7.6e+23)",4735474671566.883
+Latin America & the Caribbean (IDA & IBRD countries),Modelo_tendencia,2019,"N(4.8e+12, 7.6e+23)",4835505980442.48
+Latin America & the Caribbean (IDA & IBRD countries),Modelo_tendencia,2020,"N(4.9e+12, 7.6e+23)",4935537289318.08
+Latvia,Modelo_tendencia,2018,"N(3.6e+10, 2.5e+19)",35822644165.686325
+Latvia,Modelo_tendencia,2019,"N(3.7e+10, 2.6e+19)",37204659246.133774
+Latvia,Modelo_tendencia,2020,"N(3.9e+10, 2.6e+19)",38586674326.58124
+Least developed countries: UN classification,Modelo_tendencia,2018,"N(8.3e+11, 2.6e+22)",826128626248.1067
+Least developed countries: UN classification,Modelo_tendencia,2019,"N(8.5e+11, 2.6e+22)",850277004656.5981
+Least developed countries: UN classification,Modelo_tendencia,2020,"N(8.7e+11, 2.6e+22)",874425383065.0896
+Lebanon,Modelo_tendencia,2018,"N(5.1e+10, 1.6e+19)",51314148341.14829
+Lebanon,Modelo_tendencia,2019,"N(5.3e+10, 1.7e+19)",53089982561.25381
+Lebanon,Modelo_tendencia,2020,"N(5.5e+10, 1.7e+19)",54865816781.35932
+Lesotho,Modelo_tendencia,2018,"N(2.2e+09, 1.3e+17)",2202778136.825886
+Lesotho,Modelo_tendencia,2019,"N(2.2e+09, 1.3e+17)",2248899811.017602
+Lesotho,Modelo_tendencia,2020,"N(2.3e+09, 1.3e+17)",2295021485.209318
+Liberia,Modelo_tendencia,2018,"N(3.6e+09, 8.6e+16)",3599059320.2614374
+Liberia,Modelo_tendencia,2019,"N(3.8e+09, 8.9e+16)",3776999593.739249
+Liberia,Modelo_tendencia,2020,"N(4e+09, 9.2e+16)",3954939867.217061
+Libya,Modelo_tendencia,2018,"N(5.7e+10, 3.3e+20)",56523336254.35752
+Libya,Modelo_tendencia,2019,"N(5.8e+10, 3.4e+20)",57555015044.221375
+Libya,Modelo_tendencia,2020,"N(5.9e+10, 3.4e+20)",58586693834.08523
+Liechtenstein,Modelo_tendencia,2018,"N(5.8e+09, 4.3e+17)",5847130384.076805
+Liechtenstein,Modelo_tendencia,2019,"N(6e+09, 4.3e+17)",5989049916.004146
+Liechtenstein,Modelo_tendencia,2020,"N(6.1e+09, 4.3e+17)",6130969447.931487
+Lithuania,Modelo_tendencia,2018,"N(5.4e+10, 3.3e+19)",54281230719.09296
+Lithuania,Modelo_tendencia,2019,"N(5.6e+10, 3.3e+19)",56415854066.312256
+Lithuania,Modelo_tendencia,2020,"N(5.9e+10, 3.4e+19)",58550477413.53157
+Low & middle income,Modelo_tendencia,2018,"N(1.9e+13, 2.5e+25)",19399199297734.984
+Low & middle income,Modelo_tendencia,2019,"N(2e+13, 2.5e+25)",19825597093035.055
+Low & middle income,Modelo_tendencia,2020,"N(2e+13, 2.5e+25)",20251994888335.125
+Low income,Modelo_tendencia,2018,"N(4.8e+11, 7.8e+21)",480716213869.9417
+Low income,Modelo_tendencia,2019,"N(4.9e+11, 7.9e+21)",494154862066.12946
+Low income,Modelo_tendencia,2020,"N(5.1e+11, 7.9e+21)",507593510262.3172
+Lower middle income,Modelo_tendencia,2018,"N(4.5e+12, 1e+24)",4469272299756.51
+Lower middle income,Modelo_tendencia,2019,"N(4.6e+12, 1e+24)",4572551468854.2705
+Lower middle income,Modelo_tendencia,2020,"N(4.7e+12, 1e+24)",4675830637952.031
+Luxembourg,Modelo_tendencia,2018,"N(5.3e+10, 8.2e+19)",53220052708.18165
+Luxembourg,Modelo_tendencia,2019,"N(5.4e+10, 8.3e+19)",54360010210.96846
+Luxembourg,Modelo_tendencia,2020,"N(5.5e+10, 8.3e+19)",55499967713.75527
+"Macao SAR, China",Modelo_tendencia,2018,"N(4.1e+10, 8.2e+19)",41318450959.87348
+"Macao SAR, China",Modelo_tendencia,2019,"N(4.3e+10, 8.3e+19)",42719083806.90974
+"Macao SAR, China",Modelo_tendencia,2020,"N(4.4e+10, 8.3e+19)",44119716653.94598
+"Macedonia, FYR",Modelo_tendencia,2018,"N(1.2e+10, 1.9e+18)",11534682346.43865
+"Macedonia, FYR",Modelo_tendencia,2019,"N(1.2e+10, 1.9e+18)",11872207847.437418
+"Macedonia, FYR",Modelo_tendencia,2020,"N(1.2e+10, 2e+18)",12209733348.436186
+Madagascar,Modelo_tendencia,2018,"N(8.8e+09, 2.1e+18)",8777252170.281689
+Madagascar,Modelo_tendencia,2019,"N(8.9e+09, 2.1e+18)",8938783982.071915
+Madagascar,Modelo_tendencia,2020,"N(9.1e+09, 2.1e+18)",9100315793.862139
+Malawi,Modelo_tendencia,2018,"N(5.5e+09, 1e+18)",5518667964.102872
+Malawi,Modelo_tendencia,2019,"N(5.6e+09, 1e+18)",5631050438.479995
+Malawi,Modelo_tendencia,2020,"N(5.7e+09, 1e+18)",5743432912.857117
+Malaysia,Modelo_tendencia,2018,"N(2.5e+11, 2.6e+21)",245995394485.98785
+Malaysia,Modelo_tendencia,2019,"N(2.5e+11, 2.6e+21)",251376221839.60168
+Malaysia,Modelo_tendencia,2020,"N(2.6e+11, 2.6e+21)",256757049193.21545
+Maldives,Modelo_tendencia,2018,"N(3.5e+09, 4.2e+17)",3456716683.5925994
+Maldives,Modelo_tendencia,2019,"N(3.6e+09, 4.3e+17)",3569874876.7673125
+Maldives,Modelo_tendencia,2020,"N(3.7e+09, 4.3e+17)",3683033069.9420247
+Mali,Modelo_tendencia,2018,"N(1.1e+10, 5.1e+18)",11264711579.6764
+Mali,Modelo_tendencia,2019,"N(1.2e+10, 5.1e+18)",11531060521.291634
+Mali,Modelo_tendencia,2020,"N(1.2e+10, 5.2e+18)",11797409462.906868
+Malta,Modelo_tendencia,2018,"N(1e+10, 1.4e+18)",10161277419.947247
+Malta,Modelo_tendencia,2019,"N(1e+10, 1.4e+18)",10407031552.865202
+Malta,Modelo_tendencia,2020,"N(1.1e+10, 1.4e+18)",10652785685.783157
+Marshall Islands,Modelo_tendencia,2018,"N(2e+08, 6.4e+13)",201783738.383866
+Marshall Islands,Modelo_tendencia,2019,"N(2.1e+08, 6.4e+13)",206293517.31722632
+Marshall Islands,Modelo_tendencia,2020,"N(2.1e+08, 6.5e+13)",210803296.2505866
+Mauritania,Modelo_tendencia,2018,"N(4.1e+09, 7.3e+17)",4079689515.86213
+Mauritania,Modelo_tendencia,2019,"N(4.2e+09, 7.3e+17)",4164595720.3836718
+Mauritania,Modelo_tendencia,2020,"N(4.2e+09, 7.3e+17)",4249501924.9052134
+Mauritius,Modelo_tendencia,2018,"N(1.2e+10, 1.7e+18)",11870481965.388779
+Mauritius,Modelo_tendencia,2019,"N(1.2e+10, 1.8e+18)",12182846610.946205
+Mauritius,Modelo_tendencia,2020,"N(1.2e+10, 1.8e+18)",12495211256.503632
+Mexico,Modelo_tendencia,2018,"N(1.1e+12, 2.3e+22)",1132512538167.3125
+Mexico,Modelo_tendencia,2019,"N(1.2e+12, 2.3e+22)",1156123504243.5444
+Mexico,Modelo_tendencia,2020,"N(1.2e+12, 2.3e+22)",1179734470319.7761
+"Micronesia, Fed. Sts.",Modelo_tendencia,2018,"N(3.5e+08, 2e+14)",347551086.39181584
+"Micronesia, Fed. Sts.",Modelo_tendencia,2019,"N(3.5e+08, 2e+14)",354374389.3241958
+"Micronesia, Fed. Sts.",Modelo_tendencia,2020,"N(3.6e+08, 2e+14)",361197692.25657576
+Middle East & North Africa,Modelo_tendencia,2018,"N(2.8e+12, 3e+23)",2849621738972.2314
+Middle East & North Africa,Modelo_tendencia,2019,"N(2.9e+12, 3e+23)",2918398165414.09
+Middle East & North Africa,Modelo_tendencia,2020,"N(3e+12, 3e+23)",2987174591855.948
+Middle East & North Africa (excluding high income),Modelo_tendencia,2018,"N(1.7e+12, 3.9e+22)",1742723518370.4023
+Middle East & North Africa (excluding high income),Modelo_tendencia,2019,"N(1.8e+12, 4e+22)",1808318201664.6602
+Middle East & North Africa (excluding high income),Modelo_tendencia,2020,"N(1.9e+12, 4.1e+22)",1873912884958.9175
+Middle East & North Africa (IDA & IBRD countries),Modelo_tendencia,2018,"N(1.7e+12, 3.9e+22)",1729435107558.4768
+Middle East & North Africa (IDA & IBRD countries),Modelo_tendencia,2019,"N(1.8e+12, 4e+22)",1794533482466.657
+Middle East & North Africa (IDA & IBRD countries),Modelo_tendencia,2020,"N(1.9e+12, 4e+22)",1859631857374.8376
+Middle income,Modelo_tendencia,2018,"N(1.9e+13, 2.4e+25)",19004029160165.297
+Middle income,Modelo_tendencia,2019,"N(1.9e+13, 2.4e+25)",19422336205822.758
+Middle income,Modelo_tendencia,2020,"N(2e+13, 2.4e+25)",19840643251480.227
+Moldova,Modelo_tendencia,2018,"N(8.5e+09, 1e+18)",8480910938.054888
+Moldova,Modelo_tendencia,2019,"N(8.8e+09, 1.1e+18)",8835961606.89564
+Moldova,Modelo_tendencia,2020,"N(9.2e+09, 1.1e+18)",9191012275.736391
+Monaco,Modelo_tendencia,2018,"N(6.4e+09, 4e+17)",6391965375.3303385
+Monaco,Modelo_tendencia,2019,"N(6.5e+09, 4e+17)",6532870235.828873
+Monaco,Modelo_tendencia,2020,"N(6.7e+09, 4.1e+17)",6673775096.327406
+Mongolia,Modelo_tendencia,2018,"N(9.1e+09, 8.5e+18)",9119691090.850134
+Mongolia,Modelo_tendencia,2019,"N(9.4e+09, 8.6e+18)",9378447115.616968
+Mongolia,Modelo_tendencia,2020,"N(9.6e+09, 8.7e+18)",9637203140.3838
+Montenegro,Modelo_tendencia,2018,"N(5.5e+09, 4.3e+17)",5529463475.493611
+Montenegro,Modelo_tendencia,2019,"N(5.8e+09, 4.4e+17)",5762602732.428702
+Montenegro,Modelo_tendencia,2020,"N(6e+09, 4.6e+17)",5995741989.363793
+Morocco,Modelo_tendencia,2018,"N(9.3e+10, 1.8e+20)",93191616319.35413
+Morocco,Modelo_tendencia,2019,"N(9.5e+10, 1.8e+20)",95105668615.53874
+Morocco,Modelo_tendencia,2020,"N(9.7e+10, 1.8e+20)",97019720911.72337
+Mozambique,Modelo_tendencia,2018,"N(1.3e+10, 6e+18)",13302765955.077198
+Mozambique,Modelo_tendencia,2019,"N(1.4e+10, 6e+18)",13645684045.238834
+Mozambique,Modelo_tendencia,2020,"N(1.4e+10, 6.1e+18)",13988602135.40047
+Myanmar,Modelo_tendencia,2018,"N(7.7e+10, 6.7e+19)",77302333828.97556
+Myanmar,Modelo_tendencia,2019,"N(8.2e+10, 6.9e+19)",81674392919.58139
+Myanmar,Modelo_tendencia,2020,"N(8.6e+10, 7.1e+19)",86046452010.18723
+Namibia,Modelo_tendencia,2018,"N(1.2e+10, 3e+18)",12066625729.557522
+Namibia,Modelo_tendencia,2019,"N(1.2e+10, 3e+18)",12390165385.934593
+Namibia,Modelo_tendencia,2020,"N(1.3e+10, 3e+18)",12713705042.311665
+Nauru,Modelo_tendencia,2018,"N(1.4e+08, 3.3e+14)",136976039.74159664
+Nauru,Modelo_tendencia,2019,"N(1.5e+08, 3.6e+14)",146594825.49114364
+Nauru,Modelo_tendencia,2020,"N(1.6e+08, 3.9e+14)",156213611.24069065
+Nepal,Modelo_tendencia,2018,"N(1.5e+10, 1.3e+19)",15401259104.146938
+Nepal,Modelo_tendencia,2019,"N(1.6e+10, 1.3e+19)",15728390615.658726
+Nepal,Modelo_tendencia,2020,"N(1.6e+10, 1.3e+19)",16055522127.170513
+Netherlands,Modelo_tendencia,2018,"N(8.5e+11, 9.1e+21)",851550299831.3911
+Netherlands,Modelo_tendencia,2019,"N(8.7e+11, 9.1e+21)",868615794668.7179
+Netherlands,Modelo_tendencia,2020,"N(8.9e+11, 9.1e+21)",885681289506.0447
+New Caledonia,Modelo_tendencia,2018,"N(5.1e+09, 2.5e+17)",5120538491.32274
+New Caledonia,Modelo_tendencia,2019,"N(5.2e+09, 2.5e+17)",5222597010.633677
+New Caledonia,Modelo_tendencia,2020,"N(5.3e+09, 2.5e+17)",5324655529.9446125
+New Zealand,Modelo_tendencia,2018,"N(1.6e+11, 7.2e+20)",155350566846.46332
+New Zealand,Modelo_tendencia,2019,"N(1.6e+11, 7.2e+20)",158581483853.29297
+New Zealand,Modelo_tendencia,2020,"N(1.6e+11, 7.2e+20)",161812400860.12256
+Nicaragua,Modelo_tendencia,2018,"N(9.8e+09, 2.8e+18)",9839249964.94723
+Nicaragua,Modelo_tendencia,2019,"N(1e+10, 2.8e+18)",10036630830.189823
+Nicaragua,Modelo_tendencia,2020,"N(1e+10, 2.9e+18)",10234011695.432419
+Niger,Modelo_tendencia,2018,"N(5.8e+09, 1.4e+18)",5804996688.464488
+Niger,Modelo_tendencia,2019,"N(5.9e+09, 1.4e+18)",5914663023.642228
+Niger,Modelo_tendencia,2020,"N(6e+09, 1.4e+18)",6024329358.819968
+Nigeria,Modelo_tendencia,2018,"N(3.3e+11, 9.7e+21)",330383502925.0554
+Nigeria,Modelo_tendencia,2019,"N(3.4e+11, 9.8e+21)",337495882788.1475
+Nigeria,Modelo_tendencia,2020,"N(3.4e+11, 9.8e+21)",344608262651.2396
+North America,Modelo_tendencia,2018,"N(1.8e+13, 2.9e+24)",18478987910669.24
+North America,Modelo_tendencia,2019,"N(1.9e+13, 2.9e+24)",18846802528782.32
+North America,Modelo_tendencia,2020,"N(1.9e+13, 2.9e+24)",19214617146895.406
+Northern Mariana Islands,Modelo_tendencia,2018,"N(9.7e+08, 8.1e+16)",968250000
+Northern Mariana Islands,Modelo_tendencia,2019,"N(9.6e+08, 8.4e+16)",963485294.117647
+Northern Mariana Islands,Modelo_tendencia,2020,"N(9.6e+08, 8.8e+16)",958720588.2352941
+Norway,Modelo_tendencia,2018,"N(4.1e+11, 4.9e+21)",411387939545.8508
+Norway,Modelo_tendencia,2019,"N(4.2e+11, 4.9e+21)",420009444064.7891
+Norway,Modelo_tendencia,2020,"N(4.3e+11, 5e+21)",428630948583.72736
+OECD members,Modelo_tendencia,2018,"N(4.8e+13, 1.8e+25)",48168493725676.03
+OECD members,Modelo_tendencia,2019,"N(4.9e+13, 1.8e+25)",49129701125514.31
+OECD members,Modelo_tendencia,2020,"N(5e+13, 1.8e+25)",50090908525352.59
+Oman,Modelo_tendencia,2018,"N(5.9e+10, 1.6e+20)",59189333834.37169
+Oman,Modelo_tendencia,2019,"N(6.1e+10, 1.6e+20)",60591647927.40843
+Oman,Modelo_tendencia,2020,"N(6.2e+10, 1.6e+20)",61993962020.445175
+Other small states,Modelo_tendencia,2018,"N(3.6e+11, 4.9e+21)",363599809841.5044
+Other small states,Modelo_tendencia,2019,"N(3.7e+11, 5e+21)",373651164080.9989
+Other small states,Modelo_tendencia,2020,"N(3.8e+11, 5e+21)",383702518320.4934
+Pacific island small states,Modelo_tendencia,2018,"N(8.2e+09, 7.8e+17)",8183569685.753368
+Pacific island small states,Modelo_tendencia,2019,"N(8.4e+09, 7.8e+17)",8370461211.304102
+Pacific island small states,Modelo_tendencia,2020,"N(8.6e+09, 7.9e+17)",8557352736.8548355
+Pakistan,Modelo_tendencia,2018,"N(1.9e+11, 1.8e+21)",194532596154.8422
+Pakistan,Modelo_tendencia,2019,"N(2e+11, 1.8e+21)",198713577368.9456
+Pakistan,Modelo_tendencia,2020,"N(2e+11, 1.8e+21)",202894558583.04898
+Palau,Modelo_tendencia,2018,"N(2.8e+08, 5.3e+14)",284095737.9084967
+Palau,Modelo_tendencia,2019,"N(2.9e+08, 5.5e+14)",292520076.4017888
+Palau,Modelo_tendencia,2020,"N(3e+08, 5.7e+14)",300944414.8950808
+Panama,Modelo_tendencia,2018,"N(3.5e+10, 8.4e+19)",35105900326.61908
+Panama,Modelo_tendencia,2019,"N(3.6e+10, 8.4e+19)",35866924860.05354
+Panama,Modelo_tendencia,2020,"N(3.7e+10, 8.4e+19)",36627949393.48802
+Papua New Guinea,Modelo_tendencia,2018,"N(1.4e+10, 1.5e+19)",14385808819.836845
+Papua New Guinea,Modelo_tendencia,2019,"N(1.5e+10, 1.5e+19)",14692165081.552956
+Papua New Guinea,Modelo_tendencia,2020,"N(1.5e+10, 1.5e+19)",14998521343.269066
+Paraguay,Modelo_tendencia,2018,"N(2.8e+10, 4.3e+19)",28238227454.265068
+Paraguay,Modelo_tendencia,2019,"N(2.9e+10, 4.3e+19)",28891685368.85594
+Paraguay,Modelo_tendencia,2020,"N(3e+10, 4.3e+19)",29545143283.446815
+Peru,Modelo_tendencia,2018,"N(1.5e+11, 1.1e+21)",145780461487.17218
+Peru,Modelo_tendencia,2019,"N(1.5e+11, 1.1e+21)",148905609106.77194
+Peru,Modelo_tendencia,2020,"N(1.5e+11, 1.1e+21)",152030756726.37173
+Philippines,Modelo_tendencia,2018,"N(2.1e+11, 2.1e+21)",209559768964.22122
+Philippines,Modelo_tendencia,2019,"N(2.1e+11, 2.2e+21)",214042993234.1547
+Philippines,Modelo_tendencia,2020,"N(2.2e+11, 2.2e+21)",218526217504.0882
+Poland,Modelo_tendencia,2018,"N(5.9e+11, 3.3e+21)",589999659010.8087
+Poland,Modelo_tendencia,2019,"N(6.1e+11, 3.3e+21)",610003541005.7396
+Poland,Modelo_tendencia,2020,"N(6.3e+11, 3.4e+21)",630007423000.6703
+Portugal,Modelo_tendencia,2018,"N(2.3e+11, 9.1e+20)",233581125781.8685
+Portugal,Modelo_tendencia,2019,"N(2.4e+11, 9.2e+20)",238380688055.6962
+Portugal,Modelo_tendencia,2020,"N(2.4e+11, 9.2e+20)",243180250329.52383
+Post-demographic dividend,Modelo_tendencia,2018,"N(4.6e+13, 1.5e+25)",45956674617128.81
+Post-demographic dividend,Modelo_tendencia,2019,"N(4.7e+13, 1.5e+25)",46869850625317.75
+Post-demographic dividend,Modelo_tendencia,2020,"N(4.8e+13, 1.5e+25)",47783026633506.69
+Pre-demographic dividend,Modelo_tendencia,2018,"N(9.6e+11, 7e+22)",955439565213.0767
+Pre-demographic dividend,Modelo_tendencia,2019,"N(9.8e+11, 7e+22)",976608555638.0496
+Pre-demographic dividend,Modelo_tendencia,2020,"N(1e+12, 7e+22)",997777546063.0225
+Puerto Rico,Modelo_tendencia,2018,"N(1e+11, 1.2e+20)",102216653450.24
+Puerto Rico,Modelo_tendencia,2019,"N(1e+11, 1.2e+20)",104302887160.96593
+Puerto Rico,Modelo_tendencia,2020,"N(1.1e+11, 1.2e+20)",106389120871.69183
+Qatar,Modelo_tendencia,2018,"N(1.3e+11, 1.7e+21)",130473832117.63268
+Qatar,Modelo_tendencia,2019,"N(1.3e+11, 1.7e+21)",134055498204.69176
+Qatar,Modelo_tendencia,2020,"N(1.4e+11, 1.7e+21)",137637164291.75085
+Romania,Modelo_tendencia,2018,"N(2.1e+11, 1.2e+21)",209037951639.27908
+Romania,Modelo_tendencia,2019,"N(2.2e+11, 1.2e+21)",216064050463.91324
+Romania,Modelo_tendencia,2020,"N(2.2e+11, 1.2e+21)",223090149288.5474
+Russian Federation,Modelo_tendencia,2018,"N(1.9e+12, 1.9e+23)",1872144978034.7607
+Russian Federation,Modelo_tendencia,2019,"N(1.9e+12, 1.9e+23)",1935484907585.5981
+Russian Federation,Modelo_tendencia,2020,"N(2e+12, 1.9e+23)",1998824837136.436
+Rwanda,Modelo_tendencia,2018,"N(5.9e+09, 2e+18)",5882134276.460468
+Rwanda,Modelo_tendencia,2019,"N(6e+09, 2e+18)",6004380292.420105
+Rwanda,Modelo_tendencia,2020,"N(6.1e+09, 2e+18)",6126626308.379741
+Samoa,Modelo_tendencia,2018,"N(8.1e+08, 7.5e+15)",812434904.3323741
+Samoa,Modelo_tendencia,2019,"N(8.4e+08, 7.6e+15)",836117454.0504956
+Samoa,Modelo_tendencia,2020,"N(8.6e+08, 7.7e+15)",859800003.7686169
+San Marino,Modelo_tendencia,2018,"N(2.1e+09, 2.4e+17)",2055601125.4265294
+San Marino,Modelo_tendencia,2019,"N(2.1e+09, 2.5e+17)",2080990835.409165
+San Marino,Modelo_tendencia,2020,"N(2.1e+09, 2.6e+17)",2106380545.3918002
+Sao Tome and Principe,Modelo_tendencia,2018,"N(3.9e+08, 5e+14)",390295618.93421614
+Sao Tome and Principe,Modelo_tendencia,2019,"N(4.1e+08, 5.2e+14)",410603771.7760297
+Sao Tome and Principe,Modelo_tendencia,2020,"N(4.3e+08, 5.4e+14)",430911924.6178433
+Saudi Arabia,Modelo_tendencia,2018,"N(5.8e+11, 1.4e+22)",575268912628.7266
+Saudi Arabia,Modelo_tendencia,2019,"N(5.9e+11, 1.4e+22)",588696467697.3462
+Saudi Arabia,Modelo_tendencia,2020,"N(6e+11, 1.4e+22)",602124022765.9658
+Senegal,Modelo_tendencia,2018,"N(1.6e+10, 6.6e+18)",16411123975.286785
+Senegal,Modelo_tendencia,2019,"N(1.7e+10, 6.6e+18)",16730618080.667805
+Senegal,Modelo_tendencia,2020,"N(1.7e+10, 6.7e+18)",17050112186.04882
+Serbia,Modelo_tendencia,2018,"N(4.9e+10, 6.5e+19)",48965122049.4881
+Serbia,Modelo_tendencia,2019,"N(5.1e+10, 6.6e+19)",50502678902.929855
+Serbia,Modelo_tendencia,2020,"N(5.2e+10, 6.8e+19)",52040235756.37163
+Seychelles,Modelo_tendencia,2018,"N(1.2e+09, 2.4e+16)",1184403866.3849678
+Seychelles,Modelo_tendencia,2019,"N(1.2e+09, 2.4e+16)",1209409252.9817264
+Seychelles,Modelo_tendencia,2020,"N(1.2e+09, 2.4e+16)",1234414639.5784848
+Sierra Leone,Modelo_tendencia,2018,"N(2.9e+09, 5.9e+17)",2906337665.3651333
+Sierra Leone,Modelo_tendencia,2019,"N(3e+09, 5.9e+17)",2961132045.551283
+Sierra Leone,Modelo_tendencia,2020,"N(3e+09, 6e+17)",3015926425.737432
+Singapore,Modelo_tendencia,2018,"N(2.3e+11, 2.6e+21)",234775475714.23944
+Singapore,Modelo_tendencia,2019,"N(2.4e+11, 2.6e+21)",240007327352.5608
+Singapore,Modelo_tendencia,2020,"N(2.5e+11, 2.6e+21)",245239178990.88214
+Sint Maarten (Dutch part),Modelo_tendencia,2018,"NA",NA
+Sint Maarten (Dutch part),Modelo_tendencia,2019,"NA",NA
+Sint Maarten (Dutch part),Modelo_tendencia,2020,"NA",NA
+Slovak Republic,Modelo_tendencia,2018,"N(1.1e+11, 1.3e+20)",112185431802.28033
+Slovak Republic,Modelo_tendencia,2019,"N(1.2e+11, 1.3e+20)",116026707833.44641
+Slovak Republic,Modelo_tendencia,2020,"N(1.2e+11, 1.4e+20)",119867983864.61252
+Slovenia,Modelo_tendencia,2018,"N(5.6e+10, 4.7e+19)",56496353644.25558
+Slovenia,Modelo_tendencia,2019,"N(5.8e+10, 4.8e+19)",58134167233.22353
+Slovenia,Modelo_tendencia,2020,"N(6e+10, 4.9e+19)",59771980822.191505
+Small states,Modelo_tendencia,2018,"N(4.2e+11, 6.4e+21)",421468435999.0982
+Small states,Modelo_tendencia,2019,"N(4.3e+11, 6.4e+21)",432015439100.6414
+Small states,Modelo_tendencia,2020,"N(4.4e+11, 6.5e+21)",442562442202.18463
+Solomon Islands,Modelo_tendencia,2018,"N(9.5e+08, 2.7e+16)",952394431.8020487
+Solomon Islands,Modelo_tendencia,2019,"N(9.7e+08, 2.7e+16)",973412033.5033724
+Solomon Islands,Modelo_tendencia,2020,"N(9.9e+08, 2.7e+16)",994429635.2046962
+Somalia,Modelo_tendencia,2018,"N(7.1e+09, 1.1e+16)",7105799281.433297
+Somalia,Modelo_tendencia,2019,"N(7.2e+09, 1.5e+16)",7239998999.679278
+Somalia,Modelo_tendencia,2020,"N(7.4e+09, 2e+16)",7374198717.925261
+South Africa,Modelo_tendencia,2018,"N(3.3e+11, 2.2e+21)",327504542469.08344
+South Africa,Modelo_tendencia,2019,"N(3.3e+11, 2.2e+21)",334028997474.1642
+South Africa,Modelo_tendencia,2020,"N(3.4e+11, 2.2e+21)",340553452479.2449
+South Asia,Modelo_tendencia,2018,"N(1.9e+12, 2.3e+23)",1936929897548.2231
+South Asia,Modelo_tendencia,2019,"N(2e+12, 2.3e+23)",1978966163286.516
+South Asia,Modelo_tendencia,2020,"N(2e+12, 2.3e+23)",2021002429024.809
+South Asia (IDA & IBRD),Modelo_tendencia,2018,"N(1.9e+12, 2.3e+23)",1936929897548.2231
+South Asia (IDA & IBRD),Modelo_tendencia,2019,"N(2e+12, 2.3e+23)",1978966163286.516
+South Asia (IDA & IBRD),Modelo_tendencia,2020,"N(2e+12, 2.3e+23)",2021002429024.809
+South Sudan,Modelo_tendencia,2018,"N(2.7e+09, 3.2e+19)",2709487958.623993
+South Sudan,Modelo_tendencia,2019,"N(6.3e+08, 4e+19)",630444619.1379395
+South Sudan,Modelo_tendencia,2020,"N(-1.4e+09, 4.9e+19)",-1448598720.3481293
+Spain,Modelo_tendencia,2018,"N(1.4e+12, 3.8e+22)",1378228907914.755
+Spain,Modelo_tendencia,2019,"N(1.4e+12, 3.8e+22)",1406614242817.7385
+Spain,Modelo_tendencia,2020,"N(1.4e+12, 3.9e+22)",1434999577720.7222
+Sri Lanka,Modelo_tendencia,2018,"N(5.3e+10, 2.2e+20)",53370359583.040054
+Sri Lanka,Modelo_tendencia,2019,"N(5.5e+10, 2.2e+20)",54550221050.596985
+Sri Lanka,Modelo_tendencia,2020,"N(5.6e+10, 2.2e+20)",55730082518.1539
+St. Kitts and Nevis,Modelo_tendencia,2018,"N(8.2e+08, 1.3e+16)",821816913.4239496
+St. Kitts and Nevis,Modelo_tendencia,2019,"N(8.4e+08, 1.3e+16)",839343871.9202063
+St. Kitts and Nevis,Modelo_tendencia,2020,"N(8.6e+08, 1.3e+16)",856870830.4164629
+St. Lucia,Modelo_tendencia,2018,"N(1.6e+09, 6.3e+15)",1643004222.961473
+St. Lucia,Modelo_tendencia,2019,"N(1.7e+09, 6.3e+15)",1683957124.304801
+St. Lucia,Modelo_tendencia,2020,"N(1.7e+09, 6.4e+15)",1724910025.6481295
+St. Martin (French part),Modelo_tendencia,2018,"NA",NA
+St. Martin (French part),Modelo_tendencia,2019,"NA",NA
+St. Martin (French part),Modelo_tendencia,2020,"NA",NA
+St. Vincent and the Grenadines,Modelo_tendencia,2018,"N(7.3e+08, 5.9e+15)",725711880.794922
+St. Vincent and the Grenadines,Modelo_tendencia,2019,"N(7.4e+08, 5.9e+15)",740723628.7292659
+St. Vincent and the Grenadines,Modelo_tendencia,2020,"N(7.6e+08, 5.9e+15)",755735376.6636099
+Sub-Saharan Africa,Modelo_tendencia,2018,"N(1.3e+12, 8.1e+22)",1284583627685.6675
+Sub-Saharan Africa,Modelo_tendencia,2019,"N(1.3e+12, 8.1e+22)",1311407226624.329
+Sub-Saharan Africa,Modelo_tendencia,2020,"N(1.3e+12, 8.1e+22)",1338230825562.9907
+Sub-Saharan Africa (excluding high income),Modelo_tendencia,2018,"N(1.3e+12, 8.1e+22)",1283397349298.5928
+Sub-Saharan Africa (excluding high income),Modelo_tendencia,2019,"N(1.3e+12, 8.1e+22)",1310195860344.8618
+Sub-Saharan Africa (excluding high income),Modelo_tendencia,2020,"N(1.3e+12, 8.1e+22)",1336994371391.1309
+Sub-Saharan Africa (IDA & IBRD countries),Modelo_tendencia,2018,"N(1.3e+12, 8.1e+22)",1284583627685.6675
+Sub-Saharan Africa (IDA & IBRD countries),Modelo_tendencia,2019,"N(1.3e+12, 8.1e+22)",1311407226624.329
+Sub-Saharan Africa (IDA & IBRD countries),Modelo_tendencia,2020,"N(1.3e+12, 8.1e+22)",1338230825562.9907
+Sudan,Modelo_tendencia,2018,"N(6e+10, 3.2e+20)",60401551236.15175
+Sudan,Modelo_tendencia,2019,"N(6.2e+10, 3.2e+20)",61710099414.928024
+Sudan,Modelo_tendencia,2020,"N(6.3e+10, 3.3e+20)",63018647593.7043
+Suriname,Modelo_tendencia,2018,"N(3.4e+09, 8.6e+17)",3396053097.0721016
+Suriname,Modelo_tendencia,2019,"N(3.5e+09, 8.6e+17)",3465929726.445343
+Suriname,Modelo_tendencia,2020,"N(3.5e+09, 8.7e+17)",3535806355.818585
+Sweden,Modelo_tendencia,2018,"N(5.2e+11, 2.8e+21)",524611798545.0731
+Sweden,Modelo_tendencia,2019,"N(5.3e+11, 2.8e+21)",534779779925.6416
+Sweden,Modelo_tendencia,2020,"N(5.4e+11, 2.9e+21)",544947761306.2101
+Switzerland,Modelo_tendencia,2018,"N(6.2e+11, 6.5e+21)",617697881905.9907
+Switzerland,Modelo_tendencia,2019,"N(6.3e+11, 6.6e+21)",630075334212.6517
+Switzerland,Modelo_tendencia,2020,"N(6.4e+11, 6.6e+21)",642452786519.3126
+Syrian Arab Republic,Modelo_tendencia,2018,"N(3.1e+10, 2e+19)",31226820122.47745
+Syrian Arab Republic,Modelo_tendencia,2019,"N(3.2e+10, 2.1e+19)",31795290489.894547
+Syrian Arab Republic,Modelo_tendencia,2020,"N(3.2e+10, 2.1e+19)",32363760857.31164
+Tajikistan,Modelo_tendencia,2018,"N(7.7e+09, 2.7e+18)",7672667331.818111
+Tajikistan,Modelo_tendencia,2019,"N(8e+09, 2.7e+18)",7952751091.033632
+Tajikistan,Modelo_tendencia,2020,"N(8.2e+09, 2.7e+18)",8232834850.249153
+Tanzania,Modelo_tendencia,2018,"N(4.6e+10, 3.9e+19)",45794327511.44971
+Tanzania,Modelo_tendencia,2019,"N(4.7e+10, 3.9e+19)",47498167843.6384
+Tanzania,Modelo_tendencia,2020,"N(4.9e+10, 4e+19)",49202008175.82709
+Thailand,Modelo_tendencia,2018,"N(3.4e+11, 3.7e+21)",335977009850.89777
+Thailand,Modelo_tendencia,2019,"N(3.4e+11, 3.7e+21)",343205197952.8726
+Thailand,Modelo_tendencia,2020,"N(3.5e+11, 3.8e+21)",350433386054.84753
+Timor-Leste,Modelo_tendencia,2018,"N(5.3e+09, 2.6e+18)",5253720352.84882
+Timor-Leste,Modelo_tendencia,2019,"N(5.5e+09, 2.6e+18)",5498787284.730074
+Timor-Leste,Modelo_tendencia,2020,"N(5.7e+09, 2.7e+18)",5743854216.611328
+Togo,Modelo_tendencia,2018,"N(3.6e+09, 3e+17)",3641859443.4114842
+Togo,Modelo_tendencia,2019,"N(3.7e+09, 3e+17)",3713504064.6585374
+Togo,Modelo_tendencia,2020,"N(3.8e+09, 3.1e+17)",3785148685.9055915
+Tonga,Modelo_tendencia,2018,"N(4.3e+08, 1.7e+15)",432153688.9510293
+Tonga,Modelo_tendencia,2019,"N(4.4e+08, 1.7e+15)",442717437.29080594
+Tonga,Modelo_tendencia,2020,"N(4.5e+08, 1.7e+15)",453281185.6305826
+Trinidad and Tobago,Modelo_tendencia,2018,"N(2.1e+10, 1.9e+19)",21478894173.873634
+Trinidad and Tobago,Modelo_tendencia,2019,"N(2.2e+10, 1.9e+19)",21916887492.820667
+Trinidad and Tobago,Modelo_tendencia,2020,"N(2.2e+10, 1.9e+19)",22354880811.7677
+Tunisia,Modelo_tendencia,2018,"N(4.4e+10, 2.4e+19)",44399061715.73559
+Tunisia,Modelo_tendencia,2019,"N(4.5e+10, 2.4e+19)",45358143884.32703
+Tunisia,Modelo_tendencia,2020,"N(4.6e+10, 2.4e+19)",46317226052.91847
+Turkey,Modelo_tendencia,2018,"N(7.1e+11, 2.5e+22)",711887230785.3082
+Turkey,Modelo_tendencia,2019,"N(7.3e+11, 2.5e+22)",727452542633.506
+Turkey,Modelo_tendencia,2020,"N(7.4e+11, 2.5e+22)",743017854481.7037
+Turkmenistan,Modelo_tendencia,2018,"N(3.5e+10, 5.7e+19)",34858673312.18879
+Turkmenistan,Modelo_tendencia,2019,"N(3.6e+10, 5.7e+19)",36211063516.4383
+Turkmenistan,Modelo_tendencia,2020,"N(3.8e+10, 5.8e+19)",37563453720.68781
+Turks and Caicos Islands,Modelo_tendencia,2018,"NA",NA
+Turks and Caicos Islands,Modelo_tendencia,2019,"NA",NA
+Turks and Caicos Islands,Modelo_tendencia,2020,"NA",NA
+Tuvalu,Modelo_tendencia,2018,"N(4.1e+07, 1.1e+13)",40943598.675129496
+Tuvalu,Modelo_tendencia,2019,"N(4.2e+07, 1.1e+13)",42247239.42611373
+Tuvalu,Modelo_tendencia,2020,"N(4.4e+07, 1.1e+13)",43550880.17709797
+Uganda,Modelo_tendencia,2018,"N(1.8e+10, 2e+19)",18311032479.846985
+Uganda,Modelo_tendencia,2019,"N(1.9e+10, 2e+19)",18697446454.86299
+Uganda,Modelo_tendencia,2020,"N(1.9e+10, 2e+19)",19083860429.878994
+Ukraine,Modelo_tendencia,2018,"N(1.4e+11, 1.5e+21)",137996131421.48254
+Ukraine,Modelo_tendencia,2019,"N(1.4e+11, 1.5e+21)",141102820489.70282
+Ukraine,Modelo_tendencia,2020,"N(1.4e+11, 1.6e+21)",144209509557.92303
+United Arab Emirates,Modelo_tendencia,2018,"N(3.4e+11, 3.7e+21)",339826466024.3624
+United Arab Emirates,Modelo_tendencia,2019,"N(3.5e+11, 3.8e+21)",349034546414.95825
+United Arab Emirates,Modelo_tendencia,2020,"N(3.6e+11, 3.8e+21)",358242626805.5541
+United Kingdom,Modelo_tendencia,2018,"N(2.9e+12, 9.6e+22)",2857697593501.0474
+United Kingdom,Modelo_tendencia,2019,"N(2.9e+12, 9.6e+22)",2915148660213.248
+United Kingdom,Modelo_tendencia,2020,"N(3e+12, 9.7e+22)",2972599726925.448
+United States,Modelo_tendencia,2018,"N(1.7e+13, 2.3e+24)",16904994673321.23
+United States,Modelo_tendencia,2019,"N(1.7e+13, 2.3e+24)",17241044761020.02
+United States,Modelo_tendencia,2020,"N(1.8e+13, 2.3e+24)",17577094848718.812
+Upper middle income,Modelo_tendencia,2018,"N(1.5e+13, 1.5e+25)",14753173739235.898
+Upper middle income,Modelo_tendencia,2019,"N(1.5e+13, 1.5e+25)",15079833583560.102
+Upper middle income,Modelo_tendencia,2020,"N(1.5e+13, 1.5e+25)",15406493427884.309
+Uruguay,Modelo_tendencia,2018,"N(4.1e+10, 7.7e+19)",41239075027.668686
+Uruguay,Modelo_tendencia,2019,"N(4.2e+10, 7.8e+19)",42092687108.28194
+Uruguay,Modelo_tendencia,2020,"N(4.3e+10, 7.8e+19)",42946299188.89519
+Uzbekistan,Modelo_tendencia,2018,"N(5.6e+10, 1.3e+20)",56142496710.204575
+Uzbekistan,Modelo_tendencia,2019,"N(5.8e+10, 1.3e+20)",58151965800.54907
+Uzbekistan,Modelo_tendencia,2020,"N(6e+10, 1.4e+20)",60161434890.893585
+Vanuatu,Modelo_tendencia,2018,"N(7.7e+08, 1e+16)",771706369.29767
+Vanuatu,Modelo_tendencia,2019,"N(7.9e+08, 1e+16)",792485970.0073496
+Vanuatu,Modelo_tendencia,2020,"N(8.1e+08, 1.1e+16)",813265570.717029
+"Venezuela, RB",Modelo_tendencia,2018,"N(2.8e+11, 5.3e+21)",276870680440.88354
+"Venezuela, RB",Modelo_tendencia,2019,"N(2.8e+11, 5.3e+21)",282675124567.1863
+"Venezuela, RB",Modelo_tendencia,2020,"N(2.9e+11, 5.3e+21)",288479568693.489
+Vietnam,Modelo_tendencia,2018,"N(1.7e+11, 1.1e+21)",172373017405.30176
+Vietnam,Modelo_tendencia,2019,"N(1.8e+11, 1.1e+21)",178466549391.47272
+Vietnam,Modelo_tendencia,2020,"N(1.8e+11, 1.2e+21)",184560081377.64362
+Virgin Islands (U.S.),Modelo_tendencia,2018,"N(4.6e+09, 2.8e+17)",4593487896.561274
+Virgin Islands (U.S.),Modelo_tendencia,2019,"N(4.7e+09, 2.8e+17)",4685558763.6875305
+Virgin Islands (U.S.),Modelo_tendencia,2020,"N(4.8e+09, 2.8e+17)",4777629630.813787
+West Bank and Gaza,Modelo_tendencia,2018,"N(1.3e+10, 2.6e+18)",13397996739.130432
+West Bank and Gaza,Modelo_tendencia,2019,"N(1.4e+10, 2.7e+18)",13911701478.260868
+West Bank and Gaza,Modelo_tendencia,2020,"N(1.4e+10, 2.7e+18)",14425406217.391304
+World,Modelo_tendencia,2018,"N(6.9e+13, 7.7e+25)",68774050250077.17
+World,Modelo_tendencia,2019,"N(7e+13, 7.7e+25)",70187650340230.95
+World,Modelo_tendencia,2020,"N(7.2e+13, 7.7e+25)",71601250430384.73
+"Yemen, Rep.",Modelo_tendencia,2018,"N(4.1e+10, 2.9e+19)",40845138996.89939
+"Yemen, Rep.",Modelo_tendencia,2019,"N(4.2e+10, 3e+19)",42381844072.125175
+"Yemen, Rep.",Modelo_tendencia,2020,"N(4.4e+10, 3e+19)",43918549147.350975
+Zambia,Modelo_tendencia,2018,"N(1.7e+10, 2.6e+19)",17400661029.09243
+Zambia,Modelo_tendencia,2019,"N(1.8e+10, 2.6e+19)",17764592943.49093
+Zambia,Modelo_tendencia,2020,"N(1.8e+10, 2.6e+19)",18128524857.88943
+Zimbabwe,Modelo_tendencia,2018,"N(1.4e+10, 1.1e+19)",14248901476.58802
+Zimbabwe,Modelo_tendencia,2019,"N(1.4e+10, 1.1e+19)",14496428061.76751
+Zimbabwe,Modelo_tendencia,2020,"N(1.5e+10, 1.1e+19)",14743954646.946999
