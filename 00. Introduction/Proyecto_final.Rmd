@@ -1,0 +1,110 @@
+---
+title: "Proyecto final"
+subtitle: "Series de tiempo"
+author: "Pablo Benavides-Herrera"
+date: 2020-11-09
+output: 
+  slidy_presentation:
+    duration: 5
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Características
+
+- Equipos de tres personas (pueden ser los mismos del proyecto anterior o equipos nuevos)
+
+- Entrega de avances:
+
+  - MAF3074A: jueves, 26 de noviembre, 07:00 horas
+  - MAF3074B: viernes, 27 de noviembre, 07:00 horas
+
+- Fecha de entrega y presentación
+  
+  - MAF3074A: jueves, 3 de diciembre, 07:00 horas
+  - MAF3074B: viernes, 4 de diciembre, 07:00 horas
+
+- Formatos aceptados:
+
+  - Presentación en R ([`ioslides`](https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html) o [`slidy`](https://bookdown.org/yihui/rmarkdown/slidy-presentation.html), p. ej.) También se pueden generar presentaciones de PowerPoint directo de R.
+  
+  - [Shiny app](https://shiny.rstudio.com/)
+  
+(En cualquiera de los casos, debe haber un Notebook detallando su trabajo)
+
+
+## Contenido (1) 
+
+- Selección de una o más series de tiempo (*distintas a las vistas en clase o del proyecto anterior y preferentemente que sean varias series para que practiquen la escalabilidad de las paqueterías*). **No escoger series financieras (precios de acciones, índices bursátiles, etc.)**
+
+- Importación a **R** usando `readr`, `readxl`, `tidyquant`, etc.
+
+- Limpieza de los datos
+
+- Inspección visual de la serie con gráficas:
+  - *dispersión*
+  - *líneas*
+  - *caja y bigotes*
+  - *velas o barchart (en caso de serie de financiera)*
+  - *histogramas, densidades, correlaciones*
+  - *`ggpairs`*
+
+## Contenido (2)
+
+- Detección de outliers u observaciones faltantes e investigación de ellos
+  - *¿Cuál es el motivo?, ¿es un dato real o error de medición?*
+  
+- Revisar si la serie requiere algún ajuste o transformación matemática
+
+- Hacer la descomposición de la serie de tiempo para verificar si presenta estacionalidad o no.
+
+- Realizar el flujo de pronóstico completo, incluyendo el mejor (o mejores) modelos de referencia y ponerlos a competir con los otros modelos vistos más complejos. **(ETS, ARIMA, regresión, regresión dinámica, Prophet, etc.)**
+
+- **Muy importante la interpretación de los resultados.**
+
+## Criterios de evaluación
+
+Cada criterio se califica con una escala de 1 (peor) a 5 (mejor). Todos tienen la misma ponderación.
+
+**1. Contenido**
+
+  - *¿Cuenta con la teoría suficiente?*
+  - *¿Las tablas, gráficas son relevantes al análisis de la serie de tiempo?*
+  - *¿El equipo muestra dominio de los temas presentados?*
+  - *¿Los modelos propuestos se ajustan correctamente a los datos?*
+  - *¿Son relevantes los modelos para las series elegidas?*
+  - *¿El código está optimizado, utilizando las paqueterías vistas en clase? (¿es escalable,no se duplican operaciones de modelado, etc.?)*
+  
+**2. Claridad y presentación**
+
+  - *¿Se lleva una buena estructura de la presentación?*
+  - *¿Las gráficas, tablas, etc. tienen sus correspondientes ejes, títulos bien marcados?*
+  - *¿Se muestra una fluidez en la presentación y entre los integrantes del equipo?*
+  - *¿Se está leyendo directamente la presentación o el material visual se utiliza de referencia y apoyo para continuar con la presentación?*
+  
+
+
+* **NOTA:** No es necesario ser muy *rolleros*, sino que estén bien expresadas las ideas y, de la manera más resumida, puedan presentar el tema en cuestión. Si se presenta código, debe ser por alguna razón relevante.
+
+## Entregables
+
+Cada equipo debe entregar (*con un solo integrante que lo envíe es suficiente*) lo siguiente:
+
+- Archivo `.Rproj` de su proyecto.
+
+- `Rscripts`, `R Notebooks`, etc. trabajados.
+
+- Presentación (formato .html, .pdf, o .pptx)
+
+- Archivo con los datos trabajados (.xlsx, .csv, etc.)
+
+- Publicar su trabajo final en línea
+  - Para `shiny apps`: Publicarlo en [shiny apps](https://www.shinyapps.io/)
+  
+  - Para `R Notebooks` o presentaciones pdf: Publicarlas en [RPubs](https://rpubs.com/)
+
+- **Su proyecto debe ser reproducible y entendible por terceros (el profesor y el equipo que toque evaluarlos)**
+
+
