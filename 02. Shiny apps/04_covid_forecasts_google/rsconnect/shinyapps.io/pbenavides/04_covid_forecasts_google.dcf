@@ -1,0 +1,12 @@
+name: 04_covid_forecasts_google
+title: 04_covid_forecasts_google
+username:
+account: pbenavides
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2574418
+bundleId: 3396087
+url: https://pbenavides.shinyapps.io/04_covid_forecasts_google/
+when: 1594831810.21832
+asMultiple: FALSE
+asStatic: FALSE
