@@ -96,7 +96,8 @@ El modelo ajustado tiene entonces la forma:
 $$\begin{array}{l}
 y_{t}=0.599+0.203 x_{t}+\eta_{t} \\
 \eta_{t}=0.692 \eta_{t-1}+\varepsilon_{t}-0.576 \varepsilon_{t-1}+0.198 \varepsilon_{t-2} \\
-\varepsilon_{t} \sim \mathrm{NID}(0,0.322)
+\varepsilon_{t} \sim \mathrm{NID}(0,0.322)\\
+y_{t}=0.599+0.203 x_{t} + 0.692 \eta_{t-1}+\varepsilon_{t}-0.576 \varepsilon_{t-1}+0.198 \varepsilon_{t-2} 
 \end{array}$$
 
 Podemos obtener los estimadores de las series $\eta_t$ y $\varepsilon_{t}$ con la función `residuals()`, especificando el tipo como `type = "regression"` para los errores de la regresión y `type = "innovations"` para los errores ARIMA.
@@ -170,7 +171,7 @@ La demanda de energía diaria se puede modelar como una función de la temperatu
 
 Grafiquemos la energía demandada vs. la temperatura global de cada día para ver este efecto:
 
-```{r elec v. temp plot}
+```{r elec v. temp plot, paged.print=FALSE}
 vic_elec_daily <- vic_elec %>%
   filter(year(Time) == 2014) %>%
   index_by(Date = date(Time)) %>%
@@ -185,11 +186,18 @@ vic_elec_daily <- vic_elec %>%
     TRUE ~ "Weekend"
   ))
 
+vic_elec_daily
+
 vic_elec_daily %>%
   ggplot(aes(x=Temperature, y=Demand, colour=Day_Type)) +
     geom_point() +
     ylab("Electricity demand (GW)") +
     xlab("Maximum daily temperature")
+
+vic_elec_daily %>% 
+  mutate(
+    dia_habil = Day_Type == "Weekday"
+  )
 ```
 
 Como era de esperarse, la gráfica parece tener una forma de *U*. Adicionalmente, vemos que la energía demandada es mayor entre semana, luego en fin de semana, y por último en días festivos. Esto nos lleva a determinar que la demanda de energía es una función de la temperatura y del tipo de día en que nos encontremos.
@@ -263,6 +271,15 @@ forecast(fit, vic_elec_future) %>%
 
 
 # Regresión armónica dinámica
+
+
+
+$$
+\frac{a_{0}}{2}+\sum_{n=1}^{\infty}\left[a_{n} \cos \frac{2 n \pi}{T} t+b_{n} \sin \frac{2 n \pi}{T} t\right]
+$$
+$$ 
+\frac{a_{0}}{2} + a_{1} \cos \frac{2 \pi}{T} t+b_{1} \sin \frac{2 \pi}{T} + a_{2} \cos \frac{2 * 2 \pi}{T} t+b_{2} \sin \frac{2*2 \pi}{T} + a_{3} \cos \frac{2 * 3 \pi}{T} t+b_{3} \sin \frac{2*3 \pi}{T}
+$$
 
 Como habíamos mencionado anteriormente, utilizar series de Fourier para modelar periodos estacionales largos suele ser mejor que simplemente utilizar *dummies* estacionales.
 
