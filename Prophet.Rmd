@@ -23,6 +23,7 @@ Para poder utilizar el prophet junto con la metodología de `tidyverts`, es nece
 # install.packages("remotes")
 # remotes::install_github("mitchelloharawild/fable.prophet")
 library(tidyverse)
+library(lubridate)
 library(tsibble)
 library(feasts)
 library(fable)
@@ -104,7 +105,12 @@ Los modelos se ajustan de la misma manera que antes (a través de la función `m
 ```{r}
 fit <- lax_passengers %>% 
   model(
-    mdl = prophet(passengers ~ growth("linear") + season("year", type = "multiplicative")),
+    Prophet        = prophet(passengers ~ growth("linear") + season("year", type = "multiplicative")),
+    `Prophet auto` = prophet(passengers),
+    ARIMA          = ARIMA(passengers),
+    ETS            = ETS(passengers),
+    Harmonic       = ARIMA(passengers ~ fourier(K = 3) + PDQ(0,0,0)),
+    SNAIVE         = SNAIVE(passengers)
   )
 fit
 ```
@@ -114,18 +120,23 @@ fit
 Igual que con los modelos de descomposición vistos anteriormente, podemos utilizar `components()` para extraer los componentes de la serie.
 
 ```{r}
-components(fit)
+fit %>% 
+  select(Prophet, `Prophet auto`) %>% 
+  components()
 ```
 
 ```{r}
 fit %>% 
+  select(Prophet, `Prophet auto`) %>%
   components() %>% 
   autoplot()
 ```
 Con 
 
 ```{r}
-components(fit) %>% 
+fit %>% 
+  select(Prophet) %>%
+  components() %>%
   ggplot(aes(
     # Plot the month of the time index (month) on the x-axis
     x = month(month, label = TRUE),
@@ -151,7 +162,14 @@ fc
 
 ```{r}
 fc %>% 
-  autoplot(lax_passengers)
+  autoplot(lax_passengers %>% filter_index("2015 jan." ~ .), level = NULL)
+
+p <- fc %>% 
+  ggplot(aes(x = month, y = .mean)) +
+  geom_line(aes(color = .model)) + 
+  geom_line(data = lax_passengers, aes(y = passengers)) +
+  facet_wrap(~ type, ncol = 1, scales = "free_y")
+ggplotly(p)
 ```
 
 Otra manera de graficarlo:
@@ -159,14 +177,15 @@ Otra manera de graficarlo:
 ```{r}
 lax_passengers %>% 
   autoplot(passengers) +
-  autolayer(fc) + 
+  autolayer(fc, level = NULL) + 
   theme(legend.position = "top")
 ```
 
 El desempeño del modelo se puede revisar de igual manera con `accuracy()`:
 
 ```{r}
-accuracy(fit)
+accuracy(fit) %>% 
+  arrange(type, RMSE)
 ```
 
 
