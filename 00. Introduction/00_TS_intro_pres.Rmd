@@ -33,15 +33,10 @@ output:
 
 ## Horario y días de clase
 
-**MAF3074A**
-
-- Lunes y jueves, 07:00 a 9:00 horas
-  * Unirse a las reuniones de Microsoft Teams [aquí](   https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTUxNDk1YTYtNDEwZC00ZmU3LTlkZTktOTIyY2ZiZTU5OTVk%40thread.v2/0?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
-
 **MAF3074B**
 
 - Martes y viernes, 07:00 a 9:00 horas
-  * Unirse a las reuniones de Microsoft Teams [aquí](https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjFlYTE3MDYtNzNkZi00ZjRkLWFhYzktOTdiNzllYzFiOGRh%40thread.v2/0?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
+  * Unirse a las reuniones de Microsoft Teams [aquí](https://teams.microsoft.com/l/meetup-join/19%3a1abb5ff06cfb4d628d7c9d574ca934ac%40thread.tacv2/1610999577736?context=%7b%22Tid%22%3a%226f0348f2-e498-45c9-84f4-c6d81dcffdfe%22%2c%22Oid%22%3a%22f8aeed22-7aa9-4470-bf22-136f92296870%22%7d)
 
 ## {data-background=../images/pups.gif data-background-size=cover}
 
@@ -57,11 +52,13 @@ output:
 
 ## Evaluación {.build}
 
-> - **40%** Exámenes.
-
 - **40%** Proyectos.
 
-- **20%** Tareas y participación en clase.
+- **40%** Tareas.
+
+- **20%** Participación en clase.
+
+> Es necesario tener una calificación superior a 80 en tareas y participación para poder aprobar la materia.
 
 <div class="centered">
 ![](../images/hide-the-pain.jpg){width=50%}
@@ -163,7 +160,7 @@ El precio de una acción, o el valor de un índice bursátil, el tipo de cambio 
 
 # R y la ciencia de datos
 
-## El análisis de series de tiempo con **R** {.columns-2}
+## El análisis de series de tiempo con **R** {.smaller .columns-2}
 
 **R** nos puede ayudar a llevar a cabo de una manera bastante sencilla todo el análisis de pronóstico, desde el momento en que contamos con los datos, hasta la estimación final. 
 
