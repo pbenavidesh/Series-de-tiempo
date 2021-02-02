@@ -4,7 +4,7 @@
 # 
 # NOTA: Puede tardar varios minutos en concluir la instalación.
 # 
-# Solo es necesario correr el documento completo.
+# Solo es necesario correr el documento completo una vez.
 
 # paqueterías necesarias
 pkgs <- c("vctrs", "tidyverse", "lubridate", "easypackages",
@@ -16,17 +16,24 @@ pkgs <- c("vctrs", "tidyverse", "lubridate", "easypackages",
           "colourpicker", "GGally", "ggthemes", "moderndive" 
           )
 
-# comprobar si están instaladas, de lo contrario instalarlas
-library(easypackages)
-packages(pkgs)
+
+install.packages(pkgs)
 
 
 # instalar desde github estas paquetería
-if (! require(fable.prophet)) remotes::install_github("mitchelloharawild/fable.prophet")
-if (! require(tsdl)) devtools::install_github("FinYang/tsdl")
+remotes::install_github("mitchelloharawild/fable.prophet")
+devtools::install_github("FinYang/tsdl")
+
+pkgs <- c(pkgs,"fable.prophet","tsdl")
 
 # comprobar si están todas las paqueterías instaladas (debe salir TRUE para 
-# cada una, como esto:)
-# [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-# [16] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-pkgs %in% installed.packages()
+# cada una) 
+instalados <- pkgs %in% installed.packages()
+names(instalados) <- pkgs
+instalados
+
+# Filtrar los no instalados
+instalados[FALSE]
+
+# Si alguna paquetería aparece como no instalada, pueden intentar instalarla 
+# individualmente con install.packages("nombre")
