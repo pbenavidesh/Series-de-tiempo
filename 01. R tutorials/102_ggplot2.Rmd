@@ -7,7 +7,7 @@ output:
   html_notebook:
     toc: TRUE
     toc_float: TRUE
-    theme: spacelab
+    theme: darkly
     highlight: tango
 ---
 
@@ -84,6 +84,15 @@ Hola 2
 
 Hola 3
 
+#### Encabezado tipo 4
+Hola 4
+
+##### Encabezado tipo 5
+Hola 5
+
+###### Encabezado tipo 6
+Hola 6
+
 Otra ventaja de incluir secciones en su código es que eso te permite navegar de manera rápida entre ellas.
 
 Otro atajo del teclado que es muy útil es (*CTRL + Enter*), que sirve para correr la(s) línea(s) de código seleccionada(s), o (*CTRL + Shift + Enter*) para
@@ -121,6 +130,7 @@ library(gapminder)
 library(plotly)
 library(gganimate)
 library(quantmod)
+library(scales)
 ```
 
 # Gráficas con `ggplot2`
@@ -134,26 +144,93 @@ mpg
 
 Después de analizar cada variable, vemos que las vars. categóricas (factores) están marcadas como "chr" (character o texto), por lo cual sería conveniente cambiar algunas de ellas a factores.
 
-Si queremos cambiar el fabricante a factor y hwy (que está medida en "millas por galón" a "km por litro"), podemos usar `mutate()`:
+Podemos agregar nuevas filas a una tabla utilizando la función `add_row()`. Aquí se deben especificar los valores para cada una de las variables (*columnas*), de lo contrario, `R` lo tomará como un valor omitido `NA`.
 
 ```{r datos1-mutate}
-mpg <- mpg %>% # pipe operator
-  mutate(manufacturer = as_factor(manufacturer),
-         hwy = hwy * 1.609 / 3.785)
-mpg
+mpg %>% # pipe operator "luego"
+  add_row(manufacturer = "jeep",
+          displ        = 2,
+          year         = 2008,
+          cyl          = 4,
+          trans        = "manual(m6)",
+          cty          = 15,
+          hwy          = 24,
+          fl           = "p",
+          class        = "suv"
+          ) 
 ```
+Si queremos cambiar el fabricante a factor y hwy (que está medida en "millas por galón" a "km por litro"), podemos usar `mutate()`:
+
+
+```{r}
+mpg %>% 
+  mutate(
+    cty = cty * 1.609 / 3.785,
+    hwy = hwy * 1.609 / 3.785,
+    manufacturer = as_factor(manufacturer),
+    model = as_factor(model),
+    
+  )
+```
+
+
 
 Si queremos aplicar la misma transformación a varias vars. podemos usar `mutate_at()` para escoger las variables, o `mutate_if()` para que, con base en una condición, R escoja las variables a modificar:
 
+```{r}
+mpg %>% 
+  pull(manufacturer) %>% 
+  is.character()
+
+is.character(pull(mpg, manufacturer))
+```
+
+
+```{r}
+mpg %>% 
+  mutate_at(
+    .vars = c("manufacturer", "model", "drv"),
+    .funs = as_factor
+  )
+
+mpg_editada <-  mpg %>% 
+  mutate_if(
+    .predicate = is.character,
+    .funs      = as_factor 
+  )
+
+mpg_editada
+
+mpg_editada %>% 
+  pull(manufacturer) %>% 
+  is.character()
+```
+
+```{r}
+mpg_editada %>% 
+  group_by(trans) %>% 
+  summarise(media = mean(cty),
+            n     = n()) %>% 
+  arrange(n)
+
+35/234
+```
+
 ```{r datos1-mutate2}
-mpg <- mpg %>% 
-  mutate_at(.vars = c("class",
-                      "drv",
-                      "cyl"), 
-            .funs = as_factor) %>% 
+mpg_editada2 <- mpg %>% 
+  mutate_if(
+    .predicate = is.character,
+    .funs      = as_factor 
+  ) %>% 
   mutate(trans = fct_lump_min(trans, 20, 
                               other_level = "Otros"))
-mpg
+mpg_editada2
+
+mpg_editada2 %>% 
+  group_by(trans) %>% 
+  summarise(media = mean(cty),
+            n     = n()) %>% 
+  arrange(n)
 ```
 
 Teniendo nuestros datos ya limpios, podemos proceder a graficarlos y conocer varios tipos de gráficas que se pueden hacer con `ggplot2.`
@@ -161,8 +238,19 @@ Teniendo nuestros datos ya limpios, podemos proceder a graficarlos y conocer var
 Graficaremos la var. displ en el eje x y la variable hwy en el eje y. Haremos un diagrama de dispersión.
 
 ```{r geom_point}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(y = hwy, x = displ))
+plot(cars)
+
+mpg_editada2 %>% 
+  ggplot() + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+mpg_editada2 %>% 
+  ggplot(mapping = aes(x = displ, y = hwy)) + 
+  geom_point()
+
+mpg_editada2 %>% 
+  ggplot(mapping = aes(x = displ, y = hwy)) +
+  geom_line()
 ```
 
 
@@ -177,8 +265,9 @@ Si se desea controlar el color, forma, tamaño, transparencia, etc. a través de
 
 Ahora queremos cambiar el `color` de los puntos, de acuerdo a una tercera variable: la clase de auto (`class`).
 
-```{r geom_point-color, echo=FALSE}
-ggplot(data = mpg) + 
+```{r geom_point-color}
+mpg_editada2 %>% 
+ggplot() + 
   geom_point(mapping = aes(x = displ,
                            y = hwy,
                            color = class)
@@ -229,21 +318,31 @@ Si, por otro lado, se quisiera cambiar alguno de esos atributos por default, sin
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, 
                            y = hwy),
-             color = "blue")
+             shape = 21, fill = "white")
 ```
 
 Cuidado, porque si se pone dentro del aes() no va a dar el resultado que buscamos:
 
 ```{r geom_point-color-wrong, message=FALSE}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, color = "blue")) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = "indianred1")) +
   ggtitle("Definir el color fijo dentro del aes() produce errores")
+```
+```{r}
+ggplot(mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy),
+             color = "blue",
+             fill = "orange",
+             shape = 22,
+             size = 2,
+             alpha = 0.2
+             )
 ```
 
 También se pueden juntar varios de estos atributos al mismo tiempo, si eso se deseara:
 
-```{r geom_point-col shape size, warning=FALSE}
-ggplot(data = mpg) + 
+```{r geom_point-col shape size, warning=FALSE, fig.height=6}
+ggplot(data = mpg_editada2) + 
   geom_point(mapping = aes(x = displ, 
                            y = hwy,
                            color = class,
@@ -255,7 +354,7 @@ ggplot(data = mpg) +
 Se pueden asociar varias características a la misma variable:
 
 ```{r geom_point-col shape size2, warning=FALSE}
-ggplot(data = mpg) + 
+ggplot(data = mpg_editada2) + 
   geom_point(mapping = aes(x = displ, 
                            y = hwy,
                            color = class,
@@ -272,19 +371,19 @@ Los gráficos que recién creamos pueden ser almacenados en variables. La paquet
 
 ```{r ggplots, message=FALSE}
 # Las gráficas a poner en una sola imagen
-g1 <- ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy))+
+g1 <- ggplot(data = mpg_editada2) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
   ggtitle("La gráfica más básica")
 
-g2 <- ggplot(data = mpg) + 
+g2 <- ggplot(data = mpg_editada2) + 
   geom_point(mapping = aes(x = displ, y = hwy, color = class))+
   ggtitle("Color variable")
 
-g3 <- ggplot(data = mpg) + 
+g3 <- ggplot(data = mpg_editada2) + 
   geom_point(mapping = aes(x = displ, y = hwy), color = "blue")+
   ggtitle("Color fijo")
 
-g4 <- ggplot(data = mpg) + 
+g4 <- ggplot(data = mpg_editada2) + 
   geom_point(mapping = aes(x = displ, 
                            y = hwy,
                            color = class,
@@ -297,6 +396,17 @@ g4 <- ggplot(data = mpg) +
 El acomodo se puede guardar en una variable también. Con `patchwork` es bastante intuitiva la manera de acomodar las gráficas.
 
 * `+` sirve para agregar gráficos en esa línea (también funciona utilizar `|`).
+
+```{r}
+g1 + g2
+
+g1 + g2 + g3
+
+g1 + g2 + g3 + g4
+
+g1 | g2 | g3 | g4
+```
+
 
 * `/` sirve para crear una nueva fila.
 
@@ -321,8 +431,16 @@ fig1 +
   plot_annotation(title = "Gráficas con ggplot2",
                   subtitle = "Otro acomodo distinto")
 
-2 * 4 + 10
+
 ```
+
+
+```{r}
+mpg_editada2 %>% 
+  ggplot(aes(x = manufacturer, y = displ)) +
+  geom_boxplot()
+```
+
 
 ## Uso de facetas {.tabset}
 
@@ -340,8 +458,12 @@ ggplot(data = mpg) +
                              shape = drv),
                alpha = 0.7) + 
     ggtitle("Facetas por cilindraje") +
-  facet_wrap(~ cyl)
+  facet_wrap(~ cyl, ncol = 2, scales = "fixed")
 ```
+$$
+y = mx + b
+$$
+`y ~ mx + b`
 
 ### `facet_grid()`
 
@@ -354,10 +476,14 @@ ggplot(data = mpg) +
                            color = class),
              alpha = 0.5) + 
   ggtitle("Facetas por tracción y cilindraje") +
-  facet_grid(cyl ~ drv)
+  facet_grid(drv ~ cyl) +
+  xlab("Tamaño del motor (en litros)") +
+  ylab("Rendimiento en carretera (millas por galón)")
 ```
 
-## Gráficas de líneas {.tabset}
+## {-}
+
+## Gráficas de líneas {.tabset .tabset-pills}
 
 Otro tipo de gráfico muy utilizado es el de líneas. Usaremos otro conjunto de datos para esto.
 
@@ -366,6 +492,7 @@ data("economics")
 ```
 
 Se puede acceder a la documentación de este dataset (y de cualquier función), a través de la función `help()`:
+
 ```{r help econ, eval=FALSE}
 help("economics")
 ```
@@ -376,6 +503,7 @@ Estos datos que hemos trabajado son de tipo `tibble`. Podemos observar lgunas di
 ### Tibble
 
 Te muestra solo las primeras 10 filas, así como el tipo de datos de cada columna. También te da en resumen la dimensión de la tabla (filas x columnas).
+
 ```{r tibble, eval=FALSE}
 economics
 # A tibble: 574 x 6
@@ -631,9 +759,21 @@ Utilizaremos los datos de `gapminder` para revisar varios ejemplos. Explorando l
 data(gapminder)
 gapminder
 
+# distinct(gapminder, country)
+
 gapminder %>% 
-  distinct(country) %>% 
+  distinct(country)
+
+# Para saber cuántos países distintos tenemos en la tabla
+
+gapminder %>% 
   nrow()
+
+gapminder %>% # %>% = "toma la tabla `gapminder`, luego"
+  distinct(country) %>% # "quédate solo con los diferentes países", luego
+  nrow() # dime cuántos son
+
+# nrow(distinct(gapminder, country)) # manera tradicional
 
 # levels(gapminder$country)
 ```
@@ -644,13 +784,76 @@ Si quisiéramos filtrar la tabla para mantener sólo los países asiáticos, lo 
 # Para quedarnos solo con países asiáticos
 gapminder %>% 
   filter(continent == "Asia")
+
+# Para quedarnos con los países de África en el año 1967
+# Opción 1
+gapminder %>% 
+  filter(year == 1967) %>% 
+  filter(continent == "Africa")
+
+# Opción 2
+gapminder %>% 
+  filter(
+    continent == "Africa",
+    year      == 1967
+  )
+
+# Para quedarnos con los países asiáticos o europeos
+# Opción incorrecta
+gapminder %>% 
+  filter(continent == "Asia") %>% 
+  filter(continent == "Europe") # primero está filtrando por Asia y luego por Europa, por lo tanto, hay cero filas que correspondan
+
+
+#Opción 1
+gapminder %>% 
+  filter(continent == "Asia" | continent == "Europe")
+
+# Quedarnos con los países Mexico, Alemania, EEEUU, Canada, Brasil y Chile
+
+gapminder %>% 
+  filter(country == "Mexico" | country == "Germany" |
+           country == "United States" | country == "Canada" | country == "Brazil" | country == "Chile")
+
+# Opción 2
+lista_paises <- c("Mexico", "Germany", "United States", "Canada", "Brazil", "Chile", "Turkey", "France")
+
+gapminder %>% 
+  filter(country %in% lista_paises)
+
+gapminder %>% 
+  filter(country %in% c("Mexico", "Germany", "United States", "Canada", "Brazil", "Chile"))
+
+
+
 # Validación
 gapminder %>% 
   filter(continent == "Asia") %>% 
   distinct(continent)
 
 gapminder %>% 
+  distinct(year)
+
+gapminder %>% 
   distinct(continent)
+
+# Para quedarnos solo con las filas 11-15
+gapminder %>% 
+  slice(11:15)
+
+
+# Para quedarnos con las primeras 20 filas
+gapminder %>% 
+  slice_head(n = 20)
+
+# Para saber el top 10 de países con la mayor esperanza de vida en 2007
+gapminder %>% 
+  filter(year == 2007) %>% 
+  slice_max(order_by = lifeExp, n = 10)
+
+gapminder %>% 
+  filter(country == "Mexico",
+         year == 2007)
 ```
 
 Vemos que las filas de la tabla se redujeron (a 396) y que, efectivamente, logramos el objetivo de mantener puros países de Asia.
@@ -704,21 +907,17 @@ Lo podríamos lograr con la función `%in%`:
 
 ```{r}
 gapminder %>% 
-  filter(year %in% c(1952, 1972, 2002, 2007),
-         country == "Mexico")
+  filter(year %in% c(1952, 1972, 2002, 2007))
 ```
 
 
 Ahora, si deseáramos obtener una subgráfica de líneas de cuatro países asiáticos (Nepal, Irak, Cambodia y China), lo podríamos hacer de la siguiente forma:
 
-$y = 3x + 4$
-
-y ~ 3x + 4
 
 ```{r gap plot facets country}
 gapminder %>% 
   filter(country %in% c("Nepal", "Iraq", "Cambodia","China")) %>% 
-  ggplot(aes(x = year, y = lifeExp)) +
+  ggplot(aes(x = year, y = lifeExp, color = country)) +
   geom_line() +
   facet_wrap(vars(country)) + # podría ser tmb facet_wrap(~ country)
   ggtitle("Separación de los países por facetas")
@@ -749,7 +948,7 @@ gapminder %>%
        y = "Esperanza de vida (años)", 
        title = "Cambio de la esperanza de vida en algunos países asiáticos", 
        color = "") + 
-  theme_classic(base_size = 18, 
+  theme_classic(base_size = 14, 
                 base_family = "serif",
                 base_line_size = 1) +
   theme(legend.position = "top")
@@ -804,8 +1003,19 @@ Cambiarla a una gráfica de puntos (dispersión) nos empieza a dar más claridad
 ```{r}
 gapminder %>% 
   ggplot(aes(x = year, y = pop, color = continent)) +
-  geom_point()
+  geom_point() +
+  scale_y_log10()
 ```
+
+```{r}
+gapminder %>% 
+  group_by(continent, year) %>% 
+  summarise(Poblacion_total = sum(pop)) %>% 
+  ggplot(aes(x = year, y = Poblacion_total, color = continent)) +
+  geom_line()
+```
+
+
 Podríamos vernos tentados a querer filtrar la tabla por continente y año, para luego juntar todo y graficarlo. Algo como:
 
 ```{r}
@@ -834,7 +1044,7 @@ tabla %>%
 
 tabla %>%
   ggplot(aes(x = year, y = poblacion, color = continent)) +
-  geom_line()
+  geom_line() + scale_y_continuous(name = "Población total", labels = comma)
 ```
 
 ¿Cómo podríamos agregar la población total del mundo a esta gráfica? (*Nota: la escala no nos permitirá ver bien a cada continente*).
@@ -1026,7 +1236,6 @@ Gráfico2 <- gapminder %>%
   xlab("Año") + 
   labs(color ="", size="")
 
- 
 
 ggplotly(Gráfico2)
 ```
