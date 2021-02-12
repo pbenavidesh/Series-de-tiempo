@@ -64,6 +64,16 @@ transacciones_mensuales
 #   mutate(month = yearmonth(date)) %>% select(month,-date, monthly_volume:mean_volume) %>% 
 #   as_tsibble(index = month)
 ```
+```{r}
+gamestop <- tq_get("GME", from = "2018-01-01")
+gamestop
+
+gamestop %>% 
+  as_tsibble(index = date, key = symbol) %>% 
+  autoplot(volume)
+```
+
+
 Podemos graficar ambas con dos (o más) alternativas: cada variable por separado y unirlas con `patchwork`, o utilizar `pivot_longer()` y `facet_wrap()`.
 
 ```{r}
@@ -313,6 +323,8 @@ us_retail_employment <- us_employment %>%
   filter(year(Month) >= 1990, Title == "Retail Trade") %>%
   select(-Series_ID)
 
+us_retail_employment
+
 us_retail_employment %>%
   autoplot(Employed) +
   xlab("Year") + ylab("Persons (thousands)") +
@@ -340,7 +352,17 @@ us_retail_employment %>%
 Podemos graficar los tres componentes simultáneamente con:
 
 ```{r STL decomp plot}
-components(dcmp) %>% autoplot() + xlab("Year")
+p <- components(dcmp) %>% autoplot() + xlab("Year")
+plotly::ggplotly(p)
+
+components(dcmp) %>% 
+  as_tibble() %>% 
+  mutate(Month = as.Date(Month)) %>% 
+  filter(Month >= "2018-01-01") %>% 
+  ggplot(aes(x = Month, y = Employed)) +
+  geom_line() + xlab("Year") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %y") +
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 La gráfica nos indica que se llevó a cabo una descomposición STL, de forma aditiva, y nos grafica:
@@ -397,7 +419,10 @@ En la gráfica tenemos las exportaciones de México desde 1960 a 2017, como porc
 mex_exports <- global_economy %>%
   filter(Country == "Mexico") %>%
   mutate(
-    `5-MA` = slide_dbl(Exports, mean, .size = 5, .align = "center")
+    `5-MA` = slider::slide_dbl(Exports, mean, 
+                               .before   = 2, 
+                               .after    = 2,
+                               .complete = TRUE)
   )
 
 mex_exports
@@ -429,14 +454,30 @@ Qué tan suave esté la curva resultante, dependerá del orden de la media móvi
 ```{r m-MA plots, fig.height=8,fig.width=12, warning=FALSE}
 mex_exports <- mex_exports %>%
   mutate(
-    `1-MA` = slide_dbl(Exports, mean, .size = 1, .align = "center"),
-    `3-MA` = slide_dbl(Exports, mean, .size = 3, .align = "center"),
-    `7-MA` = slide_dbl(Exports, mean, .size = 7, .align = "center"),
-    `9-MA` = slide_dbl(Exports, mean, .size = 9, .align = "center"),
-    `11-MA` = slide_dbl(Exports, mean, .size = 11, .align = "center"),
-    `15-MA` = slide_dbl(Exports, mean, .size = 15, .align = "center"),
-    `17-MA` = slide_dbl(Exports, mean, .size = 17, .align = "center"),
-    `21-MA` = slide_dbl(Exports, mean, .size = 21, .align = "center")
+    `1-MA` = slider::slide_dbl(Exports, mean, 
+                               .before = 0, 
+                               .after = 0, .complete = TRUE),
+    `3-MA` = slider::slide_dbl(Exports, mean, 
+                               .before = 1, 
+                               .after = 1, .complete = TRUE),
+    `7-MA` = slider::slide_dbl(Exports, mean, 
+                               .before = 3, 
+                               .after = 3, .complete = TRUE),
+    `9-MA` = slider::slide_dbl(Exports, mean, 
+                               .before = 4, 
+                               .after = 4, .complete = TRUE),
+    `11-MA` = slider::slide_dbl(Exports, mean, 
+                                .before = 5, 
+                                .after = 5, .complete = TRUE),
+    `15-MA` = slider::slide_dbl(Exports, mean, 
+                                .before = 7, 
+                                .after = 7, .complete = TRUE),
+    `17-MA` = slider::slide_dbl(Exports, mean, 
+                                .before = 8, 
+                                .after = 8, .complete = TRUE),
+    `21-MA` = slider::slide_dbl(Exports, mean, 
+                                .before = 10, 
+                                .after = 10, .complete = TRUE)
   )
 
 gg <- mex_exports %>%
@@ -504,8 +545,8 @@ beer <- aus_production %>%
 
 beer_ma <- beer %>%
   mutate(
-    `4-MA` = slide_dbl(Beer, mean, .size = 4, .align = "center-right"),
-    `2x4-MA` = slide_dbl(`4-MA`, mean, .size = 2, .align = "center-right")
+    `4-MA` = slider::slide_dbl(Beer, mean, .before = 2, .after = 1, .complete = TRUE),
+    `2x4-MA` = slider::slide_dbl(`4-MA`, mean, .before = 0, .after = 1, .complete = TRUE)
   )
 
 beer_ma
@@ -544,8 +585,8 @@ Podemos decir, entonces, que el caso de la media móvil simple $m$-MA es un caso
 ```{r 2_12MA, eval=TRUE, warning=FALSE}
 us_retail_employment_ma <- us_retail_employment %>%
   mutate(
-    `12-MA` = slide_dbl(Employed, mean, .size = 12, .align = "cr"),
-    `2x12-MA` = slide_dbl(`12-MA`, mean, .size = 2, .align = "cl")
+    `12-MA` = slider::slide_dbl(Employed, mean, .before = 6, .after = 5, .complete = TRUE),
+    `2x12-MA` = slider::slide_dbl(`12-MA`, mean, .before = 0, .after = 1, .complete = TRUE)
   )
 
 us_retail_employment_ma %>%
