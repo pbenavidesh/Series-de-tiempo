@@ -93,7 +93,7 @@ Especificando el argumento `get = "stock.prices"`, podemos descargar el **precio
 Para obtener el precio de la acción de TESLA durante 2019:
 
 ```{r TSLA}
-(tesla <- tq_get("TSLA", get = "stock.prices", from = "2019-01-01", to = "2019-12-31"))
+(tesla <- tq_get("TSLA", get = "stock.prices", from = "2019-01-01", to = "2021-02-18"))
 ```
 
 Para descargar simultáneamente los precios de todas las acciones que componen el S&P500 desde 2020 a la fecha, lo podríamos hacer como se muestra debajo.
