@@ -666,7 +666,8 @@ Estos parámetros controlan qué tan rápido cambian los componentes de tendenci
 
 # Tarea
 
-1. Tomando el PIB de cada país, `GDP`, contenido en la tabla `global_economy`, grafique el **PIB per cápita** a lo largo del tiempo. ¿Cómo ha sido la evolución de la economía de los países en el tiempo? ¿Cuál país tiene el mayor PIB per cápita? (*Les recomiendo quitar la leyenda del gráfico, incluyendo `theme(legend.position = "none")`*)
+## Ej. 1
+Tomando el PIB de cada país, `GDP`, contenido en la tabla `global_economy`, grafique el **PIB per cápita** a lo largo del tiempo. ¿Cómo ha sido la evolución de la economía de los países en el tiempo? ¿Cuál país tiene el mayor PIB per cápita? (*Les recomiendo quitar la leyenda del gráfico, incluyendo `theme(legend.position = "none")`*)
 
 > Graficamos todos los países y visualizamos con `plotly` para ver cuáles son los que tienen un mayor PIB per Cápita.
 
@@ -725,8 +726,9 @@ ge %>%
 ```
 
 
+## Ej. 2
 
-2. Grafique las siguientes series de tiempo y transfórmelas y/o ajústelas si lo considera necesario. ¿Qué efecto tuvo la transformación?
+Grafique las siguientes series de tiempo y transfórmelas y/o ajústelas si lo considera necesario. ¿Qué efecto tuvo la transformación?
   
     i) PIB de EEUU, de `global_economy`.
 
@@ -763,9 +765,11 @@ vic_elec %>%
  * Anual (cada año se repite un patrón, debido principalmente a la temperatura).
  * Semanal (entre semana se utiliza más energía que los fines de semana, debido a la actividad económica).
  * Diaria (depende de la hora del día cuánta energía se requiere, en la madrugada se demanda menos energía, en la noche más).
- * Por hora (hay un patrón sistemático en la demanda dependiendo si es la hora en punto o media hora {habría que revisar más a profundidad esta}).                                                                                                                                                      
+ * Por hora (hay un patrón sistemático en la demanda dependiendo si es la hora en punto o media hora {habría que revisar más a profundidad esta}).
 
-3. ¿Es útil realizar una transformación de Box-Cox a los datos `canadian_gas`? ¿Por qué sí o por qué no?
+## Ej. 3
+
+¿Es útil realizar una transformación de Box-Cox a los datos `canadian_gas`? ¿Por qué sí o por qué no?
 
 ```{r}
 canadian_gas
@@ -784,7 +788,8 @@ canadian_gas %>%
 
 > Utilizando la característica de guerrero, obtenemos un lambda de `r lambda`, pero la gráfica no parece que logre estabilizar por completo la varianza.         
 
-4. El dataset `fma::plastics` tiene información de las ventas mensuales (medidas en miles) del producto A para un productor de plásticos, a lo largo de cinco años.
+## Ej. 4
+El dataset `fma::plastics` tiene información de las ventas mensuales (medidas en miles) del producto A para un productor de plásticos, a lo largo de cinco años.
 
 ```{r}
 plastico <- fma::plastics
