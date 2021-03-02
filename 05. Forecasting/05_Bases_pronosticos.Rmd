@@ -244,22 +244,29 @@ beer_fc %>%
 Otro ejemplo:
 
 ```{r plot google fcsts}
+gafa_stock %>% distinct(Symbol)
 # Re-index based on trading days
 google_stock <- gafa_stock %>%
   filter(Symbol == "GOOG") %>%
   mutate(day = row_number()) %>%
   update_tsibble(index = day, regular = TRUE)
+
 # Filter the year of interest
 google_2015 <- google_stock %>% filter(year(Date) == 2015)
 # Fit the models
 google_fit <- google_2015 %>%
   model(
-    Mean = MEAN(Close),
+    Mean    = MEAN(Close),
     `Naïve` = NAIVE(Close),
-    Drift = NAIVE(Close ~ drift())
+    Drift   = NAIVE(Close ~ drift()),
+    SNAIVE  = SNAIVE(Close)
   )
+
+google_fit
 # Produce forecasts for the 19 trading days in January 2015
 google_fc <- google_fit %>% forecast(h = 19)
+
+google_fc
 # A better way using a tsibble to determine the forecast horizons
 google_jan_2016 <- google_stock %>%
   filter(yearmonth(Date) == yearmonth("2016 Jan"))
@@ -355,6 +362,9 @@ aug <- google_2015 %>%
 
 aug
 
+# aug %>% 
+#   features(.resid, mean(.,na.rm = TRUE))
+
 aug %>% pull(.resid) %>% mean(na.rm = TRUE) 
 
 aug %>% autoplot(.resid) + xlab("Día") + ylab("") +
@@ -375,6 +385,11 @@ Del histograma, podemos ver que los residuales parecen distribuirse como una nor
 aug %>% ACF(.resid)
 
 aug %>% ACF(.resid) %>% autoplot() + ggtitle("ACF of residuals")
+```
+```{r}
+google_2015 %>% 
+  model(NAIVE(Close)) %>% 
+  gg_tsresiduals()
 ```
 
 ```{r}
@@ -695,20 +710,14 @@ Veamos un ejemplo sobre el pronóstico del precio promedio del huevo.
 
 ```{r}
 eggs <- as_tsibble(fma::eggs)
-fit <- eggs %>% model(RW(log(value) ~ drift()))
-fc <- fit %>% forecast(h=50) %>%
-  mutate(Forecast = "Bias adjusted")
-
-fc_biased <- fit %>% 
-  forecast(h=50, point_forecast = list(.median = median)) %>%
-  mutate(Forecast = "Simple back transformation")
-
-eggs %>% autoplot(value) +
-  autolayer(fc_biased, level = 80) +
-  autolayer(fc, colour = "red", level = NULL)
+eggs %>% 
+  model(RW(log(value) ~ drift())) %>% 
+  forecast(h=50) %>% 
+  autoplot(eggs, level = 80,  
+           point_forecast = lst(mean, median))
 ```
 
-La línea azul representa el pronóstico sesgado, mientras que la línea roja muestra el pronóstico corregido por el sesgo. `fable` en automático nos produce pronósticos ajustados por sesgo. Como se ve en el código, para generar pronósticos sesgados, tenemos que especificarlo mediante `bias_adjust = FALSE`.
+La línea continua representa el pronóstico de la media (*ajustado por sesgo*), mientras que la línea punteada muestra el pronóstico de la mediana (*sin corrección por sesgo). `fable` en automático nos produce pronósticos ajustados por sesgo. Como se ve en el código, para generar pronósticos sesgados, tenemos que especificarlo mediante `point_forecast = lst(median)`.
 
 # Pronósticos con descomposición
 
@@ -871,6 +880,29 @@ $$\operatorname{sMAPE}=\operatorname{mean}\left(200\left|y_{t}-\hat{y}_{t}\right
 
 Aunque este método no se recomienda tanto utilizarlo en la práctica.
 
+### Errores escalados
+
+Una alternativa a los errores porcentuales cuando se quieren comparar los pronósticos de distintas series de tiempo so los **errores escalados**, propuestos por Hyndman & Koehler. En éstos, se escalan los errores con base en el MAE de entrenamiento de utilizar un modelo Naïve o Seasonal Naïve, dependiendo de si los datos tienen estacionalidad.
+
+Para series no estacionales, los errores escalados serían:
+
+$$
+q_{j}=\frac{e_{j}}{\frac{1}{T-1} \sum_{t=2}^{T}\left|y_{t}-y_{t-1}\right|},
+$$
+mientras que para series estacionales, los errores escalados estarían dados por:
+
+$$
+q_{j}=\frac{e_{j}}{\frac{1}{T-m} \sum_{t=m+1}^{T}\left|y_{t}-y_{t-m}\right|}.
+$$
+
+De esta forma podemos obtener el **Error Medio Absoluto Escalado (MASE)** con
+
+$$
+\operatorname{MASE} = \operatorname{mean}(|q_j|).
+$$
+
+
+---
 
 ```{r}
 recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
@@ -893,14 +925,23 @@ beer_fc %>%
   ggtitle("Forecasts for quarterly beer production") +
   guides(colour=guide_legend(title="Forecast"))
 ```
+La función `accuracy()` nos permite calcular varias de estas métricas de error de manera muy sencilla. Incluso, podemos calcularlas para el ajuste del modelo a los datos de entrenamiento, o calcular el error de pronóstico. Todo depende de los datos que le pasemos a la función.
+
+Si utilizamos la tabla de modelos (`mable`), obtendremos las métricas de error para el ajuste del modelo a sus datos de entrenamiento:
 
 ```{r model accuracy}
 accuracy(beer_fit)
 ```
+Las métricas de error para el ajuste a los datos de entrenamiento nos pueden servir para decidir qué modelos utilizar para pronosticar.
+
+
+En cambio, si utilizamos la tabla de pronósticos (`fable`), junto con los datos de validación (o datos de prueba), obtendremos los errores de pronóstico:
 
 ```{r forecast accuracy}
 beer_fc %>% 
   accuracy(recent_production)
 ```
 
+Las métricas de error sobre los datos de prueba nos dan una mayor claridad de cuáles modelos parecen producir los mejores pronósticos.
 
+Una vez decidido esto, se recalculan los modelos utilizando **toda** la información histórica (es decir, sin separar en conjuntos de entrenamiento y prueba), y se producen los pronósticos reales a presentar.
