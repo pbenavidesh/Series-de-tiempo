@@ -1,5 +1,5 @@
 ---
-title: "Proyecto Parcial 2"
+title: "Proyecto 1"
 subtitle: "Series de tiempo"
 author: "Pablo Benavides-Herrera"
 date: 2020-06-25
@@ -14,17 +14,11 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Características
 
-- Equipos de tres personas (pueden ser los mismos del proyecto anterior o equipos nuevos)
+- Trabajo a realizarse en parejas
 
-- Fecha de entrega:
+- Fecha de entrega y presentación **presencial**:
   
-  - MAF3074A: lunes, 2 de noviembre, 23:59 horas
-  - MAF3074B: martes, 3 de noviembre, 23:59 horas
-  
-- Fecha de presentación:
-
-  - MAF3074A: jueves, 5 de noviembre, 07:00 horas
-  - MAF3074B: viernes, 6 de noviembre, 07:00 horas
+  - viernes, 26 de marzo de 2021
 
 - Formatos aceptados:
 
