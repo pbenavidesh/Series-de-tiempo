@@ -8,10 +8,10 @@ output:
     toc_float: TRUE
     theme: cerulean
     highlight: tango
-runtime: shiny
+runtime: shiny_prerendered
 ---
 
-```{r pkgs, message=FALSE}
+```{r pkgs, message=FALSE, context="setup"}
 library(tidyverse)
 library(fpp3)
 library(patchwork)
@@ -160,7 +160,7 @@ No se recomienda utilizar otro rezago (p. ej. los cambios entre la primera y dé
 
 
 
-```{r shiny-differences, echo=FALSE}
+```{r shiny-differences, context="server"}
 selectInput("diff_order", label = "Diferenciación:",
               choices = c("Serie en niveles", "Dif. estacionales", "Dif. estacionales + primeras dif.", "Primeras dif.","Segundas dif."), selected = "Serie en niveles")
 
@@ -445,7 +445,7 @@ report(fit4)
 
 Podemos ver varias combinaciones distintas para estos datos a continuación:
 
-```{r shiny-us_change, echo=FALSE}
+```{r shiny-us_change, context="server"}
 inputPanel(
   numericInput("ar_p",label = "p",value = 0, min = 0, max = 5, step = 1),
 numericInput("i_d",label = "d",value = 0, min = 0, max = 2, step = 1),
@@ -652,7 +652,7 @@ eu_retail %>%
 
 Este siguiente ejemplo es más complejo. Este tipo de medicamentos se conoce como medicinas "HO2". Graficamos la serie y la serie en logaritmos para ver su comportamiento:
 
-```{r HO2 data}
+```{r HO2 data, context="data"}
 h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost)/1e6)
@@ -689,7 +689,7 @@ En ocasiones, ningún modelo logra cumplir todas las pruebas.
 
 **Escoja distintos modelos ARIMA estacionales y, con base en la información arrojada, seleccione los 3 mejores modelos que encuentre.**
 
-```{r shiny-eu_retail, echo=FALSE}
+```{r shiny-eu_retail, context="server"}
 h02_train <- h02 %>% 
   filter(year(Month) <= 2005)
 
