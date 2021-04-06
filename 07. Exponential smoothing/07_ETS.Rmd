@@ -130,7 +130,7 @@ aus_economy %>%
     `Holt` = ETS(Pop ~ error("A") + trend("A")),
     `Damped Holt` = ETS(Pop ~ error("A") + trend("Ad"))
   ) %>%
-  forecast(h = 15) %>%
+  forecast(h = "15 years") %>%
   autoplot(aus_economy, level = NULL) +
   ggtitle("Forecasts from Holt's method") + xlab("Year") +
   ylab("Population of Australia (millions)") +
