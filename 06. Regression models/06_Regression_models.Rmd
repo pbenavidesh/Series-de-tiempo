@@ -356,9 +356,9 @@ glance(fit2) %>%
 
 
 
-## Selección de predictoras
+## Selección de predictoras {.tabset}
 
-1. Escoger subconjuntos de predictoras y probarlo.
+### 1. Escoger subconjuntos de predictoras y probarlo.
 
 ```{r}
 fit3 <- us_change %>% 
@@ -381,7 +381,7 @@ fit3 %>%
   report()
 ```
 
-2. Backwards stepwise regression:
+### 2. Backwards stepwise regression:
   - Empezamos con un modelo que contenga todas las predictoras.
   - Quitamos una a la vez.
   - Mantenemos el modelo si mejora la medida de desempeño predictivo ($\bar{R}^2$, AICc,...).
@@ -419,11 +419,61 @@ us_change %>%
 ```
 
 
-3. Forwards stepwise regression:
+### 3. Forwards stepwise regression:
   - Comenzar con un modelo que solo incluya al intercepto.
   - Se van agregando las predictoras una a la vez.
   - La predictora que mejore más al modelo se mantiene.
   - Se itera hasta no tener mejoría adicional.
+
+```{r}
+us_change %>% 
+  model(i = TSLM(Consumption ~ Income),
+        ii = TSLM(Consumption ~ Production),
+        iii = TSLM(Consumption ~ Savings),
+        iv = TSLM(Consumption ~ Unemployment)
+        ) %>% 
+  glance() %>% 
+  select(.model, adj_r_squared, AIC, AICc, BIC)
+```
+El mejor modelo hasta ahora es el que toma de predictora a la producción.
+
+```{r}
+us_change %>% 
+  model(
+    o   = TSLM(Consumption ~ Production),
+    i   = TSLM(Consumption ~ Production + Income),
+    ii  = TSLM(Consumption ~ Production + Savings),
+    iii = TSLM(Consumption ~ Production + Unemployment)
+  ) %>% 
+  glance() %>% 
+  select(.model, adj_r_squared, AIC, AICc, BIC)
+```
+El mejor hasta ahora es el modelo con la producción y el ingreso.
+
+```{r}
+us_change %>% 
+  model(
+    i   = TSLM(Consumption ~ Production + Income),
+    ii  = TSLM(Consumption ~ Production + Income + Savings),
+    iii = TSLM(Consumption ~ Production + Income + Unemployment)
+  ) %>% 
+  glance() %>% 
+  select(.model, adj_r_squared, AIC, AICc, BIC)
+```
+El modelo mejora agregando los ahorros también.
+
+```{r}
+us_change %>% 
+  model(
+    i   = TSLM(Consumption ~ Production + Income + Savings),
+    ii  = TSLM(Consumption ~ Production + Income + Savings + Unemployment)
+  ) %>% 
+  glance() %>% 
+  select(.model, adj_r_squared, AIC, AICc, BIC)
+```
+
+Utilizando la `adj_r_squared` o el `AICc`, concluimos lo mismo que antes: el modelo que incluye a todas las variables es el mejor.
+### {-}
 
 ## Pronóstico
 
@@ -437,45 +487,25 @@ Con estos pronósticos se utiliza información real disponible de las predictora
 
 ### Pronósticos basados en escenarios
 
-```{r paged.print=FALSE}
+```{r paged.print=TRUE}
 fit_escenarios <- us_change %>% 
   model(lineal = TSLM(Consumption ~ Income + Savings + Unemployment))
+
 # Necesitamos agregar nuevos datos de las predictoras
-optimista_futuro <- new_data(us_change,4) %>% 
-  mutate(Income = 0.5, 
-         Savings = 0.5, 
-         Unemployment = 0)
+escenarios <- scenarios(
+  optimista = new_data(us_change, 4) %>% 
+    mutate(Income = c(0,0.2,0,1.2), Savings = c(0,-0.1,0.5,-1), Unemployment = -0.1),
+  pesimista = new_data(us_change, 4) %>% 
+    mutate(Income = -1, Savings = -0.5, Unemployment = 0.1),
+  names_to = "Escenario"
+)
 
-pesimista_futuro <- new_data(us_change,4) %>% 
-  mutate(Income = -1, 
-         Savings = -0.5, 
-         Unemployment = 0)
+fc_escenarios <- fit_escenarios %>% 
+  forecast(new_data = escenarios)
 
-fc_optimista <- forecast(fit_escenarios, new_data = optimista_futuro) %>% 
-  mutate(Escenario = "Optimista") #%>% # REVISAR 
-  # as_fable(response = "Consumo", distribution = Consumption, key = c("Escenario",".model"))
-
-fc_pesimista <- forecast(fit_escenarios, new_data = pesimista_futuro) %>% 
-  mutate(Escenario = "Pesimista") # %>% # REVISAR 
-  # as_fable(response = "Consumo", distribution = Consumption, key = c("Escenario",".model"))
-
-# bind_rows(fc_optimista,fc_pesimista)
-
-# us_change %>% 
-#   autoplot(Consumption) +
-#   autolayer(bind_rows(fc_optimista,fc_pesimista))
-
-p1 <- us_change %>% 
+us_change %>% 
   autoplot(Consumption) +
-  autolayer(fc_optimista) +
-  ggtitle("Escenario optimista")
-  
-p2 <- us_change %>% 
-  autoplot(Consumption) +
-  autolayer(fc_pesimista) +
-  ggtitle("Escenario pesimista")
-
-p1 / p2
+  autolayer(fc_escenarios)
 ```
 
 Vamos a generar un pronóstico *ex-ante* del consumo. Para esto, necesitamos primero producir pronósticos de las predictoras:
@@ -547,7 +577,7 @@ fc <- forecast(fit, datos_futuros)
 fc %>% 
   autoplot(us_change)
 fc %>% 
-  autoplot()
+  autoplot(us_change %>% filter_index("2016 Q1" ~ .))
 ```
 
 
