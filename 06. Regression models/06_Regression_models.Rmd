@@ -759,10 +759,28 @@ boston_men <- boston_marathon %>%
   filter(Event == "Men's open division") %>% 
   mutate(Minutes = as.numeric(Time)/60)
 
-boston_men %>% 
+p <- boston_men %>% 
   autoplot(Minutes) + 
   ggtitle("Tiempos ganadores del maratón de Boston, categoría abierta de hombres")
+
+ggplotly(p)
 ```
+
+```{r}
+fit_boston <- boston_men %>% 
+  model(
+    lineal = TSLM(Minutes ~ trend()),
+    )
+
+fc_boston <- fit_boston %>% forecast(h = 10)
+
+boston_men %>% 
+  autoplot(Minutes) +
+  geom_line(aes(y = .fitted, color = .model), data = fitted(fit_boston)) +
+  autolayer(fc_boston, alpha = 0.5, level = 95) +
+  ggtitle("Maratón de Boston, cat. abierta de hombres")
+```
+
 
 Vamos a modelar los tiempos con una regresión por partes.
 
@@ -781,5 +799,52 @@ boston_men %>%
   geom_line(aes(y = .fitted, color = .model), data = fitted(fit_boston)) +
   autolayer(fc_boston, alpha = 0.5, level = 95) +
   ggtitle("Maratón de Boston, cat. abierta de hombres")
+```
+
+Intentamos ahora poniendo los cambios en la tendencia en otros periodos:
+
+```{r}
+fit_boston <- boston_men %>% 
+  model(
+    lineal = TSLM(Minutes ~ trend()),
+    exponencial = TSLM(log(Minutes) ~ trend()),
+    `Reg. por partes` = TSLM(Minutes ~ trend(knots = c(1940,1980))),
+    `Reg. por partes2` = TSLM(Minutes ~ trend(knots = c(1975))),
+    `Reg. por partes3` = TSLM(Minutes ~ trend(knots = c(1915, 1950, 1988))),
+    `Reg. por partes4` = TSLM(Minutes ~ trend(knots = c(1915, 1927, 1950, 1985)))
+  )
+
+fc_boston <- fit_boston %>% forecast(h = 10)
+
+boston_men %>% 
+  autoplot(Minutes) +
+  geom_line(aes(y = .fitted, color = .model), data = fitted(fit_boston)) +
+  autolayer(fc_boston, alpha = 0.5, level = 95) +
+  ggtitle("Maratón de Boston, cat. abierta de hombres")
+```
+
+```{r}
+accuracy(fit_boston) %>% 
+  arrange(MAPE)
+```
+
+
+Probamos transformando la serie con Box-Cox:
+
+```{r, fig.height=9}
+lambda <- boston_men %>% 
+  features(Minutes, guerrero) %>% 
+  pull(lambda_guerrero)
+
+p1 <- boston_men %>% 
+  autoplot(Minutes)
+
+p2 <- boston_men %>% 
+  autoplot(box_cox(Minutes, lambda = lambda))
+
+p3 <- boston_men %>% 
+  autoplot(log(Minutes))
+
+p1/p2/p3
 ```
 
