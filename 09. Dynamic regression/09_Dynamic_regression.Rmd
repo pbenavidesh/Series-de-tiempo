@@ -215,6 +215,10 @@ vic_elec_daily %>%
 
 Dado que la relación entre las variables es cuadrática, ajustaremos un modelo cuadrático con errores ARIMA. Adicionalmente, agregaremos una variable para indicar si el día fue hábil o no.
 
+$$
+y_t = \beta_0 + \beta_1x_{t,Temperatura} + \beta_2x_{t,Temperatura}^2 + \beta_3D_{Dia hábil} + \eta_t
+$$
+
 ```{r elec model, echo=TRUE}
 fit <- vic_elec_daily %>%
   model(ARIMA(Demand ~ Temperature + I(Temperature^2) + (Day_Type=="Weekday")))
@@ -277,6 +281,7 @@ forecast(fit, vic_elec_future) %>%
 $$
 \frac{a_{0}}{2}+\sum_{n=1}^{\infty}\left[a_{n} \cos \frac{2 n \pi}{T} t+b_{n} \sin \frac{2 n \pi}{T} t\right]
 $$
+
 $$ 
 \frac{a_{0}}{2} + a_{1} \cos \frac{2 \pi}{T} t+b_{1} \sin \frac{2 \pi}{T} + a_{2} \cos \frac{2 * 2 \pi}{T} t+b_{2} \sin \frac{2*2 \pi}{T} + a_{3} \cos \frac{2 * 3 \pi}{T} t+b_{3} \sin \frac{2*3 \pi}{T}
 $$
