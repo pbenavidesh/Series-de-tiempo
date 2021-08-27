@@ -1,8 +1,8 @@
 ---
 title: "Series de tiempo"
-subtitle: "Otoño 2020"
+subtitle: "Otoño 2021"
 author: "Mtro. Pablo Benavides-Herrera"
-date: 2020-05-15
+date: 2021-08-17
 output:
   ioslides_presentation:
     widescreen: TRUE
