@@ -2,5 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.html
+*.nb.html
 Tareas alumnos/
 Taller ST V2020/
